@@ -14,7 +14,6 @@ export default function useCachedResources() {
 
         // Load fonts
         await Font.loadAsync({
-          ...Feather.font,
           'space-mono': require('../assets/fonts/SpaceMono-Regular.ttf'),
         });
       } catch (e) {
