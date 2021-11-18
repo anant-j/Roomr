@@ -13,7 +13,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { ColorSchemeName, Pressable, StyleSheet } from "react-native";
-import { Text } from "../../components/Themed";
+import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
 import useColorScheme from "../../hooks/useColorScheme";
 
@@ -96,6 +96,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           headerRight: () => (
+            <View style={{flexDirection:'row', flexWrap:'wrap'}}>
             <Pressable
               onPress={() => navigation.navigate("Modal")}
               style={({ pressed }) => ({
@@ -103,12 +104,26 @@ function BottomTabNavigator() {
               })}
             >
               <Feather
-                name="info"
+                name="settings"
                 size={25}
                 color={Colors[colorScheme].text}
                 style={{ marginRight: 15 }}
               />
             </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("Modal")}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}
+            >
+              <Feather
+                name="bell"
+                size={25}
+                color={Colors[colorScheme].text}
+                style={{ marginRight: 15 }}
+              />
+            </Pressable>
+            </View>
           ),
         })}
       />
