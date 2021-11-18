@@ -5,7 +5,7 @@ import { Text, View } from "../../components/Themed";
 export default function TaskScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
+      <Text style={styles.title}>Tasks</Text>
       <View
         style={styles.separator}
         lightColor="#eee"

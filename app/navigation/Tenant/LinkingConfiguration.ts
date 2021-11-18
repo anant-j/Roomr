@@ -32,7 +32,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           },
           TabFour: {
             screens: {
-              TabFourScreen: "four",
+              CalendarScreen: "four",
             },
           },
         },

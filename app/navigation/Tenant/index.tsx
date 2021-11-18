@@ -12,15 +12,18 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { ColorSchemeName, Pressable } from "react-native";
-
+import { ColorSchemeName, Pressable, StyleSheet } from "react-native";
+import { Text } from "../../components/Themed";
 import Colors from "../../constants/Colors";
 import useColorScheme from "../../hooks/useColorScheme";
+
 import ModalScreen from "../../screens/ModalScreen";
 import NotFoundScreen from "../../screens/NotFoundScreen";
 import HomeScreen from "../../screens/Tenant/HomeScreen";
 import TaskScreen from "../../screens/Tenant/TaskScreen";
 import ChatScreen from "../../screens/Tenant/ChatScreen";
+import CalendarScreen from "../../screens/Tenant/CalendarScreen";
+
 import {
   RootStackParamList,
   RootTabParamList,
@@ -91,6 +94,7 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
           title: "Home",
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate("Modal")}
@@ -113,6 +117,7 @@ function BottomTabNavigator() {
         component={TaskScreen}
         options={{
           title: "Chat",
+          headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="comment" color={color} />
           ),
@@ -122,8 +127,18 @@ function BottomTabNavigator() {
         name="TabThree"
         component={ChatScreen}
         options={{
-          title: "Chores",
+          title: "Tasks",
+          headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="TabFour"
+        component={CalendarScreen}
+        options={{
+          title: "Calendar",
+          headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
         }}
       />
     </BottomTab.Navigator>
@@ -139,3 +154,11 @@ function TabBarIcon(props: {
 }) {
   return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
 }
+
+const styles = StyleSheet.create({
+  logoText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft:15,
+  },
+});
