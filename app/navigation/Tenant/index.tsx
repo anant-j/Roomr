@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome } from "@expo/vector-icons";
+import { Feather } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -102,8 +102,8 @@ function BottomTabNavigator() {
                 opacity: pressed ? 0.5 : 1,
               })}
             >
-              <FontAwesome
-                name="info-circle"
+              <Feather
+                name="info"
                 size={25}
                 color={Colors[colorScheme].text}
                 style={{ marginRight: 15 }}
@@ -116,20 +116,20 @@ function BottomTabNavigator() {
         name="TabTwo"
         component={TaskScreen}
         options={{
-          title: "Chat",
+          title: "Tasks",
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="comment" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
       />
       <BottomTab.Screen
         name="TabThree"
         component={ChatScreen}
         options={{
-          title: "Tasks",
+          title: "Chat",
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
-          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="message-square" color={color} />
+          ),
         }}
       />
       <BottomTab.Screen
@@ -138,7 +138,9 @@ function BottomTabNavigator() {
         options={{
           title: "Calendar",
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
-          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="calendar" color={color} />
+          ),
         }}
       />
     </BottomTab.Navigator>
@@ -149,16 +151,16 @@ function BottomTabNavigator() {
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
  */
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
+  name: React.ComponentProps<typeof Feather>["name"];
   color: string;
 }) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
+  return <Feather size={25} style={{ marginBottom: -3 }} {...props} />;
 }
 
 const styles = StyleSheet.create({
   logoText: {
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft:15,
+    marginLeft: 15,
   },
 });
