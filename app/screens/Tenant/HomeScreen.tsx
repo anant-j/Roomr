@@ -83,7 +83,8 @@ export default function HomeScreen({
       </TouchableOpacity>
       <TouchableOpacity style={styles.btn}>
         <View style={styles.buttonTextView}>
-          <Text style={styles.buttonText}>Report Emergency</Text>
+          <Text style={styles.buttonText}>Report</Text>
+          <Text style={styles.buttonText}>Emergency</Text>
         </View>
         <Image source={require('../../assets/tenant/home_screen_3.png')} style={styles.img} />
       </TouchableOpacity>
