@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View } from './Themed';
 const Task = (props:any) => {
 
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
         <View style={styles.circle}></View>
-        <Text style={styles.itemText}>{props.text}</Text>
+        <Text style={styles.itemText}
+        lightColor="rgba(0,0,0,0.8)"
+        darkColor="rgba(255,255,255,0.8)" >{props.text}</Text>
       </View>
       <View 
     //   style={styles.itemDate}

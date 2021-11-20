@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   tasksWrapper: {
     paddingTop: 10,
     paddingHorizontal: 30,
+    paddingBottom: 80,
   },
   sectionSubTitle: {
     fontSize: 17,
@@ -116,6 +117,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 30,
@@ -123,6 +125,7 @@ const styles = StyleSheet.create({
   },
   items: {
     marginTop: 10,
+    marginBottom:10,
   },
   separator: {
     height: 1,
@@ -143,8 +146,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 10,
-    // borderColor: '#000',
-    // borderWidth: 1,
     backgroundColor: '#F6F6F6',
     marginHorizontal: 25,
     marginVertical: 5,
