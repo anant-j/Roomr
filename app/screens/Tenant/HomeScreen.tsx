@@ -28,21 +28,22 @@ export default function HomeScreen({
   return (
     <View style={styles.container}>
       {/* Added this scroll view to enable scrolling when list gets longer than the page */}
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1
-        }}
-        keyboardShouldPersistTaps='handled'
-      >
-
+ 
+      <View style={styles.topContainer}>
       {/* Today's Tasks */}
-      <Text style={styles.sectionSubTitle}>Landlord</Text>
+      <Text style={styles.sectionSubTitle}>Tenant</Text>
       <View style={styles.tasksWrapper}>
         <View style={styles.titleWrapper}>
           <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
           {/* <Text style={styles.sectionAddButton}>+</Text> */}
           <Feather name="plus-circle" size={24} onPress={handleAddTask} color="black" />
         </View>
+        <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1
+        }}
+        keyboardShouldPersistTaps='handled'
+      >
         <View style={styles.items}>
           {/* This is where the tasks will go! */}
           {
@@ -62,9 +63,10 @@ export default function HomeScreen({
             })
           }
         </View>
+        </ScrollView>
+        </View>
       </View>
 
-      </ScrollView>
 
       <TouchableOpacity style={styles.btn}>
         <View style={styles.buttonTextView}>
@@ -93,6 +95,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: '#E8EAED',
+  },
+  topContainer: {
+    flex: 1,
+    // maxHeight: "45%",
   },
   tasksWrapper: {
     paddingTop: 10,
