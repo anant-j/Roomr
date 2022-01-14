@@ -1,35 +1,24 @@
 import * as React from "react";
 // import { StyleSheet } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Feather } from '@expo/vector-icons';
 import { RootTabScreenProps } from "../../types";
 import { Image, KeyboardAvoidingView, StyleSheet, TextInput, TouchableOpacity, Keyboard, ScrollView, Platform, Button } from 'react-native';
 import Task from '../../components/Task';
-import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/typedHooks";
+import { removeTask } from "./taskSlice";
 
 export default function HomeScreen({
   navigation,
 }: RootTabScreenProps<"TabOne">) {
-  const [task, setTask] = useState<string | undefined>("Dishes");
-  let [counter, setCounter] = useState<number>(0);
-  const defaultTasks = ["Laundry", "Garbage", "Vacuum"];
-  const [taskItems, setTaskItems] = useState<any[]>([]);
-  const handleAddTask = () => {
-    Keyboard.dismiss();
-    setTaskItems([...taskItems, task]);
-    setCounter(counter + 1);
-    setTask(`${defaultTasks[counter]}`);
-    if (counter >= 2) {
-      setCounter(0);
-    }
-  };
 
+  // use the tasks from the redux state:
+  const allTasks = useAppSelector((state) => state.tasks.allTasks)
+  const dispatch = useAppDispatch()
 
   const completeTask = (index: number) => {
-    let itemsCopy = [...taskItems];
-    itemsCopy.splice(index, 1);
-    setTaskItems(itemsCopy)
-  }
+    dispatch(removeTask(index))
+  };
+
   return (
     <View style={styles.container}>
       {/* Added this scroll view to enable scrolling when list gets longer than the page */}
@@ -40,8 +29,6 @@ export default function HomeScreen({
         <View style={styles.tasksWrapper}>
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
-            {/* <Text style={styles.sectionAddButton}>+</Text> */}
-            <Feather name="plus-circle" size={24} onPress={handleAddTask} color="black" />
           </View>
           <ScrollView
             contentContainerStyle={{
@@ -50,9 +37,8 @@ export default function HomeScreen({
             keyboardShouldPersistTaps='handled'
           >
             <View style={styles.items}>
-              {/* This is where the tasks will go! */}
               {
-                taskItems.map((item, index) => {
+                allTasks.map((item, index) => {
                   return (
                     <TouchableOpacity key={index}
                       onPress={() => completeTask(index)}
@@ -130,7 +116,7 @@ const styles = StyleSheet.create({
   },
   items: {
     marginTop: 10,
-    marginBottom:10,
+    marginBottom: 10,
   },
   separator: {
     height: 1,
