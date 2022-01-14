@@ -17,9 +17,8 @@ export const taskSlice = createSlice({
         // which detects changes to a "draft state" and produces a brand new
         // immutable state based off those changes
         addTask: (state, action: PayloadAction<string>) => {
-            console.log("push on: ", state.allTasks)
-            state.allTasks.push(action.payload)
-            console.log("res: ", state.allTasks)
+            const newTask = action.payload
+            state.allTasks = [...state.allTasks, newTask]
         },
         removeTask: (state, action: PayloadAction<number>) => {
             const indexToRemove = action.payload
