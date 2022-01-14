@@ -6,10 +6,11 @@ const Task = (props:any) => {
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
-        <View style={styles.circle}></View>
+       
         <Text style={styles.itemText}
         lightColor="rgba(0,0,0,0.8)"
         darkColor="rgba(255,255,255,0.8)" >{props.text}</Text>
+         <View style={styles.circle}></View>
       </View>
       <View 
     //   style={styles.itemDate}
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     opacity: 0.8,
     borderRadius: 50,
-    marginRight: 15,
+    marginLeft: 15,
   },
   itemText: {
     fontSize: 17,

@@ -10,15 +10,20 @@ import { useState } from "react";
 export default function HomeScreen({
   navigation,
 }: RootTabScreenProps<"TabOne">) {
-  const [task, setTask] = useState<string | undefined>("Task");
+  const [task, setTask] = useState<string | undefined>("Dishes");
   let [counter, setCounter] = useState<number>(0);
+  const defaultTasks = ["Laundry", "Garbage", "Vacuum"];
   const [taskItems, setTaskItems] = useState<any[]>([]);
   const handleAddTask = () => {
     Keyboard.dismiss();
-    setTaskItems([...taskItems, task])
+    setTaskItems([...taskItems, task]);
     setCounter(counter + 1);
-    setTask(`Task ${counter}`);
-  }
+    setTask(`${defaultTasks[counter]}`);
+    if (counter >= 2) {
+      setCounter(0);
+    }
+  };
+
 
   const completeTask = (index: number) => {
     let itemsCopy = [...taskItems];
