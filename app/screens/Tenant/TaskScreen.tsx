@@ -14,33 +14,45 @@ import {
 import { useState } from "react";
 import Task from "../../components/Task";
 import CircularProgress from "react-native-circular-progress-indicator";
+import { addTask, removeTask } from "./taskSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/typedHooks";
 
 export default function TaskScreen() {
-  const [task, setTask] = useState<string | undefined>("Dishes");
-  let [counter, setCounter] = useState<number>(0);
+
+  const allTasks = useAppSelector((state) => state.tasks.allTasks)
+  const dispatch = useAppDispatch()
+
+  // TODO: un-hard code the tasks
+  const [task, setTask] = useState<string>("Dishes");
+  const [counter, setCounter] = useState<number>(0);
   const defaultTasks = ["Laundry", "Garbage", "Vacuum"];
-  let [percentage, setPercentage] = useState<number>(0);
-  const [taskItems, setTaskItems] = useState<any[]>([]);
+
+  // TODO plan the logic of the percentage value and how it changes/to what
+  const [percentage, setPercentage] = useState<number>(0);
+
   const handleAddTask = () => {
     Keyboard.dismiss();
-    setTaskItems([...taskItems, task]);
-    setCounter(counter + 1);
+
     setTask(`${defaultTasks[counter]}`);
+    setCounter(counter + 1);
+
     if (counter >= 2) {
       setCounter(0);
     }
-    if(percentage>10){
-    setPercentage(percentage-10);}
+    if (percentage > 10) {
+      setPercentage(percentage - 10);
+    }
+
+    dispatch(addTask(task))
   };
 
   const completeTask = (index: number) => {
-    let itemsCopy = [...taskItems];
-    itemsCopy.splice(index, 1);
-    setTaskItems(itemsCopy);
-    if(percentage<90){
-    setPercentage(percentage+10);}
+    dispatch(removeTask(index))
+    if (percentage < 90) {
+      setPercentage(percentage + 10);
+    }
   };
-  // const percentage = 66;
+
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
@@ -49,7 +61,6 @@ export default function TaskScreen() {
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>All Tasks</Text>
           </View>
-          {/* <SimpleProgress></SimpleProgress> */}
           <View style={styles.circularWrapper}>
             <CircularProgress
               value={percentage}
@@ -76,9 +87,10 @@ export default function TaskScreen() {
           >
             <View style={styles.items}>
               {/* This is where the tasks will go! */}
-              {taskItems.map((item, index) => {
+              {allTasks.map((item, index) => {
                 return (
                   <TouchableOpacity
+                    // TODO: Better practice is to use unique ID of element as the key
                     key={index}
                     onPress={() => completeTask(index)}
                   >
