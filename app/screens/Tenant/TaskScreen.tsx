@@ -1,21 +1,17 @@
 import * as React from "react";
-import { Text, View } from "../../components/Themed";
+import { Text, View } from "components/Themed";
 import {
-  Image,
-  KeyboardAvoidingView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Keyboard,
   ScrollView,
-  Platform,
   Button,
 } from "react-native";
 import { useState } from "react";
-import Task from "../../components/Task";
+import Task from "components/Task";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { addTask, removeTask } from "./taskSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/typedHooks";
+import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 
 export default function TaskScreen() {
 

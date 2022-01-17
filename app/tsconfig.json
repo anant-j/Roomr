@@ -3,8 +3,14 @@
   "compilerOptions": {
     "jsx": "react",
     "strict": true,
-    "lib": [
-      "es5", "es6", "dom", "dom.iterable"
-  ]
+    "lib": ["es5", "es6", "dom", "dom.iterable"],
+    "baseUrl": "./",
+    "paths": {
+      "components": ["./components"],
+      "hooks": ["./hooks"],
+      "screens": ["./screens"],
+      "constants": ["./constants"],
+      "assets": ["./assets"]
+    }
   }
 }

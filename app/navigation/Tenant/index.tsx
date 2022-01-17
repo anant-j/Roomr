@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { Feather } from '@expo/vector-icons'; 
+import { Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -13,22 +13,22 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { ColorSchemeName, Pressable, StyleSheet } from "react-native";
-import { Text, View } from "../../components/Themed";
-import Colors from "../../constants/Colors";
-import useColorScheme from "../../hooks/useColorScheme";
+import { Text, View } from "components/Themed";
+import Colors from "constants/Colors";
+import useColorScheme from "hooks/useColorScheme";
 
-import ModalScreen from "../../screens/ModalScreen";
-import NotFoundScreen from "../../screens/NotFoundScreen";
-import HomeScreen from "../../screens/Tenant/HomeScreen";
-import TaskScreen from "../../screens/Tenant/TaskScreen";
-import ChatScreen from "../../screens/Tenant/ChatScreen";
-import CalendarScreen from "../../screens/Tenant/CalendarScreen";
+import ModalScreen from "screens/ModalScreen";
+import NotFoundScreen from "screens/NotFoundScreen";
+import HomeScreen from "screens/Tenant/HomeScreen";
+import TaskScreen from "screens/Tenant/TaskScreen";
+import ChatScreen from "screens/Tenant/ChatScreen";
+import CalendarScreen from "screens/Tenant/CalendarScreen";
 
 import {
   RootStackParamList,
   RootTabParamList,
   RootTabScreenProps,
-} from "../../types";
+} from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
 
 export default function Navigation({
@@ -96,33 +96,33 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           headerRight: () => (
-            <View style={{flexDirection:'row', flexWrap:'wrap'}}>
-            <Pressable
-              onPress={() => navigation.navigate("Modal")}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}
-            >
-              <Feather
-                name="settings"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation.navigate("Modal")}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}
-            >
-              <Feather
-                name="bell"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              <Pressable
+                onPress={() => navigation.navigate("Modal")}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.5 : 1,
+                })}
+              >
+                <Feather
+                  name="settings"
+                  size={25}
+                  color={Colors[colorScheme].text}
+                  style={{ marginRight: 15 }}
+                />
+              </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate("Modal")}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.5 : 1,
+                })}
+              >
+                <Feather
+                  name="bell"
+                  size={25}
+                  color={Colors[colorScheme].text}
+                  style={{ marginRight: 15 }}
+                />
+              </Pressable>
             </View>
           ),
         })}

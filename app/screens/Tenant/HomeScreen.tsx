@@ -1,11 +1,11 @@
 import * as React from "react";
 // import { StyleSheet } from "react-native";
-import { Text, View } from "../../components/Themed";
-import { RootTabScreenProps } from "../../types";
-import { Image, KeyboardAvoidingView, StyleSheet, TextInput, TouchableOpacity, Keyboard, ScrollView, Platform, Button } from 'react-native';
-import Task from '../../components/Task';
-import { useAppDispatch, useAppSelector } from "../../hooks/typedHooks";
-import { removeTask } from "./taskSlice";
+import { Text, View } from "components/Themed";
+import { RootTabScreenProps } from "types";
+import { Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import Task from 'components/Task';
+import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
+import { removeTask } from "screens/Tenant/taskSlice";
 
 export default function HomeScreen({
   navigation,
@@ -63,21 +63,21 @@ export default function HomeScreen({
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>View Tickets</Text>
         </View>
-        <Image source={require('../../assets/tenant/home_screen_1.png')} style={styles.img} />
+        <Image source={require('assets/tenant/home_screen_1.png')} style={styles.img} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.btn}>
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Create Landlord</Text>
           <Text style={styles.buttonText}>Support Ticket</Text>
         </View>
-        <Image source={require('../../assets/tenant/home_screen_2.png')} style={styles.img} />
+        <Image source={require('assets/tenant/home_screen_2.png')} style={styles.img} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.btn}>
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Report</Text>
           <Text style={styles.buttonText}>Emergency</Text>
         </View>
-        <Image source={require('../../assets/tenant/home_screen_3.png')} style={styles.img} />
+        <Image source={require('assets/tenant/home_screen_3.png')} style={styles.img} />
       </TouchableOpacity>
     </View>
   );
