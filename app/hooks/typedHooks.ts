@@ -1,5 +1,5 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import type { RootState, AppDispatch } from '../store'
+import type { RootState, AppDispatch } from 'store'
 
 // This isn't necessary but for hooks that will be used very often, its better
 // to create typed versions of them so we dont need to specify type every time
