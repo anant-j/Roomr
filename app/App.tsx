@@ -7,7 +7,7 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 const tenantMode = true;
 import TenantNavigation from './navigation/Tenant';
-import LandlordNavigation from './navigation/Tenant';
+import LandlordNavigation from './navigation/Landlord';
 import { store } from './store';
 
 export default function App() {
@@ -29,10 +29,12 @@ export default function App() {
     }
     else {
       return (
+        <Provider store={store}>
         <SafeAreaProvider>
           <LandlordNavigation colorScheme={colorScheme} />
           <StatusBar />
         </SafeAreaProvider>
+        </Provider>
       );
     }
   }
