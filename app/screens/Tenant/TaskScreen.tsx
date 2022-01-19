@@ -7,16 +7,20 @@ import {
   ScrollView,
   Button,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Task from "components/Task";
 import CircularProgress from "react-native-circular-progress-indicator";
-import { addTask, removeTask } from "./taskSlice";
+import { addTask, fetchTasks, removeTask } from "reduxStates/taskSlice";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 
 export default function TaskScreen() {
 
-  const allTasks = useAppSelector((state) => state.tasks.allTasks)
+  const { allTasks, loading, error } = useAppSelector((state) => state.tasks)
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    dispatch<any>(fetchTasks())
+  }, []);
 
   // TODO: un-hard code the tasks
   const [task, setTask] = useState<string>("Dishes");
@@ -75,7 +79,8 @@ export default function TaskScreen() {
               }}
             />
           </View>
-          <ScrollView
+          {error && <Text style={styles.sectionTitle}>Error Fetching Tasks</Text>}
+          {loading ? (<Text style={styles.sectionTitle}>Loading...</Text>) : (<ScrollView
             contentContainerStyle={{
               flexGrow: 1,
             }}
@@ -100,7 +105,7 @@ export default function TaskScreen() {
                 );
               })}
             </View>
-          </ScrollView>
+          </ScrollView>)}
         </View>
       </View>
       <View style={styles.bottomContainer}>

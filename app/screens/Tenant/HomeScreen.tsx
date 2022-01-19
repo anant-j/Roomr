@@ -5,7 +5,7 @@ import { RootTabScreenProps } from "types";
 import { Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Task from 'components/Task';
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { removeTask } from "screens/Tenant/taskSlice";
+import { removeTask } from "reduxStates/taskSlice";
 
 export default function HomeScreen({
   navigation,
