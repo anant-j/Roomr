@@ -18,7 +18,6 @@ export const addTask = (payload: string[]) => {
     return async (dispatch: any) => {
         dispatch(addTaskPending())
         try {
-            console.log(payload)
             await updateDoc(doc(db, "user1", "data"), {taskList: payload} ,{ merge: true });
         } catch (error:any) {
             dispatch(addTaskError(error))
