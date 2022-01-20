@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import Task from "components/Task";
 import CircularProgress from "react-native-circular-progress-indicator";
-import { addTask, fetchTasks, removeTask } from "reduxStates/taskSlice";
+import { addTask, removeTask } from "reduxStates/taskSlice";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 
 export default function TaskScreen() {
@@ -18,9 +18,9 @@ export default function TaskScreen() {
   const { allTasks, loading, error } = useAppSelector((state) => state.tasks)
   const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    dispatch<any>(fetchTasks())
-  }, []);
+  // useEffect(() => {
+  //   dispatch<any>(fetchTasks())
+  // }, []);
 
   // TODO: un-hard code the tasks
   const [task, setTask] = useState<string>("Dishes");

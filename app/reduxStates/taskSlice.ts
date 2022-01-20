@@ -18,23 +18,6 @@ const initialState: TaskState = {
     error: null
 }
 
-export const fetchTasks = () => {
-    return (dispatch: any) => {
-
-        dispatch(fetchTasksPending())
-        const unsub = onSnapshot(
-            doc(db, "user1", "data"),
-            (doc: any) => {
-                const updatedTasks = doc.data().taskList
-                dispatch(fetchTasksFulfilled(updatedTasks))
-            },
-            error => { dispatch(fetchTasksError(error)) });
-
-        listenerUnsubscribeList.push(unsub);
-
-    }
-}
-
 export const taskSlice = createSlice({
     name: 'tasks',
     initialState,
