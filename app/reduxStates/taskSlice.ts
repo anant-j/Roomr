@@ -1,10 +1,6 @@
 import { AnyAction, createAsyncThunk, createSlice, Dispatch, PayloadAction } from '@reduxjs/toolkit'
-import { onSnapshot } from "firebase/firestore";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore"; 
 import { db } from "../firebase";
-
-const listenerUnsubscribeList = [];
-
 
 export interface TaskState {
     allTasks: string[]
@@ -16,6 +12,18 @@ const initialState: TaskState = {
     allTasks: [],
     loading: false,
     error: null
+}
+
+export const addTask = (payload: string[]) => {
+    return async (dispatch: any) => {
+        dispatch(addTaskPending())
+        try {
+            console.log(payload)
+            await updateDoc(doc(db, "user1", "data"), {taskList: payload} ,{ merge: true });
+        } catch (error:any) {
+            dispatch(addTaskError(error))
+        }
+    }
 }
 
 export const taskSlice = createSlice({
@@ -38,9 +46,12 @@ export const taskSlice = createSlice({
             const error = action.payload
             state.error = error
         },
-        addTask: (state, action: PayloadAction<string>) => {
-            const newTask = action.payload
-            state.allTasks = [...state.allTasks, newTask]
+        addTaskPending: (state) => {
+            state.loading = true
+        },
+        addTaskError: (state, action: PayloadAction<string>) => {
+            const error = action.payload
+            state.error = error
         },
         removeTask: (state, action: PayloadAction<number>) => {
             const indexToRemove = action.payload
@@ -50,6 +61,6 @@ export const taskSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { fetchTasksFulfilled, fetchTasksError, fetchTasksPending, addTask, removeTask } = taskSlice.actions
+export const { fetchTasksFulfilled, fetchTasksError, fetchTasksPending, addTaskPending, addTaskError, removeTask } = taskSlice.actions
 
 export default taskSlice.reducer

@@ -1,6 +1,4 @@
-import { AnyAction, createAsyncThunk, createSlice, Dispatch, PayloadAction } from '@reduxjs/toolkit'
-import { onSnapshot } from "firebase/firestore";
-import { doc, getDoc } from "firebase/firestore";
+import { onSnapshot, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { fetchTasksPending,fetchTasksFulfilled,fetchTasksError } from "./taskSlice";
 

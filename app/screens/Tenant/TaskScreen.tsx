@@ -42,8 +42,8 @@ export default function TaskScreen() {
     if (percentage > 10) {
       setPercentage(percentage - 10);
     }
-
-    dispatch(addTask(task))
+    const payload = [...allTasks, task]
+    dispatch(addTask(payload))
   };
 
   const completeTask = (index: number) => {
