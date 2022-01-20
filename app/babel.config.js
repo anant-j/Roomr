@@ -12,7 +12,8 @@ module.exports = function (api) {
             hooks: "./hooks",
             screens: "./screens",
             constants: "./constants",
-            assets: ["./assets"]
+            assets: ["./assets"],
+            reduxStates: "./reduxStates"
           }
         }
       ]
