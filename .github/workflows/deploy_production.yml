@@ -38,13 +38,3 @@ jobs:
       - name: Expo Publish Channel
         working-directory: ./app
         run: expo publish --non-interactive
-      - name: Add Comment To PR
-        uses: mshick/add-pr-comment@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXPO_PROJECT: "@anant-j/roomr" # Put in your own Expo project name here
-        with:
-          message: |
-            ## Application
-            ![Expo QR](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=exp://exp.host/${{ env.EXPO_PROJECT }}
-            Published to https://exp.host/${{ env.EXPO_PROJECT }}
