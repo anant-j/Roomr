@@ -1,4 +1,4 @@
-name: Deploy Branch Preview
+name: Deploy Expo Branch Preview
 
 on:
   pull_request:
@@ -37,21 +37,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v8.8
-        id: verify-changed-files
-        with:
-          files: |
-             new.txt
-             test_directory
-             .(py|jpeg)$
-             \.sql$
-             ^(mynewfile|custom)
-
-      - name: Run step only when files change.
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        run: |
-          echo "Changed files: ${{ steps.verify-changed-files.outputs.changed_files }}"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:

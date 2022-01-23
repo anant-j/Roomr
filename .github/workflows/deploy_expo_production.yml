@@ -1,4 +1,4 @@
-name: Deploy Production
+name: Deploy Expo Production Build
 
 on:
   push:
