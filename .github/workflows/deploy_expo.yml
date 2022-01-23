@@ -68,7 +68,7 @@ jobs:
         uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXPO_PROJECT: "@anant-j/Roomr" # Put in your own Expo project name here
+          EXPO_PROJECT: "@anant-j/roomr" # Put in your own Expo project name here
         with:
           message: |
             ## Application
