@@ -1,8 +1,11 @@
-name: Deploy Production
+name: Deploy Expo Production Build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths: 
+      - 'app/**'
 
   workflow_dispatch:
 
