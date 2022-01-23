@@ -1,4 +1,4 @@
-[![Deploy Production](https://github.com/anant-j/Roomr/actions/workflows/deploy_production.yml/badge.svg?branch=main)](https://github.com/anant-j/Roomr/actions/workflows/deploy_production.yml)
+[![Expo Production Build](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml/badge.svg?branch=main)](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml)
 
 https://expo.dev/@anant-j/roomr
 
