@@ -2,7 +2,10 @@ name: Deploy Production
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths: 
+      - 'app/**'
 
   workflow_dispatch:
 
