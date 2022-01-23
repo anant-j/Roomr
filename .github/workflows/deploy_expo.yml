@@ -59,8 +59,10 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install Packages
+        working-directory: ./app
         run: yarn install
       - name: Expo Publish Channel
+        working-directory: ./app
         run: expo publish --non-interactive --release-channel pr${{ github.event.number }}
       - name: Add Comment To PR
         uses: mshick/add-pr-comment@v1
