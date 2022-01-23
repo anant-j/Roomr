@@ -1,3 +1,5 @@
+[![Deploy Production](https://github.com/anant-j/Roomr/actions/workflows/deploy_production.yml/badge.svg?branch=main)](https://github.com/anant-j/Roomr/actions/workflows/deploy_production.yml)
+
 # Roomr
 Capstone Project 4ZP6 Fall 2021 - Winter 2022
 
