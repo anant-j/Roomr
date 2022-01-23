@@ -1,14 +1,14 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Provider } from "react-redux";
 
-import useCachedResources from './hooks/useCachedResources';
-import useColorScheme from './hooks/useColorScheme';
+import useCachedResources from "./hooks/useCachedResources";
+import useColorScheme from "./hooks/useColorScheme";
 const tenantMode = true;
-import TenantNavigation from './navigation/Tenant';
-import LandlordNavigation from './navigation/Landlord';
-import { store } from './store';
+import TenantNavigation from "./navigation/Tenant";
+import LandlordNavigation from "./navigation/Landlord";
+import { store } from "./store";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -26,14 +26,13 @@ export default function App() {
           </SafeAreaProvider>
         </Provider>
       );
-    }
-    else {
+    } else {
       return (
         <Provider store={store}>
-        <SafeAreaProvider>
-          <LandlordNavigation colorScheme={colorScheme} />
-          <StatusBar />
-        </SafeAreaProvider>
+          <SafeAreaProvider>
+            <LandlordNavigation colorScheme={colorScheme} />
+            <StatusBar />
+          </SafeAreaProvider>
         </Provider>
       );
     }
