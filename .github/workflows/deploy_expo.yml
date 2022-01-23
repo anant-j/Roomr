@@ -59,14 +59,16 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install Packages
+        working-directory: ./app
         run: yarn install
       - name: Expo Publish Channel
+        working-directory: ./app
         run: expo publish --non-interactive --release-channel pr${{ github.event.number }}
       - name: Add Comment To PR
         uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXPO_PROJECT: "@anant-j/Roomr" # Put in your own Expo project name here
+          EXPO_PROJECT: "@anant-j/roomr" # Put in your own Expo project name here
         with:
           message: |
             ## Application
