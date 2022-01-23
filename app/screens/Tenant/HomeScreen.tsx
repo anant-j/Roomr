@@ -25,7 +25,7 @@ export default function HomeScreen({
 
       <View style={styles.topContainer}>
         {/* Today's Tasks */}
-        <Text style={styles.sectionSubTitle}>Tenant</Text>
+        <Text style={styles.sectionSubTitle}>Test</Text>
         <View style={styles.tasksWrapper}>
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
