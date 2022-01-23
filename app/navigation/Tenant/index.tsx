@@ -23,7 +23,7 @@ import HomeScreen from "screens/Tenant/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
 import ChatScreen from "screens/Tenant/ChatScreen";
 import CalendarScreen from "screens/Tenant/CalendarScreen";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
+import { useAppDispatch } from "hooks/typedHooks";
 import { useEffect } from "react";
 import { fetchData } from "reduxStates/firebaseListener";
 

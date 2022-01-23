@@ -7,7 +7,7 @@ import {
   ScrollView,
   Button,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Task from "components/Task";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { addTask, removeTask } from "reduxStates/taskSlice";
