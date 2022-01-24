@@ -55,8 +55,8 @@ export default function TaskScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
+        <Text style={styles.sectionSubTitle}>Tenant</Text>
         <View style={styles.tasksWrapper}>
-          <Text style={styles.sectionSubTitle}>Tenant</Text>
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>All Tasks</Text>
           </View>
@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     // fontWeight: 'bold',
     color: "#8A8F9E",
-    paddingTop: 10,
-    paddingHorizontal: 5,
+    paddingTop: 15,
+    paddingHorizontal: 30,
   },
   tasksWrapper: {
     paddingTop: 10,

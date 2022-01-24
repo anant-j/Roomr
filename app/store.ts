@@ -1,8 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import taskReducer from "reduxStates/taskSlice";
+import chatReducer from "reduxStates/chatSlice";
 
 export const store = configureStore({
-  reducer: { tasks: taskReducer },
+  reducer: { tasks: taskReducer, chats: chatReducer },
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
