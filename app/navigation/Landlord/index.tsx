@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { Feather } from '@expo/vector-icons';
+import { Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -96,7 +96,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           headerRight: () => (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <Pressable
                 onPress={() => navigation.navigate("Modal")}
                 style={({ pressed }) => ({

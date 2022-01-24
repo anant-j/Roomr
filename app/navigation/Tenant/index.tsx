@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { Feather } from '@expo/vector-icons';
+import { Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -23,9 +23,9 @@ import HomeScreen from "screens/Tenant/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
 import ChatScreen from "screens/Tenant/ChatScreen";
 import CalendarScreen from "screens/Tenant/CalendarScreen";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { useEffect } from 'react';
-import { fetchData } from 'reduxStates/firebaseListener';
+import { useAppDispatch } from "hooks/typedHooks";
+import { useEffect } from "react";
+import { fetchData } from "reduxStates/firebaseListener";
 
 import {
   RootStackParamList,
@@ -39,10 +39,10 @@ export default function Navigation({
 }: {
   colorScheme: ColorSchemeName;
 }) {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch<any>(fetchData())
+    dispatch<any>(fetchData());
   }, []);
 
   return (
@@ -105,7 +105,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           headerRight: () => (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <Pressable
                 onPress={() => navigation.navigate("Modal")}
                 style={({ pressed }) => ({
