@@ -46,9 +46,12 @@ export default function ChatScreen() {
 }
 
 const ChatItem = (props: any) => {
+  const splitName = props.item.name.split(' ')
+  const fnameInitial = splitName[0][0]
+  const lNameInitial = splitName[1][0]
   return <>
     <View style={chatItemStyles.item}>
-      <View style={chatItemStyles.circle}></View>
+      <View style={chatItemStyles.circle}><Text style={chatItemStyles.initials}>{fnameInitial + lNameInitial}</Text></View>
       <View style={chatItemStyles.itemRight}>
         <View style={chatItemStyles.chatInfo}>
           <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
@@ -70,7 +73,7 @@ const chatItemStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   contactName: {
-    marginBottom: 15
+    marginBottom: 25
   },
   item: {
     borderRadius: 10,
@@ -82,7 +85,6 @@ const chatItemStyles = StyleSheet.create({
   itemRight: {
     flex: 1,
     paddingHorizontal: 10,
-    alignSelf: "center"
   },
   circle: {
     width: 40,
@@ -91,11 +93,17 @@ const chatItemStyles = StyleSheet.create({
     borderWidth: 2,
     opacity: 0.8,
     borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center"
   },
   chatSeparator: {
     height: 1,
     width: "100%",
   },
+  initials: {
+    fontWeight: "bold",
+    color: '#55BCF6',
+  }
 })
 
 const styles = StyleSheet.create({
@@ -124,7 +132,6 @@ const styles = StyleSheet.create({
   tasksWrapper: {
     paddingTop: 10,
     paddingHorizontal: 30,
-    paddingBottom: 80,
   },
   titleWrapper: {
     flexDirection: "row",
@@ -138,7 +145,5 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flex: 1,
-    // maxHeight: "50%",
-    marginBottom: "65%",
   },
 });

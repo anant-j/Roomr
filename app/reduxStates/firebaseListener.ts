@@ -12,6 +12,12 @@ const fetchChatData = (dispatch: any) => {
         { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
         { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
         { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+        { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
+        { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
+        { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+        { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
+        { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
+        { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
     ]
     dispatch(fetchChatsFulfilled(data))
 }
