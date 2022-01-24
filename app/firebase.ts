@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { doc, arrayUnion, updateDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCPg7xBaBXak7AemgAgge4ER4DZ41zuuqA",
@@ -12,3 +13,13 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 export const db = getFirestore();
+
+export async function registerNotificationTokenFirebase(
+  userId: string,
+  token: string,
+) {
+  const notificationDoc = doc(db, "users", "notifications");
+  await updateDoc(notificationDoc, {
+    ids: arrayUnion(token),
+  });
+}
