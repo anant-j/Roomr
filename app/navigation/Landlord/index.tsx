@@ -17,7 +17,7 @@ import { Text, View } from "components/Themed";
 import Colors from "constants/Colors";
 import useColorScheme from "hooks/useColorScheme";
 
-import ModalScreen from "screens/ModalScreen";
+import ModalScreen from "screens/Landlord/ModalScreen";
 import NotFoundScreen from "screens/NotFoundScreen";
 import HomeScreen from "screens/Landlord/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
