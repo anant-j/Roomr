@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = function (api) {
   api.cache(true);
   return {
@@ -13,10 +14,10 @@ module.exports = function (api) {
             screens: "./screens",
             constants: "./constants",
             assets: ["./assets"],
-            reduxStates: "./reduxStates"
-          }
-        }
-      ]
-    ]
+            reduxStates: "./reduxStates",
+          },
+        },
+      ],
+    ],
   };
 };
