@@ -6,8 +6,7 @@ import Task from "components/Task";
 import { chatObject } from "reduxStates/chatSlice";
 
 export default function ChatScreen() {
-
-  const { allChats, loading, error } = useAppSelector((state) => state.chats)
+  const { allChats, loading, error } = useAppSelector((state) => state.chats);
 
   return (
     <View style={styles.container}>
@@ -17,8 +16,12 @@ export default function ChatScreen() {
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Chats</Text>
           </View>
-          {error && <Text style={styles.sectionTitle}>Error Fetching Chats</Text>}
-          {loading ? (<Text style={styles.sectionTitle}>Loading...</Text>) : (
+          {error && (
+            <Text style={styles.sectionTitle}>Error Fetching Chats</Text>
+          )}
+          {loading ? (
+            <Text style={styles.sectionTitle}>Loading...</Text>
+          ) : (
             <ScrollView
               contentContainerStyle={{
                 flexGrow: 1,
@@ -31,14 +34,17 @@ export default function ChatScreen() {
                     <TouchableOpacity
                       // TODO: Better practice is to use unique ID of element as the key
                       key={index}
-                      onPress={() => { console.log(item) }}
+                      onPress={() => {
+                        console.log(item);
+                      }}
                     >
                       <ChatItem item={item} />
                     </TouchableOpacity>
                   );
                 })}
               </View>
-            </ScrollView>)}
+            </ScrollView>
+          )}
         </View>
       </View>
     </View>
@@ -46,26 +52,32 @@ export default function ChatScreen() {
 }
 
 const ChatItem = (props: any) => {
-  const splitName = props.item.name.split(' ')
-  const fnameInitial = splitName[0][0]
-  const lNameInitial = splitName[1][0]
-  return <>
-    <View style={chatItemStyles.item}>
-      <View style={chatItemStyles.circle}><Text style={chatItemStyles.initials}>{fnameInitial + lNameInitial}</Text></View>
-      <View style={chatItemStyles.itemRight}>
-        <View style={chatItemStyles.chatInfo}>
-          <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
-          <Text>{props.item.lastMessageTimeElapsed} ago</Text>
+  const splitName = props.item.name.split(" ");
+  const fnameInitial = splitName[0][0];
+  const lNameInitial = splitName[1][0];
+  return (
+    <>
+      <View style={chatItemStyles.item}>
+        <View style={chatItemStyles.circle}>
+          <Text style={chatItemStyles.initials}>
+            {fnameInitial + lNameInitial}
+          </Text>
         </View>
-        <View
-          style={chatItemStyles.chatSeparator}
-          lightColor="#eee"
-          darkColor="rgba(255,255,255,0.1)"
-        />
+        <View style={chatItemStyles.itemRight}>
+          <View style={chatItemStyles.chatInfo}>
+            <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
+            <Text>{props.item.lastMessageTimeElapsed} ago</Text>
+          </View>
+          <View
+            style={chatItemStyles.chatSeparator}
+            lightColor="#eee"
+            darkColor="rgba(255,255,255,0.1)"
+          />
+        </View>
       </View>
-    </View>
-  </>
-}
+    </>
+  );
+};
 
 const chatItemStyles = StyleSheet.create({
   chatInfo: {
@@ -73,14 +85,14 @@ const chatItemStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   contactName: {
-    marginBottom: 25
+    marginBottom: 25,
   },
   item: {
     borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     justifyContent: "space-around",
-    marginBottom: 30
+    marginBottom: 30,
   },
   itemRight: {
     flex: 1,
@@ -89,12 +101,12 @@ const chatItemStyles = StyleSheet.create({
   circle: {
     width: 40,
     height: 40,
-    borderColor: '#55BCF6',
+    borderColor: "#55BCF6",
     borderWidth: 2,
     opacity: 0.8,
     borderRadius: 50,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   chatSeparator: {
     height: 1,
@@ -102,9 +114,9 @@ const chatItemStyles = StyleSheet.create({
   },
   initials: {
     fontWeight: "bold",
-    color: '#55BCF6',
-  }
-})
+    color: "#55BCF6",
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
