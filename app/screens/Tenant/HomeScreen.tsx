@@ -1,8 +1,8 @@
 import * as React from "react";
-// import { StyleSheet } from "react-native";
-import { Text, View } from "components/Themed";
+import { TouchableOpacity } from "react-native";
+import { Text, View, ButtonWithImage } from "components/Themed";
 import { RootTabScreenProps } from "types";
-import { Image, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Image, StyleSheet, ScrollView } from "react-native";
 import Task from "components/Task";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { removeTask } from "reduxStates/taskSlice";
@@ -56,7 +56,7 @@ export default function HomeScreen({
         </View>
       </View>
 
-      <TouchableOpacity style={styles.btn}>
+      <ButtonWithImage style={styles.btn}>
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>View Tickets</Text>
         </View>
@@ -64,8 +64,8 @@ export default function HomeScreen({
           source={require("assets/tenant/home_screen_1.png")}
           style={styles.img}
         />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.btn}>
+      </ButtonWithImage>
+      <ButtonWithImage style={styles.btn}>
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Create Landlord</Text>
           <Text style={styles.buttonText}>Support Ticket</Text>
@@ -74,8 +74,8 @@ export default function HomeScreen({
           source={require("assets/tenant/home_screen_2.png")}
           style={styles.img}
         />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.btn}>
+      </ButtonWithImage>
+      <ButtonWithImage style={styles.btn}>
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Report</Text>
           <Text style={styles.buttonText}>Emergency</Text>
@@ -84,7 +84,7 @@ export default function HomeScreen({
           source={require("assets/tenant/home_screen_3.png")}
           style={styles.img}
         />
-      </TouchableOpacity>
+      </ButtonWithImage>
     </View>
   );
 }
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 10,
-    backgroundColor: "#F6F6F6",
     marginHorizontal: 25,
     marginVertical: 5,
     padding: 15,

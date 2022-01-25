@@ -1,25 +1,21 @@
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
-import { TouchableOpacity } from "react-native";
 import { testPushNotification } from "../../notificationHandler";
-
-import { Text, View } from "components/Themed";
+import { Text, View, Button } from "components/Themed";
 
 export default function ModalScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      <TouchableOpacity
+      <Button
         onPress={async () => {
           await testPushNotification();
         }}
-        style={{ backgroundColor: "black", padding: 10, borderRadius: 10 }}
+        style={{ padding: 10, borderRadius: 10 }}
       >
-        <Text style={{ fontSize: 20, color: "#fff" }}>
-          Send Test Notification
-        </Text>
-      </TouchableOpacity>
+        <Text style={{ fontSize: 20 }}>Send Test Notification</Text>
+      </Button>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );

@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Text, View } from "components/Themed";
+import { Text, View, Button } from "components/Themed";
 import {
   StyleSheet,
   TouchableOpacity,
   Keyboard,
   ScrollView,
-  Button,
 } from "react-native";
 import { useState } from "react";
 import Task from "components/Task";
@@ -66,6 +65,7 @@ export default function TaskScreen() {
               valueSuffix={"%"}
               titleFontSize={20}
               circleBackgroundColor="transparent"
+              inActiveStrokeColor="gray"
               activeStrokeColor="#5B8DCA"
               radius={120}
               duration={2000}
@@ -113,14 +113,9 @@ export default function TaskScreen() {
           )}
         </View>
       </View>
-      <View style={styles.bottomContainer}>
-        <Button
-          onPress={handleAddTask}
-          title="Add Task"
-          color="white"
-          accessibilityLabel="Learn more about this purple button"
-        />
-      </View>
+      <Button onPress={handleAddTask} style={styles.bottomContainer}>
+        <Text style={styles.buttonText}>Add Task</Text>
+      </Button>
     </View>
   );
 }
@@ -174,12 +169,14 @@ const styles = StyleSheet.create({
     marginBottom: "65%",
   },
   bottomContainer: {
-    backgroundColor: "#5B8DCA",
     borderRadius: 10,
-    color: "black",
     padding: 10,
     marginLeft: 50,
     marginRight: 50,
-    fontWeight: "bold",
+    alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 25,
+    fontWeight: "500",
   },
 });
