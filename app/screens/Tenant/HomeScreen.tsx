@@ -86,13 +86,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
   },
-  items: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  separator: {
-    height: 1,
-  },
   buttonTextView: {
     paddingHorizontal: 10,
     marginTop: 40,

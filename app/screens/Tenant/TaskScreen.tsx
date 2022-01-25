@@ -97,9 +97,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  separator: {
-    height: 1,
-  },
   sectionSubTitle: {
     fontSize: 17,
     // fontWeight: 'bold',
@@ -125,10 +122,6 @@ const styles = StyleSheet.create({
   circularWrapper: {
     display: "flex",
     alignItems: "center",
-  },
-  items: {
-    marginTop: 10,
-    marginBottom: 10,
   },
   topContainer: {
     // flex: 1,
