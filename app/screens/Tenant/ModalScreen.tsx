@@ -3,6 +3,7 @@ import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { testPushNotification } from "../../notificationHandler";
 import { Text, View, Button } from "components/Themed";
+import { logout } from "../../firebase";
 
 export default function ModalScreen() {
   return (
@@ -14,7 +15,16 @@ export default function ModalScreen() {
         }}
         style={{ padding: 10, borderRadius: 10 }}
       >
-        <Text style={{ fontSize: 20 }}>Send Test Notification</Text>
+        <Text style={styles.button}>Send Test Notification</Text>
+      </Button>
+      <Text></Text>
+      <Button
+        onPress={async () => {
+          await logout();
+        }}
+        style={{ padding: 10, borderRadius: 10 }}
+      >
+        <Text style={styles.button}>Logout</Text>
       </Button>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
@@ -35,5 +45,9 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: "80%",
+  },
+  button: {
+    fontSize: 20,
+    color: "white",
   },
 });

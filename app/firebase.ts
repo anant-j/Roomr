@@ -1,6 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { doc, arrayUnion, updateDoc } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCPg7xBaBXak7AemgAgge4ER4DZ41zuuqA",
@@ -13,13 +18,43 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 export const db = getFirestore();
+export const auth = getAuth();
 
-export async function registerNotificationTokenFirebase(
-  userId: string,
-  token: string,
-) {
-  const notificationDoc = doc(db, "users", "notifications");
-  await updateDoc(notificationDoc, {
-    ids: arrayUnion(token),
+export async function loginFakeTenant() {
+  const email = "test@test.com";
+  const password = "testpassword";
+  loginUser(auth, email, password);
+}
+
+export async function registerFakeTenant() {
+  const email = "test@test.com";
+  const password = "testpassword";
+  registerUser(auth, email, password);
+}
+
+export async function logout() {
+  signOut(auth).catch((error) => {
+    console.log(error);
   });
+}
+
+async function loginUser(auth, email, password) {
+  signInWithEmailAndPassword(auth, email, password).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log({ errorCode, errorMessage });
+  });
+}
+
+async function registerUser(auth, email, password) {
+  createUserWithEmailAndPassword(auth, email, password).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    if (errorCode == "auth/email-already-in-use") {
+      loginUser(auth, email, password);
+    } else {
+      console.log({ errorCode, errorMessage });
+    }
+  });
+  return;
 }
