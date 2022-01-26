@@ -13,13 +13,3 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 export const db = getFirestore();
-
-export async function registerNotificationTokenFirebase(
-  userId: string,
-  token: string,
-) {
-  const notificationDoc = doc(db, "users", "notifications");
-  await updateDoc(notificationDoc, {
-    ids: arrayUnion(token),
-  });
-}

@@ -8,7 +8,6 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import TenantNavigation from "./navigation/Tenant";
 import LandlordNavigation from "./navigation/Landlord";
-import { registerNotificationTokenFirebase } from "./firebase";
 import { store } from "./store";
 
 const tenantMode = true;
@@ -25,10 +24,6 @@ export default function App() {
     const random_between_1_and_4 = Math.floor(Math.random() * 4) + 1;
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
-      registerNotificationTokenFirebase(
-        random_between_1_and_4.toString(),
-        token,
-      );
     });
 
     notificationListener.current =
