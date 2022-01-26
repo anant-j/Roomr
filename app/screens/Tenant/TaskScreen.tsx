@@ -1,24 +1,16 @@
 import * as React from "react";
 import { Text, View, Button } from "components/Themed";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Keyboard,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, Keyboard } from "react-native";
 import { useState } from "react";
-import Task from "components/Task";
+
 import CircularProgress from "react-native-circular-progress-indicator";
-import { addTask, removeTask } from "reduxStates/taskSlice";
+import { addTask } from "reduxStates/taskSlice";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
+import TaskList from "components/TaskList";
 
 export default function TaskScreen() {
   const { allTasks, loading, error } = useAppSelector((state) => state.tasks);
   const dispatch = useAppDispatch();
-
-  // useEffect(() => {
-  //   dispatch<any>(fetchTasks())
-  // }, []);
 
   // TODO: un-hard code the tasks
   const [task, setTask] = useState<string>("Dishes");
@@ -44,12 +36,12 @@ export default function TaskScreen() {
     dispatch(addTask(payload));
   };
 
-  const completeTask = (index: number) => {
-    dispatch(removeTask(index));
-    if (percentage < 90) {
-      setPercentage(percentage + 10);
-    }
-  };
+  // const completeTask = (index: number) => {
+  //   dispatch(removeTask(index));
+  // if (percentage < 90) {
+  //   setPercentage(percentage + 10);
+  // }
+  // };
 
   return (
     <View style={styles.container}>
@@ -84,32 +76,7 @@ export default function TaskScreen() {
           {loading ? (
             <Text style={styles.sectionTitle}>Loading...</Text>
           ) : (
-            <ScrollView
-              contentContainerStyle={{
-                flexGrow: 1,
-              }}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.items}>
-                {/* This is where the tasks will go! */}
-                {allTasks.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      // TODO: Better practice is to use unique ID of element as the key
-                      key={index}
-                      onPress={() => completeTask(index)}
-                    >
-                      <Task text={item} />
-                      <View
-                        style={styles.separator}
-                        lightColor="#eee"
-                        darkColor="rgba(255,255,255,0.1)"
-                      />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </ScrollView>
+            <TaskList />
           )}
         </View>
       </View>
@@ -129,9 +96,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-  separator: {
-    height: 1,
   },
   sectionSubTitle: {
     fontSize: 17,
@@ -158,10 +122,6 @@ const styles = StyleSheet.create({
   circularWrapper: {
     display: "flex",
     alignItems: "center",
-  },
-  items: {
-    marginTop: 10,
-    marginBottom: 10,
   },
   topContainer: {
     // flex: 1,

@@ -1,23 +1,12 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
 import { Text, View, ButtonWithImage } from "components/Themed";
 import { RootTabScreenProps } from "types";
-import { Image, StyleSheet, ScrollView } from "react-native";
-import Task from "components/Task";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { removeTask } from "reduxStates/taskSlice";
+import { Image, StyleSheet } from "react-native";
+import TaskList from "components/TaskList";
 
 export default function HomeScreen({
   navigation,
 }: RootTabScreenProps<"TabOne">) {
-  // use the tasks from the redux state:
-  const allTasks = useAppSelector((state) => state.tasks.allTasks);
-  const dispatch = useAppDispatch();
-
-  const completeTask = (index: number) => {
-    dispatch(removeTask(index));
-  };
-
   return (
     <View style={styles.container}>
       {/* Added this scroll view to enable scrolling when list gets longer than the page */}
@@ -29,30 +18,7 @@ export default function HomeScreen({
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
           </View>
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-            }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={styles.items}>
-              {allTasks.map((item, index) => {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => completeTask(index)}
-                  >
-                    <Task text={item} />
-                    <View
-                      style={styles.separator}
-                      lightColor="#eee"
-                      darkColor="rgba(255,255,255,0.1)"
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </ScrollView>
+          <TaskList />
         </View>
       </View>
 
@@ -119,13 +85,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 30,
     fontWeight: "bold",
-  },
-  items: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  separator: {
-    height: 1,
   },
   buttonTextView: {
     paddingHorizontal: 10,
