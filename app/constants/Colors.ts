@@ -8,6 +8,8 @@ export default {
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
+    touchableOpacity: "#F6F6F6",
+    buttonBlue: "#5B8DCA",
   },
   dark: {
     text: "#fff",
@@ -15,5 +17,7 @@ export default {
     tint: tintColorDark,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorDark,
+    touchableOpacity: "#373737",
+    buttonBlue: "#5B8DCA",
   },
 };
