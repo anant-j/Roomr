@@ -14,8 +14,7 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
   if (!recipient) {
     return res.status(400).send("No recipient specified");
   }
-  const notificationRef = await
-  db.collection("users").doc(recipient).get();
+  const notificationRef = await db.collection("users").doc(recipient).get();
   if (notificationRef.exists) {
     const id = notificationRef.data().expo_token;
     const notificationList = [id];
@@ -26,7 +25,6 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
   }
   res.send("Notification sent");
 });
-
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
   const userData = data;
@@ -63,9 +61,12 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     expo_token: userData.expo_token,
   };
   await db.collection("users").doc(userData.email).set(userDataFB);
-  await db.collection("houses").doc(houseID).update({
-    tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
-  });
+  await db
+      .collection("houses")
+      .doc(houseID)
+      .update({
+        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
+      });
   const landlord = house.data().landlord;
   const landlordEmailDoc = await db.collection("users").doc(landlord).get();
   if (!landlordEmailDoc.exists) {
@@ -76,7 +77,11 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
   }
   const landlordEmail = [landlordEmailDoc.data().expo_token];
   // eslint-disable-next-line max-len
-  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordEmail);
+  sendExpoNotifications(
+      `A new tenant: ${userData.name.first} ${userData.name.last} would like 
+    to join your household on Roomr. Click this notification to approve them!`,
+      landlordEmail,
+  );
   return {
     status: "success",
     code: "USER_CREATED",
@@ -173,7 +178,8 @@ async function sendExpoNotifications(message, tokens) {
  * @return {boolean}
  */
 function validPayload(data, type) {
-  if (!data ||
+  if (
+    !data ||
     !data.name ||
     !data.name.first ||
     !data.name.last ||
@@ -229,8 +235,7 @@ async function addHouse(email, address) {
 async function getHouseId(address) {
   let houseId = 0;
   const houseRef = db.collection("houses");
-  const querySnapshot =
-    await houseRef.where("address", "==", address).get();
+  const querySnapshot = await houseRef.where("address", "==", address).get();
   if (!querySnapshot.size == 0) {
     houseId = querySnapshot.docs[0].id;
   }
