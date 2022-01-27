@@ -63,7 +63,7 @@ export default function LoginScreen() {
   };
 
   const nextScreen = () => {
-    if (progress < 7) {
+    if (progress < 8) {
       setProgress(progress + 1);
     }
     setErrorMessage("");
@@ -579,6 +579,8 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <Text style={styles.title}>Uh oh, something went wrong!</Text>
           <Text>This is just temporary until all wiring is put in place</Text>
+          <Text> Default login username: test@test.com</Text>
+          <Text> Default login password: testpassword </Text>
           <Button
             onPress={() => {
               setProgress(0);
