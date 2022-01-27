@@ -20,9 +20,7 @@ initializeApp(firebaseConfig);
 export const db = getFirestore();
 export const auth = getAuth();
 
-export async function loginFakeTenant() {
-  const email = "test@test.com";
-  const password = "testpassword";
+export async function login(email, password) {
   loginUser(auth, email, password);
 }
 
