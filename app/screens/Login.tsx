@@ -13,8 +13,8 @@ import { useEffect, useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import ErrorBox from "../components/ErrorBox";
-import {errorFactory} from "../utils/ErrorFactory";
-
+import { errorFactory } from "../utils/ErrorFactory";
+import { validator } from "../utils/Validations";
 export default function LoginScreen() {
   const dispatch = useAppDispatch();
 
@@ -61,6 +61,22 @@ export default function LoginScreen() {
     }, 5000);
   };
 
+  const nextScreen = () => {
+    if (progress < 7) {
+      setProgress(progress + 1);
+    }
+    setErrorMessage("");
+  };
+
+  const previousScreen = () => {
+    if (progress > 0) {
+      setProgress(progress - 1);
+    } else {
+      setProgress(0);
+    }
+    setErrorMessage("");
+  };
+
   const LottieRef = useRef(null);
   useEffect(() => {
     dispatch<any>(fetchAuth());
@@ -78,7 +94,7 @@ export default function LoginScreen() {
           <Button
             onPress={() => {
               setLoginScreen(true);
-              setProgress(progress + 1);
+              nextScreen();
             }}
             style={styles.button}
           >
@@ -87,28 +103,29 @@ export default function LoginScreen() {
           <Text></Text>
           <Button
             onPress={() => {
-              // registerFakeTenant();
               setLoginScreen(false);
-              setProgress(progress + 1);
+              nextScreen();
             }}
             style={styles.button}
           >
             <Text style={styles.linkText}>Register</Text>
           </Button>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     case 1:
       if (loginScreen) {
         return (
           <View style={styles.container}>
-            <Button
-              onPress={() => {
-                setProgress(0);
-              }}
-              style={styles.backbutton}
-            >
-              <Feather name="arrow-left" color={"white"} size={30} />
-            </Button>
             <Text style={styles.title}>Log In</Text>
             <TextInput
               style={styles.input}
@@ -116,13 +133,6 @@ export default function LoginScreen() {
               value={email}
               placeholder="Enter Email"
             />
-            {/* <TextInput
-              style={styles.input}
-              onChangeText={onChangePassword}
-              value={password}
-              placeholder="Enter Password"
-              secureTextEntry={true}
-            /> */}
             <View style={styles.passwordContainer}>
               <TextInput
                 placeholder="Enter Password"
@@ -140,18 +150,36 @@ export default function LoginScreen() {
                 />
               </View>
             </View>
-            <Button
-              onPress={() => {
-                login(email, password).then((result) => {
-                  if (!result.success) {
-                    setError(result.error);
+            <View style={styles.passwordContainer}>
+              <Button
+                onPress={() => {
+                  previousScreen();
+                }}
+                style={styles.sideBySideButton}
+              >
+                <Text style={styles.linkText}>Previous</Text>
+              </Button>
+              <Button
+                onPress={() => {
+                  const emailValidation = validator(email, "email");
+                  const passwordValidation = validator(password, "password");
+                  if (!emailValidation.success) {
+                    setError(emailValidation.error);
+                  } else if (!passwordValidation.success) {
+                    setError(passwordValidation.error);
+                  } else {
+                    login(email, password).then((result) => {
+                      if (!result.success) {
+                        setError(result.error);
+                      }
+                    });
                   }
-                });
-              }}
-              style={styles.button}
-            >
-              <Text style={styles.linkText}>Login</Text>
-            </Button>
+                }}
+                style={styles.sideBySideButton}
+              >
+                <Text style={styles.linkText}>Login</Text>
+              </Button>
+            </View>
             <Animated.View
               style={[
                 styles.errorBox,
@@ -167,14 +195,6 @@ export default function LoginScreen() {
       } else {
         return (
           <View style={styles.container}>
-            <Button
-              onPress={() => {
-                setProgress(progress - 1);
-              }}
-              style={styles.backbutton}
-            >
-              <Feather name="arrow-left" color={"white"} size={30} />
-            </Button>
             <Text style={styles.title}>What is your name?</Text>
             <TextInput
               style={styles.input}
@@ -188,14 +208,42 @@ export default function LoginScreen() {
               value={lastName}
               placeholder="Last Name"
             />
-            <Button
-              onPress={() => {
-                setProgress(progress + 1);
-              }}
-              style={styles.button}
+            <View style={styles.passwordContainer}>
+              <Button
+                onPress={() => {
+                  previousScreen();
+                }}
+                style={styles.sideBySideButton}
+              >
+                <Text style={styles.linkText}>Previous</Text>
+              </Button>
+              <Button
+                onPress={() => {
+                  const firstNameValidation = validator(firstName, "firstName");
+                  const lastNameValidation = validator(lastName, "lastName");
+                  if (!firstNameValidation.success) {
+                    setError(firstNameValidation.error);
+                  } else if (!lastNameValidation.success) {
+                    setError(lastNameValidation.error);
+                  } else {
+                    nextScreen();
+                  }
+                }}
+                style={styles.sideBySideButton}
+              >
+                <Text style={styles.linkText}>Next</Text>
+              </Button>
+            </View>
+            <Animated.View
+              style={[
+                styles.errorBox,
+                {
+                  opacity: fadeAnim,
+                },
+              ]}
             >
-              <Text style={styles.linkText}>Next</Text>
-            </Button>
+              <ErrorBox text={errorMessage} />
+            </Animated.View>
           </View>
         );
       }
@@ -212,7 +260,7 @@ export default function LoginScreen() {
           <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                setProgress(progress - 1);
+                previousScreen();
               }}
               style={styles.sideBySideButton}
             >
@@ -220,13 +268,28 @@ export default function LoginScreen() {
             </Button>
             <Button
               onPress={() => {
-                setProgress(progress + 1);
+                const emailValidation = validator(email, "email");
+                if (!emailValidation.success) {
+                  setError(emailValidation.error);
+                } else {
+                  nextScreen();
+                }
               }}
               style={styles.sideBySideButton}
             >
               <Text style={styles.linkText}>Next</Text>
             </Button>
           </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     case 3:
@@ -243,7 +306,7 @@ export default function LoginScreen() {
           <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                setProgress(progress - 1);
+                previousScreen();
               }}
               style={styles.sideBySideButton}
             >
@@ -251,13 +314,28 @@ export default function LoginScreen() {
             </Button>
             <Button
               onPress={() => {
-                setProgress(progress + 1);
+                const phoneNumberValidation = validator(phone, "phone");
+                if (!phoneNumberValidation.success) {
+                  setError(phoneNumberValidation.error);
+                } else {
+                  nextScreen();
+                }
               }}
               style={styles.sideBySideButton}
             >
               <Text style={styles.linkText}>Next</Text>
             </Button>
           </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     case 4:
@@ -267,7 +345,7 @@ export default function LoginScreen() {
           <Button
             onPress={() => {
               setIsTenant(true);
-              setProgress(progress + 1);
+              nextScreen();
             }}
             style={styles.button}
           >
@@ -277,7 +355,7 @@ export default function LoginScreen() {
           <Button
             onPress={() => {
               setIsTenant(false);
-              setProgress(progress + 1);
+              nextScreen();
             }}
             style={styles.button}
           >
@@ -286,12 +364,22 @@ export default function LoginScreen() {
           <Text></Text>
           <Button
             onPress={() => {
-              setProgress(progress - 1);
+              previousScreen();
             }}
             style={styles.backbuttonLower}
           >
             <Feather name="arrow-left" color={"white"} size={30} />
           </Button>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     case 5:
@@ -306,12 +394,13 @@ export default function LoginScreen() {
               style={styles.input}
               onChangeText={onChangeHouseID}
               value={houseID}
+              maxLength={9}
               placeholder="Enter 9 Digit House ID"
             />
             <View style={styles.passwordContainer}>
               <Button
                 onPress={() => {
-                  setProgress(progress - 1);
+                  previousScreen();
                 }}
                 style={styles.sideBySideButton}
               >
@@ -319,13 +408,28 @@ export default function LoginScreen() {
               </Button>
               <Button
                 onPress={() => {
-                  setProgress(progress + 1);
+                  const houseIDValidation = validator(houseID, "houseID");
+                  if (!houseIDValidation.success) {
+                    setError(houseIDValidation.error);
+                  } else {
+                    nextScreen();
+                  }
                 }}
                 style={styles.sideBySideButton}
               >
                 <Text style={styles.linkText}>Next</Text>
               </Button>
             </View>
+            <Animated.View
+              style={[
+                styles.errorBox,
+                {
+                  opacity: fadeAnim,
+                },
+              ]}
+            >
+              <ErrorBox text={errorMessage} />
+            </Animated.View>
           </View>
         );
       } else {
@@ -341,7 +445,7 @@ export default function LoginScreen() {
             <View style={styles.passwordContainer}>
               <Button
                 onPress={() => {
-                  setProgress(progress - 1);
+                  previousScreen();
                 }}
                 style={styles.sideBySideButton}
               >
@@ -349,13 +453,28 @@ export default function LoginScreen() {
               </Button>
               <Button
                 onPress={() => {
-                  setProgress(progress + 1);
+                  const addressValidation = validator(address, "address");
+                  if (!addressValidation.success) {
+                    setError(addressValidation.error);
+                  } else {
+                    nextScreen();
+                  }
                 }}
                 style={styles.sideBySideButton}
               >
                 <Text style={styles.linkText}>Next</Text>
               </Button>
             </View>
+            <Animated.View
+              style={[
+                styles.errorBox,
+                {
+                  opacity: fadeAnim,
+                },
+              ]}
+            >
+              <ErrorBox text={errorMessage} />
+            </Animated.View>
           </View>
         );
       }
@@ -381,7 +500,7 @@ export default function LoginScreen() {
           <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                setProgress(progress - 1);
+                previousScreen();
               }}
               style={styles.sideBySideButton}
             >
@@ -389,13 +508,36 @@ export default function LoginScreen() {
             </Button>
             <Button
               onPress={() => {
-                setProgress(progress + 1);
+                const passwordValidation = validator(password, "password");
+                const passwordValidation2 = validator(
+                  passwordAgain,
+                  "password",
+                );
+                if (!passwordValidation.success) {
+                  setError(passwordValidation.error);
+                } else if (!passwordValidation2.success) {
+                  setError(passwordValidation2.error);
+                } else if (password !== passwordAgain) {
+                  setError("passwords-dont-match");
+                } else {
+                  nextScreen();
+                }
               }}
               style={styles.sideBySideButton}
             >
               <Text style={styles.linkText}>Next</Text>
             </Button>
           </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     case 7:
@@ -416,12 +558,22 @@ export default function LoginScreen() {
           </TouchableWithoutFeedback>
           <Button
             onPress={() => {
-              setProgress(progress + 1);
+              nextScreen();
             }}
             style={[styles.button, styles.bigSpacer]}
           >
             <Text style={styles.linkText}>Continue to app</Text>
           </Button>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
     default:
@@ -437,6 +589,16 @@ export default function LoginScreen() {
           >
             <Text style={styles.linkText}>Back to home</Text>
           </Button>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
         </View>
       );
       break;
@@ -449,7 +611,7 @@ const styles = StyleSheet.create({
   },
   errorBox: {
     position: "absolute",
-    bottom: 100,
+    top: 200,
     width: "90%",
     // marginBottom:0,
     // marginTop: 1000,
@@ -505,7 +667,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    // padding: 20,
   },
   maintitle: {
     position: "absolute",
@@ -518,6 +680,7 @@ const styles = StyleSheet.create({
     top: 100,
     // left: 70,
     // width: "70%",
+    width: "80%",
     fontSize: 40,
     fontWeight: "bold",
   },
@@ -525,12 +688,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 200,
     // left: 0,
-    width: "67%",
+    // width: "67%",
     fontSize: 20,
   },
   backbutton: {
     position: "absolute",
-    top: 110,
+    top: 150,
     left: 30,
     margin: 0,
     padding: 0,
