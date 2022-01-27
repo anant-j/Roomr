@@ -7,7 +7,7 @@ import { fetchAuth } from "reduxStates/authListener";
 import { useEffect, useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-
+import ErrorBox from "../components/ErrorBox";
 export default function LoginScreen() {
   const dispatch = useAppDispatch();
 
@@ -15,6 +15,7 @@ export default function LoginScreen() {
   const [loginScreen, setLoginScreen] = useState(true);
   const [hidePass, setHidePass] = useState(true);
   const [isTenant, setIsTenant] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [firstName, onChangeFirstName] = useState("");
   const [lastName, onChangeLastName] = useState("");
@@ -24,6 +25,35 @@ export default function LoginScreen() {
   const [passwordAgain, onChangePasswordAgain] = useState("");
   const [houseID, onChangeHouseID] = useState("");
   const [address, onChangeAddress] = useState("");
+
+  const setError = (code: string, screen?: number) => {
+    if (screen && screen != progress && screen >= 0 && screen <= 7) {
+      setProgress(screen);
+    }
+    switch (code) {
+      case "auth/invalid-email":
+        setErrorMessage("The email you have entered is invalid");
+        break;
+      case "auth/weak-password":
+        setErrorMessage("Password is too weak");
+        break;
+      case "auth/email-already-in-use":
+        setErrorMessage("Email already in use");
+        break;
+      case "auth/user-not-found":
+        setErrorMessage("User not found");
+        break;
+      case "auth/wrong-password":
+        setErrorMessage("Wrong password");
+        break;
+      default:
+        setErrorMessage("An unexpected error occurred");
+        break;
+    }
+    setTimeout(function () {
+      setErrorMessage("");
+    }, 7000);
+  };
 
   const LottieRef = useRef(null);
   useEffect(() => {
@@ -106,12 +136,19 @@ export default function LoginScreen() {
             </View>
             <Button
               onPress={() => {
-                login(email, password);
+                login(email, password).then((result) => {
+                  if (!result.success) {
+                    setError(result.error);
+                  }
+                });
               }}
               style={styles.button}
             >
               <Text style={styles.linkText}>Login</Text>
             </Button>
+            <View style={styles.errorBox}>
+              <ErrorBox text={errorMessage} />
+            </View>
           </View>
         );
       } else {
@@ -396,6 +433,13 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   bigSpacer: {
     marginTop: 500,
+  },
+  errorBox: {
+    position: "absolute",
+    bottom: 100,
+    width: "90%",
+    // marginBottom:0,
+    // marginTop: 1000,
   },
   logo: {
     width: 80,

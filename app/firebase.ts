@@ -21,7 +21,18 @@ export const db = getFirestore();
 export const auth = getAuth();
 
 export async function login(email, password) {
-  loginUser(auth, email, password);
+  // loginUser(auth, email, password);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.code,
+    };
+  }
 }
 
 export async function registerFakeTenant() {
@@ -33,14 +44,6 @@ export async function registerFakeTenant() {
 export async function logout() {
   signOut(auth).catch((error) => {
     console.log(error);
-  });
-}
-
-async function loginUser(auth, email, password) {
-  signInWithEmailAndPassword(auth, email, password).catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.log({ errorCode, errorMessage });
   });
 }
 
