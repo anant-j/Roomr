@@ -8,7 +8,7 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import TenantNavigation from "./navigation/Tenant";
 import LandlordNavigation from "./navigation/Landlord";
-import { registerNotificationTokenFirebase } from "./firebase";
+// import { registerNotificationTokenFirebase } from "./firebase";
 import { store } from "./store";
 import Login from "./screens/Login";
 import { useAppSelector } from "hooks/typedHooks";
