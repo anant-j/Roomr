@@ -1,6 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { doc, arrayUnion, updateDoc } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCPg7xBaBXak7AemgAgge4ER4DZ41zuuqA",
@@ -13,3 +18,44 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 export const db = getFirestore();
+export const auth = getAuth();
+
+export async function login(email, password) {
+  // loginUser(auth, email, password);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.code,
+    };
+  }
+}
+
+export async function registerFakeTenant() {
+  const email = "test@test.com";
+  const password = "testpassword";
+  registerUser(auth, email, password);
+}
+
+export async function logout() {
+  signOut(auth).catch((error) => {
+    console.log(error);
+  });
+}
+
+async function registerUser(auth, email, password) {
+  createUserWithEmailAndPassword(auth, email, password).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    if (errorCode == "auth/email-already-in-use") {
+      login(email, password);
+    } else {
+      console.log({ errorCode, errorMessage });
+    }
+  });
+  return;
+}
