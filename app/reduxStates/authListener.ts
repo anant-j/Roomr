@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
-import { setActiveAuth } from "./authSlice";
+import { setActiveAuth, setAuthFlowDoneOnce } from "./authSlice";
 
 export const fetchAuth = () => {
   return (dispatch: any) => {
@@ -10,6 +10,8 @@ export const fetchAuth = () => {
       } else {
         dispatch(setActiveAuth(false));
       }
+      dispatch(setAuthFlowDoneOnce());
     });
   };
 };
+

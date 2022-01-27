@@ -6,17 +6,18 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
-import { registerFakeTenant, login } from "../firebase";
-import { useAppDispatch } from "hooks/typedHooks";
-import { fetchAuth } from "reduxStates/authListener";
-import { useEffect, useState, useRef } from "react";
+import { login } from "../firebase";
+// import { useAppDispatch } from "hooks/typedHooks";
+import { useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import ErrorBox from "../components/ErrorBox";
 import { errorFactory } from "../utils/ErrorFactory";
 import { validator } from "../utils/Validations";
+import { useAppSelector } from "hooks/typedHooks";
+
 export default function LoginScreen() {
-  const dispatch = useAppDispatch();
+  // const expoToken = useAppSelector((state) => state.auth.expoToken);
 
   const [progress, setProgress] = useState(0);
   const [loginScreen, setLoginScreen] = useState(true);
@@ -78,9 +79,6 @@ export default function LoginScreen() {
   };
 
   const LottieRef = useRef(null);
-  useEffect(() => {
-    dispatch<any>(fetchAuth());
-  }, []);
 
   switch (progress) {
     case 0:

@@ -8,10 +8,11 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import TenantNavigation from "./navigation/Tenant";
 import LandlordNavigation from "./navigation/Landlord";
-// import { registerNotificationTokenFirebase } from "./firebase";
+import { registerExpoToken } from "./reduxStates/authSlice";
 import { store } from "./store";
 import Login from "./screens/Login";
-import { useAppSelector } from "hooks/typedHooks";
+import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
+import { fetchAuth } from "reduxStates/authListener";
 
 const tenantMode = true;
 
@@ -26,16 +27,18 @@ export default function App() {
 const AppWithProvider = () => {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
 
   const loggedIn = useAppSelector((state) => state.auth.loggedIn);
+  const authFlowDoneOnce = useAppSelector((state) => state.auth.authFlowDoneOnce);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(fetchAuth());
     registerForPushNotificationsAsync().then((token) => {
-      setExpoPushToken(token);
+      dispatch(registerExpoToken(token));
     });
 
     notificationListener.current =
@@ -56,7 +59,7 @@ const AppWithProvider = () => {
     };
   }, []);
 
-  if (!isLoadingComplete) {
+  if (!isLoadingComplete || !authFlowDoneOnce) {
     return null;
   } else {
     if (!loggedIn) {
