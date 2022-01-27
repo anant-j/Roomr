@@ -1,11 +1,12 @@
 import * as React from "react";
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image, TouchableWithoutFeedback } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { registerFakeTenant, login } from "../firebase";
 import { useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 
 export default function LoginScreen() {
   const dispatch = useAppDispatch();
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [houseID, onChangeHouseID] = useState("");
   const [address, onChangeAddress] = useState("");
 
+  const LottieRef = useRef(null);
   useEffect(() => {
     dispatch<any>(fetchAuth());
   }, []);
@@ -350,13 +352,23 @@ export default function LoginScreen() {
       return (
         <View style={styles.container}>
           <Text style={styles.title}>You are all set.</Text>
-          <Feather name="check-circle" size={150} color="green" />
-          <Text></Text>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              LottieRef.current.play();
+            }}
+          >
+            <LottieView
+              ref={LottieRef}
+              source={require("../assets/animations/success.json")}
+              autoPlay
+              loop={false}
+            />
+          </TouchableWithoutFeedback>
           <Button
             onPress={() => {
               setProgress(progress + 1);
             }}
-            style={styles.button}
+            style={[styles.button, styles.bigSpacer]}
           >
             <Text style={styles.linkText}>Continue to app</Text>
           </Button>
@@ -382,6 +394,9 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  bigSpacer: {
+    marginTop: 500,
+  },
   logo: {
     width: 80,
     resizeMode: "contain",
