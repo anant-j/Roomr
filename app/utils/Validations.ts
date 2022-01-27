@@ -12,7 +12,7 @@ export const validator = (content: string | number, type: string) => {
     case "houseID":
       return houseIDValidation(content);
     case "address":
-      return houseAddressValidations(content)
+      return houseAddressValidations(content);
     default:
       return { success: false, error: "unknown" };
       break;
@@ -63,9 +63,9 @@ function houseIDValidation(houseID) {
   return { success: true };
 }
 
-function houseAddressValidations(address){
-  if(address.length < 5){
-    return {success: false, error: "invalid-address"}
+function houseAddressValidations(address) {
+  if (address.length < 5) {
+    return { success: false, error: "invalid-address" };
   }
-  return {success: true}
+  return { success: true };
 }
