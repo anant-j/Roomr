@@ -35,7 +35,7 @@ export default function LoginScreen() {
           <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text>
           <Image
             style={styles.logo}
-            source={require("../assets/images/icon.png")}
+            source={require("../assets/images/transparentIcon.png")}
           />
           <Button
             onPress={() => {
@@ -248,7 +248,7 @@ export default function LoginScreen() {
           <View style={styles.container}>
             <Text style={styles.title}>What is your House ID?</Text>
             <Text style={styles.subtitle}>
-              Don't have one? Ask your Landlord!
+              Don&apos;t have one? Ask your Landlord!
             </Text>
             <TextInput
               style={styles.input}
