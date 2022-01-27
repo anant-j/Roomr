@@ -7,16 +7,18 @@ import {
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { login } from "../firebase";
+// import { useAppDispatch } from "hooks/typedHooks";
 import { useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import ErrorBox from "../components/ErrorBox";
 import { errorFactory } from "../utils/ErrorFactory";
 import { validator } from "../utils/Validations";
+import * as Progress from "react-native-progress";
 import { useAppSelector } from "hooks/typedHooks";
 
 export default function LoginScreen() {
-  const expoToken = useAppSelector((state) => state.auth.expoToken);
+  // const expoToken = useAppSelector((state) => state.auth.expoToken);
 
   const [progress, setProgress] = useState(0);
   const [loginScreen, setLoginScreen] = useState(true);
@@ -63,6 +65,7 @@ export default function LoginScreen() {
 
   const nextScreen = () => {
     if (progress < 8) {
+      // setCount(progress);
       setProgress(progress + 1);
     }
     setErrorMessage("");
@@ -78,6 +81,33 @@ export default function LoginScreen() {
   };
 
   const LottieRef = useRef(null);
+
+  // const countInterval = useRef(null);
+  // const [count, setCount] = useState(0);
+
+  // useEffect(() => {
+  //   countInterval.current = setInterval(() => setCount((old) => old + 5), 1000);
+  //   return () => {
+  //     clearInterval(); //when user exits, clear this interval.
+  //   };
+  // }, []);
+
+  const loaderValue = useRef(new Animated.Value(0)).current;
+  const load = (count) => {
+    Animated.timing(loaderValue, {
+      toValue: count, //final value
+      duration: 500, //update value in 500 milliseconds
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // useEffect(() => {
+  //   load(count);
+  //   if (count >= 100) {
+  //     setCount(100);
+  //     clearInterval();
+  //   }
+  // }, [count]);
 
   switch (progress) {
     case 0:
@@ -192,6 +222,15 @@ export default function LoginScreen() {
       } else {
         return (
           <View style={styles.container}>
+            <View style={styles.progressBarcontainer}>
+              <Progress.Bar
+                progress={progress / 7}
+                width={300}
+                color={"#5B8DCA"}
+                unfilledColor={"#e8e8e8"}
+                borderWidth={0}
+              />
+            </View>
             <Text style={styles.title}>What is your name?</Text>
             <TextInput
               style={styles.input}
@@ -247,6 +286,15 @@ export default function LoginScreen() {
     case 2:
       return (
         <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={progress / 7}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
           <Text style={styles.title}>What is your email?</Text>
           <TextInput
             style={styles.input}
@@ -292,6 +340,15 @@ export default function LoginScreen() {
     case 3:
       return (
         <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={progress / 7}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
           <Text style={styles.title}>What is your phone number?</Text>
           <TextInput
             style={styles.input}
@@ -338,6 +395,15 @@ export default function LoginScreen() {
     case 4:
       return (
         <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={progress / 7}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
           <Text style={styles.title}>Are you a Tenant or a Landlord?</Text>
           <Button
             onPress={() => {
@@ -383,6 +449,15 @@ export default function LoginScreen() {
       if (isTenant) {
         return (
           <View style={styles.container}>
+            <View style={styles.progressBarcontainer}>
+              <Progress.Bar
+                progress={progress / 7}
+                width={300}
+                color={"#5B8DCA"}
+                unfilledColor={"#e8e8e8"}
+                borderWidth={0}
+              />
+            </View>
             <Text style={styles.title}>What is your House ID?</Text>
             <Text style={styles.subtitle}>
               Don&apos;t have one? Ask your Landlord!
@@ -432,6 +507,15 @@ export default function LoginScreen() {
       } else {
         return (
           <View style={styles.container}>
+            <View style={styles.progressBarcontainer}>
+              <Progress.Bar
+                progress={progress / 7}
+                width={300}
+                color={"#5B8DCA"}
+                unfilledColor={"#e8e8e8"}
+                borderWidth={0}
+              />
+            </View>
             <Text style={styles.title}>What is your Address?</Text>
             <TextInput
               style={styles.input}
@@ -478,6 +562,15 @@ export default function LoginScreen() {
     case 6:
       return (
         <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={progress / 7}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
           <Text style={styles.title}>Please create a Password.</Text>
           <TextInput
             placeholder="Enter Password"
@@ -651,6 +744,10 @@ const styles = StyleSheet.create({
     borderColor: "#5B8DCA",
     fontSize: 20,
     padding: 10,
+  },
+  progressBarcontainer: {
+    position: "absolute",
+    top: 75,
   },
   passwordEye: {
     alignSelf: "center",
