@@ -82,17 +82,6 @@ export default function LoginScreen() {
 
   const LottieRef = useRef(null);
 
-
-  const loaderValue = useRef(new Animated.Value(0)).current;
-  const load = (count) => {
-    Animated.timing(loaderValue, {
-      toValue: count, //final value
-      duration: 500, //update value in 500 milliseconds
-      useNativeDriver: true,
-    }).start();
-  };
-
-
   switch (progress) {
     case 0:
       return (
