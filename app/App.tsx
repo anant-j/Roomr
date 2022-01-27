@@ -10,9 +10,10 @@ import TenantNavigation from "./navigation/Tenant";
 import LandlordNavigation from "./navigation/Landlord";
 import { registerExpoToken } from "./reduxStates/authSlice";
 import { store } from "./store";
-import Login from "./screens/Login";
+import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
+import Loading from "screens/Loader";
 
 const tenantMode = true;
 
@@ -32,7 +33,9 @@ const AppWithProvider = () => {
   const responseListener = useRef();
 
   const loggedIn = useAppSelector((state) => state.auth.loggedIn);
-  const authFlowDoneOnce = useAppSelector((state) => state.auth.authFlowDoneOnce);
+  const authFlowDoneOnce = useAppSelector(
+    (state) => state.auth.authFlowDoneOnce,
+  );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -59,36 +62,38 @@ const AppWithProvider = () => {
     };
   }, []);
 
-  if (!isLoadingComplete || !authFlowDoneOnce) {
+  if (!isLoadingComplete) {
     return null;
+  }
+  if (!authFlowDoneOnce) {
+    return (
+      <SafeAreaProvider>
+        <Loading />
+        <StatusBar />
+      </SafeAreaProvider>
+    );
   } else {
     if (!loggedIn) {
       return (
-        <Provider store={store}>
-          <SafeAreaProvider>
-            <Login />
-            <StatusBar />
-          </SafeAreaProvider>
-        </Provider>
+        <SafeAreaProvider>
+          <Login />
+          <StatusBar />
+        </SafeAreaProvider>
       );
     } else {
       if (tenantMode) {
         return (
-          <Provider store={store}>
-            <SafeAreaProvider>
-              <TenantNavigation colorScheme={colorScheme} />
-              <StatusBar />
-            </SafeAreaProvider>
-          </Provider>
+          <SafeAreaProvider>
+            <TenantNavigation colorScheme={colorScheme} />
+            <StatusBar />
+          </SafeAreaProvider>
         );
       } else {
         return (
-          <Provider store={store}>
-            <SafeAreaProvider>
-              <LandlordNavigation colorScheme={colorScheme} />
-              <StatusBar />
-            </SafeAreaProvider>
-          </Provider>
+          <SafeAreaProvider>
+            <LandlordNavigation colorScheme={colorScheme} />
+            <StatusBar />
+          </SafeAreaProvider>
         );
       }
     }

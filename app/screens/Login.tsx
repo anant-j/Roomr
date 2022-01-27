@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { login } from "../firebase";
-// import { useAppDispatch } from "hooks/typedHooks";
 import { useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
@@ -17,7 +16,7 @@ import { validator } from "../utils/Validations";
 import { useAppSelector } from "hooks/typedHooks";
 
 export default function LoginScreen() {
-  // const expoToken = useAppSelector((state) => state.auth.expoToken);
+  const expoToken = useAppSelector((state) => state.auth.expoToken);
 
   const [progress, setProgress] = useState(0);
   const [loginScreen, setLoginScreen] = useState(true);
