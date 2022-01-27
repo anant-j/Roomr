@@ -82,15 +82,6 @@ export default function LoginScreen() {
 
   const LottieRef = useRef(null);
 
-  // const countInterval = useRef(null);
-  // const [count, setCount] = useState(0);
-
-  // useEffect(() => {
-  //   countInterval.current = setInterval(() => setCount((old) => old + 5), 1000);
-  //   return () => {
-  //     clearInterval(); //when user exits, clear this interval.
-  //   };
-  // }, []);
 
   const loaderValue = useRef(new Animated.Value(0)).current;
   const load = (count) => {
@@ -101,13 +92,6 @@ export default function LoginScreen() {
     }).start();
   };
 
-  // useEffect(() => {
-  //   load(count);
-  //   if (count >= 100) {
-  //     setCount(100);
-  //     clearInterval();
-  //   }
-  // }, [count]);
 
   switch (progress) {
     case 0:
