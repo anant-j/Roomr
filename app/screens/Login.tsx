@@ -1,5 +1,10 @@
 import * as React from "react";
-import { StyleSheet, Image, TouchableWithoutFeedback } from "react-native";
+import {
+  Animated,
+  StyleSheet,
+  Image,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { registerFakeTenant, login } from "../firebase";
 import { useAppDispatch } from "hooks/typedHooks";
@@ -8,6 +13,8 @@ import { useEffect, useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import ErrorBox from "../components/ErrorBox";
+import {errorFactory} from "../utils/ErrorFactory";
+
 export default function LoginScreen() {
   const dispatch = useAppDispatch();
 
@@ -16,6 +23,7 @@ export default function LoginScreen() {
   const [hidePass, setHidePass] = useState(true);
   const [isTenant, setIsTenant] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [firstName, onChangeFirstName] = useState("");
   const [lastName, onChangeLastName] = useState("");
@@ -26,33 +34,31 @@ export default function LoginScreen() {
   const [houseID, onChangeHouseID] = useState("");
   const [address, onChangeAddress] = useState("");
 
+  const fadeIn = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const fadeOut = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  };
+
   const setError = (code: string, screen?: number) => {
     if (screen && screen != progress && screen >= 0 && screen <= 7) {
       setProgress(screen);
     }
-    switch (code) {
-      case "auth/invalid-email":
-        setErrorMessage("The email you have entered is invalid");
-        break;
-      case "auth/weak-password":
-        setErrorMessage("Password is too weak");
-        break;
-      case "auth/email-already-in-use":
-        setErrorMessage("Email already in use");
-        break;
-      case "auth/user-not-found":
-        setErrorMessage("User not found");
-        break;
-      case "auth/wrong-password":
-        setErrorMessage("Wrong password");
-        break;
-      default:
-        setErrorMessage("An unexpected error occurred");
-        break;
-    }
+    setErrorMessage(errorFactory(code));
+    fadeIn();
     setTimeout(function () {
-      setErrorMessage("");
-    }, 7000);
+      fadeOut();
+    }, 5000);
   };
 
   const LottieRef = useRef(null);
@@ -146,9 +152,16 @@ export default function LoginScreen() {
             >
               <Text style={styles.linkText}>Login</Text>
             </Button>
-            <View style={styles.errorBox}>
+            <Animated.View
+              style={[
+                styles.errorBox,
+                {
+                  opacity: fadeAnim,
+                },
+              ]}
+            >
               <ErrorBox text={errorMessage} />
-            </View>
+            </Animated.View>
           </View>
         );
       } else {
