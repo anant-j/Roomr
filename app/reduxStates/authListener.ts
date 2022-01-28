@@ -17,7 +17,6 @@ export const fetchAuth = () => {
       if (user) {
         dispatch(setActiveAuth(true));
         dispatch(setEmail(user.email));
-        dispatch(fetchUserData(user.email));
       } else {
         dispatch(setActiveAuth(false));
       }
@@ -26,22 +25,25 @@ export const fetchAuth = () => {
   };
 };
 
-export const fetchUserData = (email) => {
+export const fetchUserData = () => {
   return (dispatch: any) => {
-    const unsub = onSnapshot(doc(db, "users", email), (doc: any) => {
-      const updatedUserData = doc.data();
-      const userData = {
-        type: updatedUserData.type,
-        name: {
-          first: updatedUserData.firstName,
-          last: updatedUserData.lastName,
-        },
-        houses: updatedUserData.houses,
-        approved: updatedUserData.approved,
-      };
-      dispatch(setUserData(userData));
-    });
+    const user = auth.currentUser;
+    if (user) {
+      const unsub = onSnapshot(doc(db, "users", user.email), (doc: any) => {
+        const updatedUserData = doc.data();
+        const userData = {
+          type: updatedUserData.type,
+          name: {
+            first: updatedUserData.firstName,
+            last: updatedUserData.lastName,
+          },
+          houses: updatedUserData.houses,
+          approved: updatedUserData.approved,
+        };
+        dispatch(setUserData(userData));
+      });
 
-    listenerUnsubscribeList.push(unsub);
+      listenerUnsubscribeList.push(unsub);
+    }
   };
 };

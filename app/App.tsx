@@ -32,9 +32,6 @@ const AppWithProvider = () => {
   const responseListener = useRef();
 
   const loggedIn = useAppSelector((state) => state.auth.loggedIn);
-  const authFlowDoneOnce = useAppSelector(
-    (state) => state.auth.authFlowDoneOnce,
-  );
   const userDataFetched = useAppSelector((state) => state.auth.type) !== null;
   const dispatch = useAppDispatch();
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
@@ -67,7 +64,15 @@ const AppWithProvider = () => {
   if (!isLoadingComplete) {
     return null;
   }
-  if (!(authFlowDoneOnce && userDataFetched)) {
+  if (!loggedIn) {
+    return (
+      <SafeAreaProvider>
+        <Login />
+        <StatusBar />
+      </SafeAreaProvider>
+    );
+  }
+  if (!userDataFetched) {
     return (
       <SafeAreaProvider>
         <Loading />
@@ -75,37 +80,28 @@ const AppWithProvider = () => {
       </SafeAreaProvider>
     );
   } else {
-    if (!loggedIn) {
-      return (
-        <SafeAreaProvider>
-          <Login />
-          <StatusBar />
-        </SafeAreaProvider>
-      );
-    } else {
-      if (tenantMode) {
-        if (!approved) {
-          return (
-            <SafeAreaProvider>
-              <WaitingScreen />
-              <StatusBar />
-            </SafeAreaProvider>
-          );
-        }
+    if (tenantMode) {
+      if (!approved) {
         return (
           <SafeAreaProvider>
-            <TenantNavigation colorScheme={colorScheme} />
-            <StatusBar />
-          </SafeAreaProvider>
-        );
-      } else {
-        return (
-          <SafeAreaProvider>
-            <LandlordNavigation colorScheme={colorScheme} />
+            <WaitingScreen />
             <StatusBar />
           </SafeAreaProvider>
         );
       }
+      return (
+        <SafeAreaProvider>
+          <TenantNavigation colorScheme={colorScheme} />
+          <StatusBar />
+        </SafeAreaProvider>
+      );
+    } else {
+      return (
+        <SafeAreaProvider>
+          <LandlordNavigation colorScheme={colorScheme} />
+          <StatusBar />
+        </SafeAreaProvider>
+      );
     }
   }
 };
