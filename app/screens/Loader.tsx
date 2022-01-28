@@ -2,40 +2,26 @@ import * as React from "react";
 import { StyleSheet, Image } from "react-native";
 import { Button, Text, View } from "../components/Themed";
 import LottieView from "lottie-react-native";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { useEffect } from "react";
-import { fetchUserData } from "reduxStates/authListener";
+import { useAppDispatch } from "hooks/typedHooks";
 import { signout } from "reduxStates/authSlice";
 
 export default function LoadingScreen() {
   const dispatch = useAppDispatch();
-  const email = useAppSelector((state) => state.auth.email);
   const logout = () => {
     dispatch(signout());
   };
-  useEffect(() => {
-    if (email) {
-      dispatch(fetchUserData(email));
-    }
-  }, []);
   return (
     <View style={styles.container}>
       <Text style={styles.maintitle}>Roomr</Text>
-      <LottieView
-        source={require("../assets/animations/loading.json")}
-        autoPlay
-      />
-      <Image
-        style={styles.logo}
-        source={require("../assets/images/transparentIcon.png")}
-      />
+      <Text style={styles.subtitle}>Please wait</Text>
+      <LottieView source={require("assets/animations/loading.json")} autoPlay />
       <Button
         onPress={() => {
           logout();
         }}
         style={styles.button}
       >
-        <Text>Logout</Text>
+        <Text style={styles.buttonText}>Logout</Text>
       </Button>
     </View>
   );
@@ -58,12 +44,24 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "bold",
   },
+  subtitle: {
+    position: "absolute",
+    top: 200,
+    fontSize: 20,
+    padding: 20,
+  },
   button: {
+    position: "absolute",
+    bottom: 50,
     borderRadius: 10,
     padding: 10,
     marginLeft: 50,
     marginRight: 50,
     width: "90%",
     alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 30,
+    color: "white",
   },
 });
