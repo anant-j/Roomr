@@ -8,6 +8,7 @@ import {
   Text as DefaultText,
   View as DefaultView,
   TouchableOpacity as DefaultTouchableOpacity,
+  TextInput as DefaultTextInput,
 } from "react-native";
 
 import Colors from "constants/Colors";
@@ -36,6 +37,7 @@ export type TextProps = ThemeProps & DefaultText["props"];
 export type ViewProps = ThemeProps & DefaultView["props"];
 export type TouchableOpacityProps = ThemeProps &
   DefaultTouchableOpacity["props"];
+export type TextInputProps = ThemeProps & DefaultTextInput["props"];
 
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
@@ -82,4 +84,11 @@ export function Button(props: TouchableOpacityProps) {
       {...otherProps}
     />
   );
+}
+
+export function TextInput(props: TextInputProps) {
+  const { style, lightColor, darkColor, ...otherProps } = props;
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+
+  return <DefaultTextInput style={[{ color }, style]} {...otherProps} />;
 }
