@@ -11,6 +11,7 @@ import TaskList from "components/TaskList";
 export default function TaskScreen() {
   const { allTasks, loading, error } = useAppSelector((state) => state.tasks);
   const houseID = useAppSelector((state) => state.auth.houses)[0];
+  const email = useAppSelector((state) => state.auth.email);
   const dispatch = useAppDispatch();
 
   // TODO: un-hard code the tasks
@@ -33,8 +34,7 @@ export default function TaskScreen() {
     if (percentage > 10) {
       setPercentage(percentage - 10);
     }
-    const payload = [...allTasks, task];
-    dispatch(addTask(payload, houseID));
+    dispatch(addTask(task, houseID, email));
   };
 
   // const completeTask = (index: number) => {
