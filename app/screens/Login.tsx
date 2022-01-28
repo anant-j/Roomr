@@ -15,11 +15,14 @@ import ErrorBox from "../components/ErrorBox";
 import { errorFactory } from "../utils/ErrorFactory";
 import { validator } from "../utils/Validations";
 import * as Progress from "react-native-progress";
+import { tenantSignup, landlordSignup } from "../firebase";
 import { useAppSelector } from "hooks/typedHooks";
 
 export default function LoginScreen() {
-  // const expoToken = useAppSelector((state) => state.auth.expoToken);
+  const expoToken = useAppSelector((state) => state.auth.expoToken);
 
+  const maxScreens = 8;
+  const totalProgressScreens = 7;
   const [progress, setProgress] = useState(0);
   const [loginScreen, setLoginScreen] = useState(true);
   const [hidePass, setHidePass] = useState(true);
@@ -53,10 +56,13 @@ export default function LoginScreen() {
   };
 
   const setError = (code: string, screen?: number) => {
-    if (screen && screen != progress && screen >= 0 && screen <= 7) {
+    if (screen && screen != progress && screen >= 0 && screen <= maxScreens) {
       setProgress(screen);
     }
-    setErrorMessage(errorFactory(code));
+    setErrorMessage(errorFactory(code).message);
+    if (errorFactory(code).redirectScreen !== -1) {
+      setProgress(errorFactory(code).redirectScreen);
+    }
     fadeIn();
     setTimeout(function () {
       fadeOut();
@@ -64,8 +70,7 @@ export default function LoginScreen() {
   };
 
   const nextScreen = () => {
-    if (progress < 8) {
-      // setCount(progress);
+    if (progress < maxScreens + 1) {
       setProgress(progress + 1);
     }
     setErrorMessage("");
@@ -78,6 +83,47 @@ export default function LoginScreen() {
       setProgress(0);
     }
     setErrorMessage("");
+  };
+
+  const register = async () => {
+    nextScreen();
+    let result;
+    if (isTenant) {
+      result = await tenantSignup({
+        name: {
+          first: firstName,
+          last: lastName,
+        },
+        phone: phone,
+        email: email,
+        password: password,
+        houseID: houseID,
+        expo_token: expoToken,
+      });
+      if (result.data.status === "success") {
+        login(email, password);
+        return;
+      }
+    } else {
+      result = await landlordSignup({
+        name: {
+          first: firstName,
+          last: lastName,
+        },
+        phone: phone,
+        email: email,
+        password: password,
+        address: address,
+        expo_token: expoToken,
+      });
+      if (result.data.status === "success") {
+        setProgress(8);
+        return;
+      }
+    }
+    if (result.data.status === "error") {
+      setError(result.data.code);
+    }
   };
 
   const LottieRef = useRef(null);
@@ -197,7 +243,7 @@ export default function LoginScreen() {
           <View style={styles.container}>
             <View style={styles.progressBarcontainer}>
               <Progress.Bar
-                progress={progress / 7}
+                progress={progress / totalProgressScreens}
                 width={300}
                 color={"#5B8DCA"}
                 unfilledColor={"#e8e8e8"}
@@ -261,7 +307,7 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / 7}
+              progress={progress / totalProgressScreens}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -315,7 +361,7 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / 7}
+              progress={progress / totalProgressScreens}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -370,7 +416,7 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / 7}
+              progress={progress / totalProgressScreens}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -424,7 +470,7 @@ export default function LoginScreen() {
           <View style={styles.container}>
             <View style={styles.progressBarcontainer}>
               <Progress.Bar
-                progress={progress / 7}
+                progress={progress / totalProgressScreens}
                 width={300}
                 color={"#5B8DCA"}
                 unfilledColor={"#e8e8e8"}
@@ -439,8 +485,8 @@ export default function LoginScreen() {
               style={styles.input}
               onChangeText={onChangeHouseID}
               value={houseID}
-              maxLength={9}
-              placeholder="Enter 9 Digit House ID"
+              maxLength={8}
+              placeholder="Enter 8 Digit House ID"
             />
             <View style={styles.passwordContainer}>
               <Button
@@ -482,7 +528,7 @@ export default function LoginScreen() {
           <View style={styles.container}>
             <View style={styles.progressBarcontainer}>
               <Progress.Bar
-                progress={progress / 7}
+                progress={progress / totalProgressScreens}
                 width={300}
                 color={"#5B8DCA"}
                 unfilledColor={"#e8e8e8"}
@@ -537,7 +583,7 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / 7}
+              progress={progress / totalProgressScreens}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -583,12 +629,13 @@ export default function LoginScreen() {
                 } else if (password !== passwordAgain) {
                   setError("passwords-dont-match");
                 } else {
-                  nextScreen();
+                  // nextScreen();
+                  register();
                 }
               }}
               style={styles.sideBySideButton}
             >
-              <Text style={styles.linkText}>Next</Text>
+              <Text style={styles.linkText}>Register</Text>
             </Button>
           </View>
           <Animated.View
@@ -606,6 +653,35 @@ export default function LoginScreen() {
     case 7:
       return (
         <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={progress / totalProgressScreens}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
+          <Text style={styles.title}>Please wait</Text>
+          <LottieView
+            source={require("../assets/animations/loading.json")}
+            autoPlay
+          />
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
+        </View>
+      );
+    case 8:
+      return (
+        <View style={styles.container}>
           <Text style={styles.title}>You are all set.</Text>
           <TouchableWithoutFeedback
             onPress={() => {
@@ -621,7 +697,11 @@ export default function LoginScreen() {
           </TouchableWithoutFeedback>
           <Button
             onPress={() => {
-              nextScreen();
+              login(email, password).then((result) => {
+                if (!result.success) {
+                  setError(result.error);
+                }
+              });
             }}
             style={[styles.button, styles.bigSpacer]}
           >

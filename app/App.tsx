@@ -14,8 +14,7 @@ import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
 import Loading from "screens/Loader";
-
-const tenantMode = true;
+import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
 
 export default function App() {
   return (
@@ -36,7 +35,10 @@ const AppWithProvider = () => {
   const authFlowDoneOnce = useAppSelector(
     (state) => state.auth.authFlowDoneOnce,
   );
+  const userDataFetched = useAppSelector((state) => state.auth.type) !== null;
   const dispatch = useAppDispatch();
+  const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
+  const approved = useAppSelector((state) => state.auth.approved);
 
   useEffect(() => {
     dispatch(fetchAuth());
@@ -65,7 +67,7 @@ const AppWithProvider = () => {
   if (!isLoadingComplete) {
     return null;
   }
-  if (!authFlowDoneOnce) {
+  if (!(authFlowDoneOnce && userDataFetched)) {
     return (
       <SafeAreaProvider>
         <Loading />
@@ -82,6 +84,14 @@ const AppWithProvider = () => {
       );
     } else {
       if (tenantMode) {
+        if (!approved) {
+          return (
+            <SafeAreaProvider>
+              <WaitingScreen />
+              <StatusBar />
+            </SafeAreaProvider>
+          );
+        }
         return (
           <SafeAreaProvider>
             <TenantNavigation colorScheme={colorScheme} />

@@ -6,7 +6,11 @@ import {
   signOut,
   connectAuthEmulator,
 } from "firebase/auth";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import {
+  getFunctions,
+  httpsCallable,
+  connectFunctionsEmulator,
+} from "firebase/functions";
 const firebaseConfig = {
   apiKey: "AIzaSyCPg7xBaBXak7AemgAgge4ER4DZ41zuuqA",
   authDomain: "roomr-2022.firebaseapp.com",
@@ -17,15 +21,15 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const localTestMode = false;
+const localTestMode = true;
 export const db = getFirestore();
 export const auth = getAuth();
 export const functions = getFunctions(app);
 
 if (localTestMode) {
-  connectFirestoreEmulator(db, "localhost", 8081);
-  connectAuthEmulator(auth, "http://localhost:9099");
-  connectFunctionsEmulator(functions, "localhost", 5001);
+  connectFirestoreEmulator(db, "192.168.1.108", 8081);
+  connectAuthEmulator(auth, "http://192.168.1.108:9099");
+  connectFunctionsEmulator(functions, "192.168.1.108", 5001);
 }
 
 export async function login(email, password) {
@@ -48,3 +52,6 @@ export async function logout() {
     console.log(error);
   });
 }
+
+export const tenantSignup = httpsCallable(functions, "signUpTenant");
+export const landlordSignup = httpsCallable(functions, "signUpLandlord");

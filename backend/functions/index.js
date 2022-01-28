@@ -57,7 +57,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     },
     type: "tenant",
     phone: userData.phone,
-    house: houseID,
+    houses: [houseID],
     approved: false,
     expo_token: userData.expo_token,
   };
@@ -158,6 +158,7 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     type: "landlord",
     phone: userData.phone,
     houses: [houseID],
+    approved: true,
     expo_token: userData.expo_token,
   };
   await db.collection("users").doc(userData.email).set(userDataFB);

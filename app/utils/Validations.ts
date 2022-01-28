@@ -57,7 +57,7 @@ function phoneNumberValidation(number) {
 }
 
 function houseIDValidation(houseID) {
-  if (houseID.length != 9) {
+  if (houseID.length != 8) {
     return { success: false, error: "invalid-house-id" };
   }
   return { success: true };
