@@ -1,20 +1,53 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { logout } from "../firebase";
 export interface AuthState {
   loggedIn: boolean;
   expoToken: string;
   authFlowDoneOnce: boolean;
+  email: string;
+  type: string;
+  name: {
+    first: string;
+    last: string;
+  };
+  houses: string[];
+  approved: boolean;
 }
 
 const initialState: AuthState = {
   loggedIn: false,
   expoToken: "",
   authFlowDoneOnce: false,
+  email: "",
+  type: null,
+  name: {
+    first: "",
+    last: "",
+  },
+  houses: [],
+  approved: false,
 };
+
+export interface UserObject {
+  type: string;
+  name: {
+    first: string;
+    last: string;
+  };
+  houses: string[];
+  approved: boolean;
+}
 
 export const registerExpoToken = (payload: string) => {
   return (dispatch: any) => {
     dispatch(setExpoToken(payload));
+  };
+};
+
+export const signout = () => {
+  return async (dispatch: any) => {
+    await logout();
+    dispatch(cleanAuth());
   };
 };
 
@@ -31,10 +64,33 @@ export const authSlice = createSlice({
     setAuthFlowDoneOnce: (state) => {
       state.authFlowDoneOnce = true;
     },
+    setUserData: (state, action: PayloadAction<UserObject>) => {
+      state.approved = action.payload.approved;
+      state.type = action.payload.type;
+      state.name = action.payload.name;
+      state.houses = action.payload.houses;
+    },
+    setEmail: (state, action: PayloadAction<string>) => {
+      state.email = action.payload;
+    },
+    cleanAuth: (state) => {
+      state.approved = initialState.approved;
+      state.type = initialState.type;
+      state.name = initialState.name;
+      state.houses = initialState.houses;
+      state.loggedIn = initialState.loggedIn;
+      state.authFlowDoneOnce = initialState.authFlowDoneOnce;
+    },
   },
 });
 
-export const { setActiveAuth, setExpoToken, setAuthFlowDoneOnce } =
-  authSlice.actions;
+export const {
+  setActiveAuth,
+  setExpoToken,
+  setAuthFlowDoneOnce,
+  setUserData,
+  setEmail,
+  cleanAuth,
+} = authSlice.actions;
 
 export default authSlice.reducer;

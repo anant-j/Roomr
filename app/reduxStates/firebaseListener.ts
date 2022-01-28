@@ -1,4 +1,4 @@
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
 import {
@@ -26,19 +26,34 @@ const fetchChatData = (dispatch: any) => {
   dispatch(fetchChatsFulfilled(data));
 };
 
-export const fetchData = () => {
+export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
     dispatch(fetchTasksPending());
+    const q = query(collection(db, `houses/${houseID}/tasks`));
     const unsub = onSnapshot(
-      doc(db, "user1", "data"),
-      (doc: any) => {
-        const updatedTasks = doc.data().taskList;
-        dispatch(fetchTasksFulfilled(updatedTasks));
+      q,
+      (querySnapshot) => {
+        const tasks = [];
+        querySnapshot.forEach((doc) => {
+          tasks.push(doc.data().content);
+        });
+        dispatch(fetchTasksFulfilled(tasks));
       },
       (error) => {
         dispatch(fetchTasksError(error));
       },
     );
+
+    // const unsub = onSnapshot(
+    //   doc(db, "houses", houseID),
+    //   (doc: any) => {
+    //     const updatedTasks = doc.data().taskList;
+    //     dispatch(fetchTasksFulfilled(updatedTasks));
+    //   },
+    //   (error) => {
+    //     dispatch(fetchTasksError(error));
+    //   },
+    // );
 
     fetchChatData(dispatch);
 

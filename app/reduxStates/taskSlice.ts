@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export interface TaskState {
@@ -14,15 +14,15 @@ const initialState: TaskState = {
   error: null,
 };
 
-export const addTask = (payload: string[]) => {
+export const addTask = (payload: string, houseID: string, email) => {
   return async (dispatch: any) => {
     dispatch(addTaskPending());
     try {
-      await updateDoc(
-        doc(db, "user1", "data"),
-        { taskList: payload },
-        { merge: true },
-      );
+      await addDoc(collection(db, `houses/${houseID}/tasks`), {
+        content: payload,
+        createdBy: email,
+        createdOn: new Date(),
+      });
     } catch (error: any) {
       dispatch(addTaskError(error));
     }
