@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import {
   getAuth,
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  connectAuthEmulator,
 } from "firebase/auth";
-
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 const firebaseConfig = {
   apiKey: "AIzaSyCPg7xBaBXak7AemgAgge4ER4DZ41zuuqA",
   authDomain: "roomr-2022.firebaseapp.com",
@@ -16,9 +16,17 @@ const firebaseConfig = {
   appId: "1:988138097951:web:59753fe2cbcefc4ad6342a",
 };
 
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const localTestMode = false;
 export const db = getFirestore();
 export const auth = getAuth();
+export const functions = getFunctions(app);
+
+if (localTestMode) {
+  connectFirestoreEmulator(db, "localhost", 8081);
+  connectAuthEmulator(auth, "http://localhost:9099");
+  connectFunctionsEmulator(functions, "localhost", 5001);
+}
 
 export async function login(email, password) {
   // loginUser(auth, email, password);
@@ -35,27 +43,8 @@ export async function login(email, password) {
   }
 }
 
-export async function registerFakeTenant() {
-  const email = "test@test.com";
-  const password = "testpassword";
-  registerUser(auth, email, password);
-}
-
 export async function logout() {
   signOut(auth).catch((error) => {
     console.log(error);
   });
-}
-
-async function registerUser(auth, email, password) {
-  createUserWithEmailAndPassword(auth, email, password).catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    if (errorCode == "auth/email-already-in-use") {
-      login(email, password);
-    } else {
-      console.log({ errorCode, errorMessage });
-    }
-  });
-  return;
 }

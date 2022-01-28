@@ -3,6 +3,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
+const auth = admin.auth();
 const expo = new Expo();
 
 exports.sendNotification = functions.https.onRequest(async (req, res) => {
@@ -60,13 +61,6 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     approved: false,
     expo_token: userData.expo_token,
   };
-  await db.collection("users").doc(userData.email).set(userDataFB);
-  await db
-      .collection("houses")
-      .doc(houseID)
-      .update({
-        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
-      });
   const landlord = house.data().landlord;
   const landlordEmailDoc = await db.collection("users").doc(landlord).get();
   if (!landlordEmailDoc.exists) {
@@ -76,12 +70,36 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     };
   }
   const landlordEmail = [landlordEmailDoc.data().expo_token];
+  try {
+    await auth.createUser(
+        {
+          email: userData.email,
+          emailVerified: false,
+          password: userData.password,
+          displayName: userData.name.first + " " + userData.name.last,
+          disabled: false,
+        },
+    );
+  } catch (error) {
+    if (error.code === "auth/email-already-exists") {
+      return {
+        status: "error",
+        code: "USER_ALREADY_EXISTS",
+      };
+    }
+    return {
+      status: "error",
+      code: "UNEXPECTED_ERROR"};
+  }
+  await db.collection("users").doc(userData.email).set(userDataFB);
+  await db
+      .collection("houses")
+      .doc(houseID)
+      .update({
+        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
+      });
   // eslint-disable-next-line max-len
-  sendExpoNotifications(
-      `A new tenant: ${userData.name.first} ${userData.name.last} would like 
-    to join your household on Roomr. Click this notification to approve them!`,
-      landlordEmail,
-  );
+  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordEmail);
   return {
     status: "success",
     code: "USER_CREATED",
@@ -90,7 +108,6 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
 
 exports.signUpLandlord = functions.https.onCall(async (data, context) => {
   const userData = data;
-  let houseCreated = false;
   if (!validPayload(userData, "landlord")) {
     return {
       status: "error",
@@ -98,37 +115,52 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     };
   }
   let houseID = await getHouseId(userData.address);
-  if (houseID == 0) {
-    houseID = await addHouse(userData.email, userData.address);
-    houseCreated = true;
-  } else {
+  if (houseID != 0) {
     return {
       status: "error",
       code: "HOUSE_ALREADY_EXISTS",
     };
   }
   const userRef = await db.collection("users").doc(userData.email).get();
-  if (!userRef.exists) {
-    const userDataFB = {
-      name: {
-        first: userData.name.first,
-        last: userData.name.last,
-      },
-      type: "landlord",
-      phone: userData.phone,
-      houses: [houseID],
-      expo_token: userData.expo_token,
-    };
-    await db.collection("users").doc(userData.email).set(userDataFB);
-  } else {
-    if (houseCreated) {
-      await db.collection("houses").doc(houseID).delete();
-    }
+  if (userRef.exists) {
     return {
       status: "error",
       code: "USER_ALREADY_EXISTS",
     };
   }
+  try {
+    await auth.createUser(
+        {
+          email: userData.email,
+          emailVerified: false,
+          password: userData.password,
+          displayName: userData.name.first + " " + userData.name.last,
+          disabled: false,
+        },
+    );
+  } catch (error) {
+    if (error.code === "auth/email-already-exists") {
+      return {
+        status: "error",
+        code: "USER_ALREADY_EXISTS",
+      };
+    }
+    return {
+      status: "error",
+      code: "UNEXPECTED_ERROR"};
+  }
+  houseID = await addHouse(userData.email, userData.address);
+  const userDataFB = {
+    name: {
+      first: userData.name.first,
+      last: userData.name.last,
+    },
+    type: "landlord",
+    phone: userData.phone,
+    houses: [houseID],
+    expo_token: userData.expo_token,
+  };
+  await db.collection("users").doc(userData.email).set(userDataFB);
   return {
     status: "success",
     house: houseID,
@@ -185,6 +217,7 @@ function validPayload(data, type) {
     !data.name.last ||
     !data.email ||
     !data.phone ||
+    !data.password ||
     !data.expo_token
   ) {
     return false;
