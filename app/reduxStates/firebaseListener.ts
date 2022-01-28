@@ -26,7 +26,7 @@ const fetchChatData = (dispatch: any) => {
   dispatch(fetchChatsFulfilled(data));
 };
 
-export const fetchData = (houseID:string) => {
+export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
     dispatch(fetchTasksPending());
     const unsub = onSnapshot(

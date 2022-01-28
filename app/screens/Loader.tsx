@@ -10,7 +10,7 @@ export default function LoadingScreen() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch<any>(fetchUserData());
+    dispatch(fetchUserData());
   }, []);
   return (
     <View style={styles.container}>

@@ -14,12 +14,12 @@ const initialState: TaskState = {
   error: null,
 };
 
-export const addTask = (payload: string[]) => {
+export const addTask = (payload: string[], houseID: string) => {
   return async (dispatch: any) => {
     dispatch(addTaskPending());
     try {
       await updateDoc(
-        doc(db, "user1", "data"),
+        doc(db, "houses", houseID),
         { taskList: payload },
         { merge: true },
       );

@@ -40,9 +40,9 @@ export default function Navigation({
   colorScheme: ColorSchemeName;
 }) {
   const dispatch = useAppDispatch();
-  const houseID =  useAppSelector((state) => state.auth.houses)[0];
+  const houseID = useAppSelector((state) => state.auth.houses)[0];
   useEffect(() => {
-    dispatch<any>(fetchData(houseID));
+    dispatch(fetchData(houseID));
   }, []);
 
   return (
