@@ -3,9 +3,14 @@ import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { testPushNotification } from "../../notificationHandler";
 import { Text, View, Button } from "components/Themed";
-import { logout } from "../../firebase";
+import { signout } from "../../reduxStates/authSlice";
+import { useAppDispatch } from "hooks/typedHooks";
 
 export default function ModalScreen() {
+  const dispatch = useAppDispatch();
+  const logout = () => {
+    dispatch(signout());
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
@@ -20,7 +25,7 @@ export default function ModalScreen() {
       <Text></Text>
       <Button
         onPress={async () => {
-          await logout();
+          logout();
         }}
         style={{ padding: 10, borderRadius: 10 }}
       >

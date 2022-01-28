@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { logout } from "../firebase";
 export interface AuthState {
   loggedIn: boolean;
   expoToken: string;
@@ -44,6 +44,13 @@ export const registerExpoToken = (payload: string) => {
   };
 };
 
+export const signout = () => {
+  return async (dispatch: any) => {
+    await logout();
+    dispatch(cleanAuth());
+  };
+};
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -66,6 +73,14 @@ export const authSlice = createSlice({
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload;
     },
+    cleanAuth: (state) => {
+      state.approved = initialState.approved;
+      state.type = initialState.type;
+      state.name = initialState.name;
+      state.houses = initialState.houses;
+      state.loggedIn = initialState.loggedIn;
+      state.authFlowDoneOnce = initialState.authFlowDoneOnce;
+    },
   },
 });
 
@@ -75,6 +90,7 @@ export const {
   setAuthFlowDoneOnce,
   setUserData,
   setEmail,
+  cleanAuth,
 } = authSlice.actions;
 
 export default authSlice.reducer;

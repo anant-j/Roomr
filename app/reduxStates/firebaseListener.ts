@@ -26,11 +26,11 @@ const fetchChatData = (dispatch: any) => {
   dispatch(fetchChatsFulfilled(data));
 };
 
-export const fetchData = () => {
+export const fetchData = (houseID:string) => {
   return (dispatch: any) => {
     dispatch(fetchTasksPending());
     const unsub = onSnapshot(
-      doc(db, "user1", "data"),
+      doc(db, "houses", houseID),
       (doc: any) => {
         const updatedTasks = doc.data().taskList;
         dispatch(fetchTasksFulfilled(updatedTasks));

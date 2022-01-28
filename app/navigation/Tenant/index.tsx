@@ -23,7 +23,7 @@ import HomeScreen from "screens/Tenant/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
 import ChatScreen from "screens/Tenant/ChatScreen";
 import CalendarScreen from "screens/Tenant/CalendarScreen";
-import { useAppDispatch } from "hooks/typedHooks";
+import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { useEffect } from "react";
 import { fetchData } from "reduxStates/firebaseListener";
 
@@ -40,9 +40,9 @@ export default function Navigation({
   colorScheme: ColorSchemeName;
 }) {
   const dispatch = useAppDispatch();
-
+  const houseID =  useAppSelector((state) => state.auth.houses)[0];
   useEffect(() => {
-    dispatch<any>(fetchData());
+    dispatch<any>(fetchData(houseID));
   }, []);
 
   return (

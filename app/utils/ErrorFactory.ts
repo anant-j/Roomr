@@ -61,7 +61,7 @@ export const errorFactory = (code: string) => {
       return { redirectScreen: -1, message: "Please enter a valid address" };
     case "INVALID_USER_DATA":
       return {
-        redirectScreen: -1,
+        redirectScreen: 0,
         message: "The data you have provided is invalid. Please try again.",
       };
     case "HOUSE_DOES_NOT_EXIST":
