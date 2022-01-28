@@ -1,9 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { logout } from "../firebase";
 export interface AuthState {
-  loggedIn: boolean;
   expoToken: string;
-  authFlowDoneOnce: boolean;
   email: string;
   type: string;
   name: {
@@ -15,10 +13,8 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  loggedIn: false,
   expoToken: "",
-  authFlowDoneOnce: false,
-  email: "",
+  email: null,
   type: null,
   name: {
     first: "",
@@ -55,14 +51,8 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setActiveAuth: (state, action: PayloadAction<boolean>) => {
-      state.loggedIn = action.payload;
-    },
     setExpoToken: (state, action: PayloadAction<string>) => {
       state.expoToken = action.payload;
-    },
-    setAuthFlowDoneOnce: (state) => {
-      state.authFlowDoneOnce = true;
     },
     setUserData: (state, action: PayloadAction<UserObject>) => {
       state.approved = action.payload.approved;
@@ -78,19 +68,12 @@ export const authSlice = createSlice({
       state.type = initialState.type;
       state.name = initialState.name;
       state.houses = initialState.houses;
-      state.loggedIn = initialState.loggedIn;
-      state.authFlowDoneOnce = initialState.authFlowDoneOnce;
+      state.email = initialState.email;
     },
   },
 });
 
-export const {
-  setActiveAuth,
-  setExpoToken,
-  setAuthFlowDoneOnce,
-  setUserData,
-  setEmail,
-  cleanAuth,
-} = authSlice.actions;
+export const { setExpoToken, setUserData, setEmail, cleanAuth } =
+  authSlice.actions;
 
 export default authSlice.reducer;
