@@ -2,8 +2,16 @@ import * as React from "react";
 import { StyleSheet, Image } from "react-native";
 import { Text, View } from "../components/Themed";
 import LottieView from "lottie-react-native";
+import { useAppDispatch } from "hooks/typedHooks";
+import { useEffect } from "react";
+import { fetchUserData } from "reduxStates/authListener";
 
 export default function LoadingScreen() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchUserData());
+  }, []);
   return (
     <View style={styles.container}>
       <Text style={styles.maintitle}>Roomr</Text>
