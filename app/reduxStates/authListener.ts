@@ -23,8 +23,8 @@ export const fetchAuth = () => {
               houses: updatedUserData.houses,
               approved: updatedUserData.approved,
             };
-            dispatch(setEmail(user.email));
             dispatch(setUserData(userData));
+            dispatch(setEmail(user.email));
           } else dispatch(cleanAuth());
         });
       } else {
