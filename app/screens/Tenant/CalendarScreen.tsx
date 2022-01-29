@@ -71,7 +71,6 @@ export default function CalendarScreen() {
     setCalendarRefCurrent(calendarRef.current);
   }, [calendarRef]);
 
-  // traditional calendar
   return (
     <>
       <Calendar
