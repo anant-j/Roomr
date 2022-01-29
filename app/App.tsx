@@ -13,7 +13,6 @@ import { store } from "./store";
 import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
-import Loading from "screens/Loader";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
 
 export default function App() {
@@ -68,14 +67,6 @@ const AppWithProvider = () => {
     return (
       <SafeAreaProvider>
         <Login />
-        <StatusBar />
-      </SafeAreaProvider>
-    );
-  }
-  if (!userDataFetched) {
-    return (
-      <SafeAreaProvider>
-        <Loading />
         <StatusBar />
       </SafeAreaProvider>
     );
