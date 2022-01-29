@@ -51,27 +51,32 @@ export default function MessageScreen() {
   );
 }
 
-/*
 const MessageItem = (props: any) => {
-  const splitName = props.item.name.split(" ");
-  const fnameInitial = splitName[0][0];
-  const lNameInitial = splitName[1][0];
   return (
     <>
-			<View style={chatItemStyles.received}>
-				<View style={chatItemStyles.user}>
-					<Text style={chatItemStyles.initials}>
-						{fnameInitial + lNameInitial}
-					</Text>
-				</View>
-
-			</View>
+      <View style={messageItemStyles.bubble}>
+        <View style={messageItemStyles.user}>
+            <Text style={messageItemStyles.initials}>
+              MJ
+            </Text>
+          </View>
+        <View style={messageItemStyles.received}>
+          
+          <View style={messageItemStyles.message}>
+            <Text style={messageItemStyles.content}>
+              Hello
+            </Text>
+          </View>
+        </View>
+      </View>
     </>
   );
 };
-*/
 
-const chatItemStyles = StyleSheet.create({
+const messageItemStyles = StyleSheet.create({
+  bubble: {
+    backgroundColor: "grey",
+  },
 	received: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -90,7 +95,13 @@ const chatItemStyles = StyleSheet.create({
     marginVertical: 5,
     paddingTop: 15,
 	},
-
+  message: {
+    alignItems: "flex-start",
+  },
+  content: {
+    alignItems: "flex-start",
+  },
+  
 	test: {
 		paddingTop: 40,
     paddingLeft: 15,
@@ -145,10 +156,6 @@ const chatItemStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#55BCF6",
   },
-});
-
-const MessageItemStyles = StyleSheet.create({
-
 });
 
 const styles = StyleSheet.create({
