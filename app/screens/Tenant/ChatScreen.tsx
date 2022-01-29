@@ -1,52 +1,78 @@
 import * as React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { Text, View } from "components/Themed";
-import { useAppSelector } from "hooks/typedHooks";
+import { Button, Text, View } from "components/Themed";
+import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import Task from "components/Task";
-import { chatObject } from "reduxStates/chatSlice";
+import { chatObject, setActiveChat } from "reduxStates/chatSlice";
+import { useEffect } from "react";
 
 export default function ChatScreen() {
-  const { allChats, loading, error } = useAppSelector((state) => state.chats);
+  const { allChats, loading, error, currentActiveChat } = useAppSelector(
+    (state) => state.chats,
+  );
+
+  useEffect(() => {
+    console.log(currentActiveChat);
+  }, [currentActiveChat]);
+
+  const dispatch = useAppDispatch();
+
+  const onChatPress = (id: string) => {
+    dispatch(setActiveChat(id));
+  };
+
+  const onBackToChat = () => {
+    console.log("backkkk");
+    dispatch(setActiveChat(""));
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <Text style={styles.sectionSubTitle}>Tenant</Text>
-        <View style={styles.tasksWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.sectionTitle}>Chats</Text>
+      {!currentActiveChat ? (
+        <View style={styles.topContainer}>
+          <Text style={styles.sectionSubTitle}>Tenant</Text>
+          <View style={styles.tasksWrapper}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.sectionTitle}>Chats</Text>
+            </View>
+            {error && (
+              <Text style={styles.sectionTitle}>Error Fetching Chats</Text>
+            )}
+            {loading ? (
+              <Text style={styles.sectionTitle}>Loading...</Text>
+            ) : (
+              <ScrollView
+                contentContainerStyle={{
+                  flexGrow: 1,
+                }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.items}>
+                  {allChats.map((item, index) => {
+                    return (
+                      <TouchableOpacity
+                        // TODO: Better practice is to use unique ID of element as the key
+                        key={index}
+                        onPress={() => onChatPress(item.id)}
+                      >
+                        <ChatItem item={item} />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            )}
           </View>
-          {error && (
-            <Text style={styles.sectionTitle}>Error Fetching Chats</Text>
-          )}
-          {loading ? (
-            <Text style={styles.sectionTitle}>Loading...</Text>
-          ) : (
-            <ScrollView
-              contentContainerStyle={{
-                flexGrow: 1,
-              }}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.items}>
-                {allChats.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      // TODO: Better practice is to use unique ID of element as the key
-                      key={index}
-                      onPress={() => {
-                        console.log(item);
-                      }}
-                    >
-                      <ChatItem item={item} />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          )}
         </View>
-      </View>
+      ) : (
+        // Render message component here:
+        <View>
+          <Text>Messages</Text>
+          <Button onPress={() => onBackToChat()}>
+            <Text>Back</Text>
+          </Button>
+        </View>
+      )}
     </View>
   );
 }

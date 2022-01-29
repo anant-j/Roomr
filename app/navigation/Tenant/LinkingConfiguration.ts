@@ -27,8 +27,7 @@
            },
            TabThree: {
              screens: {
-               //ChatScreen: "three",
-               MessageScreen: "three",
+               ChatScreen: "three",
              },
            },
            TabFour: {

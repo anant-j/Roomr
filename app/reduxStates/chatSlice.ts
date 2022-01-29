@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface chatObject {
+  id: string;
   name: string;
   lastMessageTimeElapsed: string;
   chatIcon: string;

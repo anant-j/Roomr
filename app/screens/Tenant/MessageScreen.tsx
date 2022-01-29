@@ -1,17 +1,18 @@
 import * as React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { ButtonWithImage, Text, View } from "components/Themed";
-import { useAppSelector } from "hooks/typedHooks";
+import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import Task from "components/Task";
 import { messageObject } from "reduxStates/messageSlice";
 
 export default function MessageScreen() {
   const { allChats, loading, error } = useAppSelector((state) => state.chats);
+  
+  const dispatch = useAppDispatch();
 
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
-        <Text style={styles.sectionSubTitle}>Chats</Text>
         <View style={styles.tasksWrapper}>
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>House 1</Text>
@@ -52,19 +53,34 @@ export default function MessageScreen() {
 }
 
 const MessageItem = (props: any) => {
+  const splitName = props.item.name.split(" ");
+  const fnameInitial = splitName[0][0];
+  const lNameInitial = splitName[1][0];
   return (
     <>
-      <View style={messageItemStyles.bubble}>
-        <View style={messageItemStyles.user}>
+      <View style={messageItemStyles.bubbleLeft}>
+
+        <View style={messageItemStyles.circle}>
             <Text style={messageItemStyles.initials}>
-              MJ
+              {fnameInitial + lNameInitial}
             </Text>
           </View>
+        
         <View style={messageItemStyles.received}>
-          
           <View style={messageItemStyles.message}>
-            <Text style={messageItemStyles.content}>
-              Hello
+            <Text style={messageItemStyles.contentFrom}>
+              no changes added to commit (use "git add" and/or "git commit -a")
+            </Text>
+          </View>
+        </View>
+        
+      </View>
+
+      <View style={messageItemStyles.bubbleRight}>
+        <View style={messageItemStyles.sent}>
+          <View style={messageItemStyles.message}>
+            <Text style={messageItemStyles.contentTo}>
+              no changes added to commit (use "git add" and/or "git commit -a")
             </Text>
           </View>
         </View>
@@ -73,88 +89,79 @@ const MessageItem = (props: any) => {
   );
 };
 
-const messageItemStyles = StyleSheet.create({
-  bubble: {
-    backgroundColor: "grey",
-  },
-	received: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    borderRadius: 10,
-		marginRight: "40%",
-    marginVertical: 5,
-		paddingTop: 15,
-		backgroundColor: "#8A8F9E",
-  },
-	user: {
-		flexDirection: "row",
-    alignItems: "flex-start",
-		justifyContent: "space-between",
-    borderRadius: 10,
-    marginVertical: 5,
-    paddingTop: 15,
-	},
-  message: {
-    alignItems: "flex-start",
-  },
-  content: {
-    alignItems: "flex-start",
-  },
-  
-	test: {
-		paddingTop: 40,
-    paddingLeft: 15,
-		borderRadius: 10,
-		marginHorizontal: 25,
-    marginVertical: 5,
-    flexDirection: 'row',
-		alignItems: "flex-start",
-    justifyContent: 'flex-start',
-		backgroundColor: "#8A8F9E",
-	},
-	buttonTextView: {
-    paddingHorizontal: 10,
-    marginTop: 40,
-    // bottom: 0,
-    backgroundColor: "transparent",
-  },
+const InputBox = (props: any) => {
+  return(
+    <View>
+      <Text style={messageItemStyles.contentTo}>
+        Hello!
+      </Text>
+    </View>
+  );
+};
 
-  chatInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  contactName: {
-    marginBottom: 25,
-  },
-  item: {
+const messageItemStyles = StyleSheet.create({
+  bubbleLeft: {
     borderRadius: 10,
+    marginRight: "25%",
+    justifyContent: "space-between",
     flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-around",
-    marginBottom: 30,
-  },
-  itemRight: {
-    flex: 1,
-    paddingHorizontal: 10,
   },
   circle: {
     width: 40,
     height: 40,
-    borderColor: "#55BCF6",
     borderWidth: 2,
-    opacity: 0.8,
     borderRadius: 50,
+    borderColor: "#55BCF6",
+    // Align initials horizontally and vertically
     alignItems: "center",
     justifyContent: "center",
-  },
-  chatSeparator: {
-    height: 1,
-    width: "100%",
   },
   initials: {
     fontWeight: "bold",
     color: "#55BCF6",
+  },
+	received: {
+    //flex: 1,
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    borderRadius: 10,
+    marginVertical: 5,
+		marginLeft: "5%",
+		padding: 10,
+		backgroundColor: "#5B8DCA",
+  },
+
+  message: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  contentFrom: {
+    backgroundColor: "#5B8DCA",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    color: "white",
+  },
+  
+  bubbleRight: {
+    borderRadius: 10,
+    marginLeft: "30%",
+    justifyContent: "space-between",
+    backgroundColor: "aliceblue",
+  },
+  sent: {
+    //flex: 1,
+    borderRadius: 10,
+    marginVertical: 5,
+    padding: 10,
+		marginLeft: "5%",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+		backgroundColor: "aliceblue",
+  },
+  contentTo: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "aliceblue",
   },
 });
 

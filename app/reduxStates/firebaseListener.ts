@@ -14,15 +14,30 @@ const listenerUnsubscribeList = [];
 const fetchChatData = (dispatch: any) => {
   dispatch(fetchChatsPending());
   const data = [
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+    { id: "1", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
+    {
+      id: "2",
+      name: "Chris G",
+      lastMessageTimeElapsed: "53m",
+      chatIcon: "url",
+    },
+    { id: "3", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+    { id: "4", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
+    {
+      id: "5",
+      name: "Chris G",
+      lastMessageTimeElapsed: "53m",
+      chatIcon: "url",
+    },
+    { id: "6", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+    { id: "7", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
+    {
+      id: "8",
+      name: "Chris G",
+      lastMessageTimeElapsed: "53m",
+      chatIcon: "url",
+    },
+    { id: "9", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
   ];
   dispatch(fetchChatsFulfilled(data));
 };
@@ -32,10 +47,10 @@ const fetchMessageData = (dispatch: any) => {
   dispatch(fetchMessagesPending());
   const data = [
     {from: "Mark J", timeSent: "1:45pm", content: "hey what up"},
-    {from: "Andy (currentUser)", timeSent: "1:46pm", content: "hey roomie"},
+    {from: "Andy", timeSent: "1:46pm", content: "hey roomie"},
     {from: "Mark J", timeSent: "1:47pm", content: "lets go get food"},
   ];
-  dispatch(fetchChatsFulfilled(data));
+  dispatch(fetchMessagesFulfilled(data));
 };
 
 export const fetchData = (houseID: string) => {
