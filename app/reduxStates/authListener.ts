@@ -10,7 +10,6 @@ export const fetchAuth = () => {
   return (dispatch: any) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        dispatch(setEmail(user.email));
         const docRef = doc(db, "users", user.email);
         getDoc(docRef).then((doc) => {
           if (doc.exists) {
@@ -24,6 +23,7 @@ export const fetchAuth = () => {
               houses: updatedUserData.houses,
               approved: updatedUserData.approved,
             };
+            dispatch(setEmail(user.email));
             dispatch(setUserData(userData));
           } else dispatch(cleanAuth());
         });
