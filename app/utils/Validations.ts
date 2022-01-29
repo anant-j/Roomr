@@ -60,7 +60,6 @@ function phoneNumberValidation(number) {
   if (number.match(/[^0-9]/g)) {
     return { success: false, error: "invalid-phone-number" };
   }
-  // if (numbe)
   return { success: true, sanitized: number };
 }
 

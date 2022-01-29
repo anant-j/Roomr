@@ -27,6 +27,7 @@ export const errorFactory = (code: string) => {
       };
       break;
     case "password-too-short":
+    case "invalid-password":
       return {
         redirectScreen: -1,
         message: "Please enter a password that is at least 6 characters long",
@@ -36,6 +37,11 @@ export const errorFactory = (code: string) => {
       return {
         redirectScreen: -1,
         message: "The passwords you have entered do not match",
+      };
+    case "invalid-name":
+      return {
+        redirectScreen: -1,
+        message: "Please enter a valid name",
       };
     case "name-too-short":
       return {
@@ -59,11 +65,6 @@ export const errorFactory = (code: string) => {
       };
     case "invalid-address":
       return { redirectScreen: -1, message: "Please enter a valid address" };
-    case "INVALID_USER_DATA":
-      return {
-        redirectScreen: 0,
-        message: "The data you have provided is invalid. Please try again.",
-      };
     case "HOUSE_DOES_NOT_EXIST":
       return {
         redirectScreen: 5,
@@ -85,7 +86,9 @@ export const errorFactory = (code: string) => {
         message: "An error occured. Please request support via our email.",
       };
     default:
-      return { redirectScreen: -1, message: "An unexpected error occurred" };
-      break;
+      return {
+        redirectScreen: 0,
+        message: `An unexpected error occurred. Error Code:${code}`,
+      };
   }
 };
