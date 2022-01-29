@@ -1,6 +1,7 @@
 import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
+import { fetchMessagesFulfilled, fetchMessagesPending } from "./messageSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
@@ -22,6 +23,17 @@ const fetchChatData = (dispatch: any) => {
     { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
     { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
     { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
+  ];
+  dispatch(fetchChatsFulfilled(data));
+};
+
+// TODO: Use firestore data instead of mock data
+const fetchMessageData = (dispatch: any) => {
+  dispatch(fetchMessagesPending());
+  const data = [
+    {from: "Mark J", timeSent: "1:45pm", content: "hey what up"},
+    {from: "Andy (currentUser)", timeSent: "1:46pm", content: "hey roomie"},
+    {from: "Mark J", timeSent: "1:47pm", content: "lets go get food"},
   ];
   dispatch(fetchChatsFulfilled(data));
 };
@@ -56,6 +68,8 @@ export const fetchData = (houseID: string) => {
     // );
 
     fetchChatData(dispatch);
+
+    fetchMessageData(dispatch);
 
     listenerUnsubscribeList.push(unsub);
   };
