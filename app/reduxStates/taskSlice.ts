@@ -3,7 +3,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export interface TaskState {
-  allTasks: string[];
+  allTasks: object[];
   loading: boolean;
   error: any;
 }
@@ -39,7 +39,7 @@ export const taskSlice = createSlice({
     // immutable state based off those changes
     fetchTasksFulfilled: (state, action) => {
       state.loading = false;
-      const newTasks = action.payload;
+      const newTasks = action.payload.tasks;
       state.allTasks = newTasks;
     },
     fetchTasksPending: (state) => {

@@ -42,7 +42,7 @@ export default function HomeScreen({
                     key={index}
                     onPress={() => completeTask(index)}
                   >
-                    <Task text={item} />
+                    <Task text={item.content} />
                     <View
                       style={styles.separator}
                       lightColor="#eee"

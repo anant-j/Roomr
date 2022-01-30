@@ -35,9 +35,20 @@ export const fetchData = (houseID: string) => {
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          tasks.push(doc.data().content);
+          const taskDate = new Date(
+            doc.data().createdOn.seconds * 1000,
+          ).toString();
+
+          const task = {
+            ...doc.data(),
+            createdOn: taskDate,
+          };
+
+          tasks.push(task);
         });
-        dispatch(fetchTasksFulfilled(tasks));
+
+        const payload = { tasks: tasks };
+        dispatch(fetchTasksFulfilled(payload));
       },
       (error) => {
         dispatch(fetchTasksError(error));
