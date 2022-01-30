@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const {default: Expo} = require("expo-server-sdk");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -172,6 +173,101 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     house: houseID,
   };
 });
+
+exports.resetDB = functions.https.onRequest(async (req, res) => {
+  const token = req.query.token;
+  if (token!="4ZMGFEHLV5HV") {
+    res.status(403).send("Invalid token");
+    return;
+  }
+  const sampleHouseID = "YOFQXWK3";
+  const sampleHouseData = {
+    address: "123 Main St",
+    landlord: "landlord@roomr.com",
+    tenants: ["tenant@roomr.com"],
+  };
+  const sampleTenantID = "tenant@roomr.com";
+  const sampleTenantData = {
+    name: {first: "Tenant", last: "Roomr"},
+    phone: "1234567890",
+    type: "tenant",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+  const sampleLandlordID = sampleHouseData.landlord;
+  const sampleLandlordData = {
+    name: {first: "Landlord", last: "Roomr"},
+    phone: "1234567890",
+    type: "landlord",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+
+  const sampleChat = {
+    content: "hello",
+    to: ["tenant@roomr.com"],
+    from: "tenant@roomr.com",
+    sent_at: new Date(),
+  };
+
+  const sampleTask = {
+    content: "Laundry",
+    created_by: "tenant@roomr.com",
+    created_on: new Date(),
+    due: new Date(),
+  };
+
+  const sampleTicket = {
+    content: "Fix Laundry Machine",
+    created_by: "tenant@roomr.com",
+    created_on: new Date(),
+  };
+
+  const authUsers = await auth.listUsers();
+  for (const authUser of authUsers.users) {
+    await auth.deleteUser(authUser.uid);
+  }
+  await auth.createUser(
+      {
+        email: sampleLandlordID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleLandlordData.name.first +
+         " " + sampleLandlordData.name.last,
+        disabled: false,
+      },
+  );
+  await auth.createUser(
+      {
+        email: sampleTenantID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleTenantData.name.first +
+        " " + sampleTenantData.name.last,
+        disabled: false,
+      },
+  );
+  await db.collection("users").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+  });
+  await db.collection("houses").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+  });
+  await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
+  await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
+  await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
+  await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
+  await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
+  await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
+  res.send("Database reset");
+});
+
 
 /**
  * @param  {string} message
