@@ -35,13 +35,13 @@ export const fetchData = (houseID: string) => {
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          const taskDate = new Date(
+          const taskCreatedOn = new Date(
             doc.data().createdOn.seconds * 1000,
           ).toString();
 
           const task = {
             ...doc.data(),
-            createdOn: taskDate,
+            createdOn: taskCreatedOn,
           };
 
           tasks.push(task);
