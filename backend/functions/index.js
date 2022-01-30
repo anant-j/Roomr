@@ -1,6 +1,8 @@
+/* eslint-disable max-len */
 const {default: Expo} = require("expo-server-sdk");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const validations = require("./validations");
 admin.initializeApp();
 const db = admin.firestore();
 const auth = admin.auth();
@@ -28,13 +30,14 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "tenant")) {
+  let userData = validPayload(data, "tenant");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   const houseID = userData.houseID.toUpperCase();
   const house = await db.collection("houses").doc(houseID).get();
   const userInFB = await db.collection("users").doc(userData.email).get();
@@ -89,7 +92,8 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
   await db.collection("users").doc(userData.email).set(userDataFB);
   await db
@@ -107,13 +111,14 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
 });
 
 exports.signUpLandlord = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "landlord")) {
+  let userData = validPayload(data, "landlord");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   let houseID = await getHouseId(userData.address);
   if (houseID != 0) {
     return {
@@ -147,7 +152,8 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
   houseID = await addHouse(userData.email, userData.address);
   const userDataFB = {
@@ -167,6 +173,101 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     house: houseID,
   };
 });
+
+exports.resetDB = functions.https.onRequest(async (req, res) => {
+  const token = req.query.token;
+  if (token!="4ZMGFEHLV5HV") {
+    res.status(403).send("Invalid token");
+    return;
+  }
+  const sampleHouseID = "YOFQXWK3";
+  const sampleHouseData = {
+    address: "123 Main St",
+    landlord: "landlord@roomr.com",
+    tenants: ["tenant@roomr.com"],
+  };
+  const sampleTenantID = "tenant@roomr.com";
+  const sampleTenantData = {
+    name: {first: "Tenant", last: "Roomr"},
+    phone: "1234567890",
+    type: "tenant",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+  const sampleLandlordID = sampleHouseData.landlord;
+  const sampleLandlordData = {
+    name: {first: "Landlord", last: "Roomr"},
+    phone: "1234567890",
+    type: "landlord",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+
+  const sampleChat = {
+    content: "hello",
+    to: ["tenant@roomr.com"],
+    from: "tenant@roomr.com",
+    sent_at: new Date(),
+  };
+
+  const sampleTask = {
+    content: "Laundry",
+    created_by: "tenant@roomr.com",
+    created_on: new Date(),
+    due: new Date(),
+  };
+
+  const sampleTicket = {
+    content: "Fix Laundry Machine",
+    created_by: "tenant@roomr.com",
+    created_on: new Date(),
+  };
+
+  const authUsers = await auth.listUsers();
+  for (const authUser of authUsers.users) {
+    await auth.deleteUser(authUser.uid);
+  }
+  await auth.createUser(
+      {
+        email: sampleLandlordID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleLandlordData.name.first +
+         " " + sampleLandlordData.name.last,
+        disabled: false,
+      },
+  );
+  await auth.createUser(
+      {
+        email: sampleTenantID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleTenantData.name.first +
+        " " + sampleTenantData.name.last,
+        disabled: false,
+      },
+  );
+  await db.collection("users").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+  });
+  await db.collection("houses").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+  });
+  await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
+  await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
+  await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
+  await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
+  await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
+  await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
+  res.send("Database reset");
+});
+
 
 /**
  * @param  {string} message
@@ -211,36 +312,83 @@ async function sendExpoNotifications(message, tokens) {
  * @return {boolean}
  */
 function validPayload(data, type) {
-  if (
-    !data ||
-    !data.name ||
+  const sanitizedPayload = {};
+  if (!data) {
+    return {
+      valid: false,
+      error: "INVALID_PAYLOAD",
+    };
+  }
+  if (!data.name ||
     !data.name.first ||
     !data.name.last ||
-    !data.email ||
-    !data.phone ||
-    !data.password ||
-    !data.expo_token
-  ) {
-    return false;
-  }
-  if (type == "tenant") {
-    if (!data.houseID) {
-      return false;
-    }
+    !validations.name(data.name.first).success ||
+    !validations.name(data.name.last).success) {
+    return {
+      valid: false,
+      error: "invalid-name",
+    };
   } else {
-    if (!data.address) {
-      return false;
+    sanitizedPayload.name = {
+      first: validations.name(data.name.first).sanitized,
+      last: validations.name(data.name.last).sanitized,
+    };
+    if (!data.email || !validations.email(data.email).success) {
+      return {
+        valid: false,
+        error: "invalid-email",
+      };
+    } else {
+      sanitizedPayload.email = validations.email(data.email).sanitized;
     }
+    if (!data.password || !validations.password(data.password).success) {
+      return {
+        valid: false,
+        error: "invalid-password",
+      };
+    } else {
+      sanitizedPayload.password = validations.password(data.password).sanitized;
+    }
+    if (!data.phone || !validations.phone(data.phone).success) {
+      return {
+        valid: false,
+        error: "invalid-phone-number",
+      };
+    } else {
+      sanitizedPayload.phone = validations.phone(data.phone).sanitized;
+    }
+    if (!data.expo_token) {
+      return {
+        valid: false,
+        error: "INVALID_EXPO_TOKEN",
+      };
+    } else {
+      sanitizedPayload.expo_token = data.expo_token;
+    }
+    if (type == "tenant") {
+      if (!data.houseID || !validations.houseID(data.houseID).success) {
+        return {
+          valid: false,
+          error: "invalid-house-id",
+        };
+      } else {
+        sanitizedPayload.houseID = validations.houseID(data.houseID).sanitized;
+      }
+    } else {
+      if (!data.address || !validations.address(data.address).success) {
+        return {
+          valid: false,
+          error: "invalid-address",
+        };
+      } else {
+        sanitizedPayload.address = validations.address(data.address).sanitized;
+      }
+    }
+    return {
+      valid: true,
+      sanitizedPayload: sanitizedPayload,
+    };
   }
-  // if (!data.address ||
-  //     !data.address.street ||
-  //     !data.address.city ||
-  //     !data.address.state ||
-  //     !data.address.zip
-  // ) {
-  //   return false;
-  // }
-  return true;
 }
 
 /**
@@ -282,3 +430,5 @@ async function getHouseId(address) {
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
+
+
