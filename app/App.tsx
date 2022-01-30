@@ -13,7 +13,6 @@ import { store } from "./store";
 import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
-import Loading from "screens/Loader";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
 
 export default function App() {
@@ -31,7 +30,7 @@ const AppWithProvider = () => {
   const notificationListener = useRef();
   const responseListener = useRef();
 
-  const loggedIn = useAppSelector((state) => state.auth.loggedIn);
+  const loggedIn = useAppSelector((state) => state.auth.email);
   const userDataFetched = useAppSelector((state) => state.auth.type) !== null;
   const dispatch = useAppDispatch();
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
@@ -68,14 +67,6 @@ const AppWithProvider = () => {
     return (
       <SafeAreaProvider>
         <Login />
-        <StatusBar />
-      </SafeAreaProvider>
-    );
-  }
-  if (!userDataFetched) {
-    return (
-      <SafeAreaProvider>
-        <Loading />
         <StatusBar />
       </SafeAreaProvider>
     );

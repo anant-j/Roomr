@@ -1,6 +1,7 @@
 const {default: Expo} = require("expo-server-sdk");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const validations = require("./validations");
 admin.initializeApp();
 const db = admin.firestore();
 const auth = admin.auth();
@@ -28,13 +29,14 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "tenant")) {
+  let userData = validPayload(data, "tenant");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   const houseID = userData.houseID.toUpperCase();
   const house = await db.collection("houses").doc(houseID).get();
   const userInFB = await db.collection("users").doc(userData.email).get();
@@ -89,7 +91,8 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
   await db.collection("users").doc(userData.email).set(userDataFB);
   await db
@@ -107,13 +110,14 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
 });
 
 exports.signUpLandlord = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "landlord")) {
+  let userData = validPayload(data, "landlord");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   let houseID = await getHouseId(userData.address);
   if (houseID != 0) {
     return {
@@ -147,7 +151,8 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
   houseID = await addHouse(userData.email, userData.address);
   const userDataFB = {
@@ -211,36 +216,83 @@ async function sendExpoNotifications(message, tokens) {
  * @return {boolean}
  */
 function validPayload(data, type) {
-  if (
-    !data ||
-    !data.name ||
+  const sanitizedPayload = {};
+  if (!data) {
+    return {
+      valid: false,
+      error: "INVALID_PAYLOAD",
+    };
+  }
+  if (!data.name ||
     !data.name.first ||
     !data.name.last ||
-    !data.email ||
-    !data.phone ||
-    !data.password ||
-    !data.expo_token
-  ) {
-    return false;
-  }
-  if (type == "tenant") {
-    if (!data.houseID) {
-      return false;
-    }
+    !validations.name(data.name.first).success ||
+    !validations.name(data.name.last).success) {
+    return {
+      valid: false,
+      error: "invalid-name",
+    };
   } else {
-    if (!data.address) {
-      return false;
+    sanitizedPayload.name = {
+      first: validations.name(data.name.first).sanitized,
+      last: validations.name(data.name.last).sanitized,
+    };
+    if (!data.email || !validations.email(data.email).success) {
+      return {
+        valid: false,
+        error: "invalid-email",
+      };
+    } else {
+      sanitizedPayload.email = validations.email(data.email).sanitized;
     }
+    if (!data.password || !validations.password(data.password).success) {
+      return {
+        valid: false,
+        error: "invalid-password",
+      };
+    } else {
+      sanitizedPayload.password = validations.password(data.password).sanitized;
+    }
+    if (!data.phone || !validations.phone(data.phone).success) {
+      return {
+        valid: false,
+        error: "invalid-phone-number",
+      };
+    } else {
+      sanitizedPayload.phone = validations.phone(data.phone).sanitized;
+    }
+    if (!data.expo_token) {
+      return {
+        valid: false,
+        error: "INVALID_EXPO_TOKEN",
+      };
+    } else {
+      sanitizedPayload.expo_token = data.expo_token;
+    }
+    if (type == "tenant") {
+      if (!data.houseID || !validations.houseID(data.houseID).success) {
+        return {
+          valid: false,
+          error: "invalid-house-id",
+        };
+      } else {
+        sanitizedPayload.houseID = validations.houseID(data.houseID).sanitized;
+      }
+    } else {
+      if (!data.address || !validations.address(data.address).success) {
+        return {
+          valid: false,
+          error: "invalid-address",
+        };
+      } else {
+        sanitizedPayload.address = validations.address(data.address).sanitized;
+      }
+    }
+    return {
+      valid: true,
+      sanitizedPayload: sanitizedPayload,
+    };
   }
-  // if (!data.address ||
-  //     !data.address.street ||
-  //     !data.address.city ||
-  //     !data.address.state ||
-  //     !data.address.zip
-  // ) {
-  //   return false;
-  // }
-  return true;
 }
 
 /**
@@ -282,3 +334,5 @@ async function getHouseId(address) {
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
+
+

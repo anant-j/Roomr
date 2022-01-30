@@ -214,6 +214,8 @@ export default function LoginScreen() {
                   } else if (!passwordValidation.success) {
                     setError(passwordValidation.error);
                   } else {
+                    onChangeEmail(emailValidation.sanitized);
+                    onChangePassword(passwordValidation.sanitized);
                     login(email, password).then((result) => {
                       if (!result.success) {
                         setError(result.error);
@@ -281,6 +283,8 @@ export default function LoginScreen() {
                   } else if (!lastNameValidation.success) {
                     setError(lastNameValidation.error);
                   } else {
+                    onChangeFirstName(firstNameValidation.sanitized);
+                    onChangeLastName(lastNameValidation.sanitized);
                     nextScreen();
                   }
                 }}
@@ -336,6 +340,7 @@ export default function LoginScreen() {
                 if (!emailValidation.success) {
                   setError(emailValidation.error);
                 } else {
+                  onChangeEmail(emailValidation.sanitized);
                   nextScreen();
                 }
               }}
@@ -391,6 +396,7 @@ export default function LoginScreen() {
                 if (!phoneNumberValidation.success) {
                   setError(phoneNumberValidation.error);
                 } else {
+                  onChangePhone(phoneNumberValidation.sanitized);
                   nextScreen();
                 }
               }}
@@ -503,6 +509,7 @@ export default function LoginScreen() {
                   if (!houseIDValidation.success) {
                     setError(houseIDValidation.error);
                   } else {
+                    onChangeHouseID(houseIDValidation.sanitized);
                     nextScreen();
                   }
                 }}
@@ -557,6 +564,7 @@ export default function LoginScreen() {
                   if (!addressValidation.success) {
                     setError(addressValidation.error);
                   } else {
+                    onChangeAddress(addressValidation.sanitized);
                     nextScreen();
                   }
                 }}
@@ -629,6 +637,8 @@ export default function LoginScreen() {
                 } else if (password !== passwordAgain) {
                   setError("passwords-dont-match");
                 } else {
+                  onChangePassword(passwordValidation.sanitized);
+                  onChangePasswordAgain(passwordValidation2.sanitized);
                   // nextScreen();
                   register();
                 }

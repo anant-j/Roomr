@@ -23,7 +23,7 @@ function emailValidation(email) {
   const valid =
     email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i) !== null ? true : false;
   if (valid) {
-    return { success: true };
+    return { success: true, sanitized: email.toLowerCase() };
   } else {
     return { success: false, error: "invalid-email" };
   }
@@ -33,7 +33,7 @@ function passwordValidation(password) {
   if (password.length < 6) {
     return { success: false, error: "password-too-short" };
   }
-  return { success: true };
+  return { success: true, sanitized: password };
 }
 
 function nameValidation(name) {
@@ -46,26 +46,33 @@ function nameValidation(name) {
   // if (name.match(/[^a-zA-Z0-9]/g)) {
   //   return { success: false, error: "invalid-name" };
   // }
-  return { success: true };
+  return {
+    success: true,
+    sanitized: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+  };
 }
 
 function phoneNumberValidation(number) {
   if (number.length < 10) {
     return { success: false, error: "invalid-phone-number" };
   }
-  return { success: true };
+  // string should only contain numbers
+  if (number.match(/[^0-9]/g)) {
+    return { success: false, error: "invalid-phone-number" };
+  }
+  return { success: true, sanitized: number };
 }
 
 function houseIDValidation(houseID) {
   if (houseID.length != 8) {
     return { success: false, error: "invalid-house-id" };
   }
-  return { success: true };
+  return { success: true, sanitized: houseID.toUpperCase() };
 }
 
 function houseAddressValidations(address) {
   if (address.length < 5) {
     return { success: false, error: "invalid-address" };
   }
-  return { success: true };
+  return { success: true, sanitized: address };
 }
