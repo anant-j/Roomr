@@ -21,11 +21,9 @@ import { useAppSelector } from "hooks/typedHooks";
 export default function LoginScreen() {
   const expoToken = useAppSelector((state) => state.auth.expoToken);
 
-  const maxScreens = 8;
-  const totalProgressScreens = 7;
-  const [progress, setProgress] = useState(0);
-  const [loginScreen, setLoginScreen] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState("home");
   const [hidePass, setHidePass] = useState(true);
+  const [loginMode, setLoginMode] = useState(true);
   const [isTenant, setIsTenant] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -55,38 +53,45 @@ export default function LoginScreen() {
     }).start();
   };
 
-  const setError = (code: string, screen?: number) => {
-    if (screen && screen != progress && screen >= 0 && screen <= maxScreens) {
-      setProgress(screen);
+  const setError = (code: string) => {
+    switch (errorFactory(code).redirectScreen) {
+      case "none":
+        break;
+      case "email":
+        if (loginMode) {
+          setScreen("login");
+        } else {
+          setScreen("email");
+        }
+        break;
+      case "password":
+        if (loginMode) {
+          setScreen("login");
+        } else {
+          setScreen("password");
+        }
+        break;
+      default:
+        setScreen(errorFactory(code).redirectScreen);
+        break;
     }
     setErrorMessage(errorFactory(code).message);
-    if (errorFactory(code).redirectScreen !== -1) {
-      setProgress(errorFactory(code).redirectScreen);
-    }
     fadeIn();
     setTimeout(function () {
       fadeOut();
     }, 5000);
   };
 
-  const nextScreen = () => {
-    if (progress < maxScreens + 1) {
-      setProgress(progress + 1);
+  const setScreen = (screen) => {
+    if (screen == currentScreen) {
+      return;
     }
-    setErrorMessage("");
-  };
-
-  const previousScreen = () => {
-    if (progress > 0) {
-      setProgress(progress - 1);
-    } else {
-      setProgress(0);
-    }
+    setCurrentScreen(screen);
     setErrorMessage("");
   };
 
   const register = async () => {
-    nextScreen();
+    setScreen("waiting");
     let result;
     if (isTenant) {
       result = await tenantSignup({
@@ -117,7 +122,7 @@ export default function LoginScreen() {
         expo_token: expoToken,
       });
       if (result.data.status === "success") {
-        setProgress(8);
+        setScreen("allSet");
         return;
       }
     }
@@ -128,8 +133,35 @@ export default function LoginScreen() {
 
   const LottieRef = useRef(null);
 
-  switch (progress) {
-    case 0:
+  const getProgress = (screen) => {
+    switch (screen) {
+      case "home":
+      case "login":
+      case "waiting":
+      case "allSet":
+        return 0;
+      case "name":
+        return 1;
+      case "email":
+        return 2;
+      case "phone":
+        return 3;
+      case "tenantOrLandlord":
+        return 4;
+      case "houseID":
+      case "address":
+        return 5;
+      case "password":
+        return 6;
+      case "max":
+        return 6;
+      default:
+        return 0;
+    }
+  };
+
+  switch (currentScreen) {
+    case "home":
       return (
         <View style={styles.container}>
           <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text>
@@ -139,8 +171,8 @@ export default function LoginScreen() {
           />
           <Button
             onPress={() => {
-              setLoginScreen(true);
-              nextScreen();
+              setLoginMode(true);
+              setScreen("login");
             }}
             style={styles.button}
           >
@@ -149,8 +181,8 @@ export default function LoginScreen() {
           <Text></Text>
           <Button
             onPress={() => {
-              setLoginScreen(false);
-              nextScreen();
+              setLoginMode(false);
+              setScreen("name");
             }}
             style={styles.button}
           >
@@ -168,157 +200,10 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 1:
-      if (loginScreen) {
-        return (
-          <View style={styles.container}>
-            <Text style={styles.title}>Log In</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={onChangeEmail}
-              value={email}
-              placeholder="Enter Email"
-            />
-            <View style={styles.passwordContainer}>
-              <TextInput
-                placeholder="Enter Password"
-                autoCompleteType="password"
-                secureTextEntry={hidePass ? true : false}
-                onChangeText={onChangePassword}
-                style={styles.passwordInput}
-              />
-              <View style={styles.passwordEye}>
-                <Feather
-                  name={hidePass ? "eye-off" : "eye"}
-                  size={25}
-                  color="grey"
-                  onPress={() => setHidePass(!hidePass)}
-                />
-              </View>
-            </View>
-            <View style={styles.passwordContainer}>
-              <Button
-                onPress={() => {
-                  previousScreen();
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Previous</Text>
-              </Button>
-              <Button
-                onPress={() => {
-                  const emailValidation = validator(email, "email");
-                  const passwordValidation = validator(password, "password");
-                  if (!emailValidation.success) {
-                    setError(emailValidation.error);
-                  } else if (!passwordValidation.success) {
-                    setError(passwordValidation.error);
-                  } else {
-                    onChangeEmail(emailValidation.sanitized);
-                    onChangePassword(passwordValidation.sanitized);
-                    login(email, password).then((result) => {
-                      if (!result.success) {
-                        setError(result.error);
-                      }
-                    });
-                  }
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Login</Text>
-              </Button>
-            </View>
-            <Animated.View
-              style={[
-                styles.errorBox,
-                {
-                  opacity: fadeAnim,
-                },
-              ]}
-            >
-              <ErrorBox text={errorMessage} />
-            </Animated.View>
-          </View>
-        );
-      } else {
-        return (
-          <View style={styles.container}>
-            <View style={styles.progressBarcontainer}>
-              <Progress.Bar
-                progress={progress / totalProgressScreens}
-                width={300}
-                color={"#5B8DCA"}
-                unfilledColor={"#e8e8e8"}
-                borderWidth={0}
-              />
-            </View>
-            <Text style={styles.title}>What is your name?</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={onChangeFirstName}
-              value={firstName}
-              placeholder="First Name"
-            />
-            <TextInput
-              style={styles.input}
-              onChangeText={onChangeLastName}
-              value={lastName}
-              placeholder="Last Name"
-            />
-            <View style={styles.passwordContainer}>
-              <Button
-                onPress={() => {
-                  previousScreen();
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Previous</Text>
-              </Button>
-              <Button
-                onPress={() => {
-                  const firstNameValidation = validator(firstName, "firstName");
-                  const lastNameValidation = validator(lastName, "lastName");
-                  if (!firstNameValidation.success) {
-                    setError(firstNameValidation.error);
-                  } else if (!lastNameValidation.success) {
-                    setError(lastNameValidation.error);
-                  } else {
-                    onChangeFirstName(firstNameValidation.sanitized);
-                    onChangeLastName(lastNameValidation.sanitized);
-                    nextScreen();
-                  }
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Next</Text>
-              </Button>
-            </View>
-            <Animated.View
-              style={[
-                styles.errorBox,
-                {
-                  opacity: fadeAnim,
-                },
-              ]}
-            >
-              <ErrorBox text={errorMessage} />
-            </Animated.View>
-          </View>
-        );
-      }
-    case 2:
+    case "login":
       return (
         <View style={styles.container}>
-          <View style={styles.progressBarcontainer}>
-            <Progress.Bar
-              progress={progress / totalProgressScreens}
-              width={300}
-              color={"#5B8DCA"}
-              unfilledColor={"#e8e8e8"}
-              borderWidth={0}
-            />
-          </View>
-          <Text style={styles.title}>What is your email?</Text>
+          <Text style={styles.title}>Log In</Text>
           <TextInput
             style={styles.input}
             onChangeText={onChangeEmail}
@@ -326,9 +211,26 @@ export default function LoginScreen() {
             placeholder="Enter Email"
           />
           <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Enter Password"
+              autoCompleteType="password"
+              secureTextEntry={hidePass ? true : false}
+              onChangeText={onChangePassword}
+              style={styles.passwordInput}
+            />
+            <View style={styles.passwordEye}>
+              <Feather
+                name={hidePass ? "eye-off" : "eye"}
+                size={25}
+                color="grey"
+                onPress={() => setHidePass(!hidePass)}
+              />
+            </View>
+          </View>
+          <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                previousScreen();
+                setScreen("home");
               }}
               style={styles.sideBySideButton}
             >
@@ -337,11 +239,84 @@ export default function LoginScreen() {
             <Button
               onPress={() => {
                 const emailValidation = validator(email, "email");
+                const passwordValidation = validator(password, "password");
                 if (!emailValidation.success) {
                   setError(emailValidation.error);
+                } else if (!passwordValidation.success) {
+                  setError(passwordValidation.error);
                 } else {
                   onChangeEmail(emailValidation.sanitized);
-                  nextScreen();
+                  onChangePassword(passwordValidation.sanitized);
+                  login(email, password).then((result) => {
+                    if (!result.success) {
+                      setError(result.error);
+                    }
+                  });
+                }
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Login</Text>
+            </Button>
+          </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
+        </View>
+      );
+    case "name":
+      return (
+        <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={getProgress(currentScreen) / getProgress("max")}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
+          <Text style={styles.title}>What is your name?</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeFirstName}
+            value={firstName}
+            placeholder="First Name"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeLastName}
+            value={lastName}
+            placeholder="Last Name"
+          />
+          <View style={styles.passwordContainer}>
+            <Button
+              onPress={() => {
+                setScreen("home");
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Previous</Text>
+            </Button>
+            <Button
+              onPress={() => {
+                const firstNameValidation = validator(firstName, "firstName");
+                const lastNameValidation = validator(lastName, "lastName");
+                if (!firstNameValidation.success) {
+                  setError(firstNameValidation.error);
+                } else if (!lastNameValidation.success) {
+                  setError(lastNameValidation.error);
+                } else {
+                  onChangeFirstName(firstNameValidation.sanitized);
+                  onChangeLastName(lastNameValidation.sanitized);
+                  setScreen("email");
                 }
               }}
               style={styles.sideBySideButton}
@@ -361,12 +336,67 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 3:
+    case "email":
       return (
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / totalProgressScreens}
+              progress={getProgress(currentScreen) / getProgress("max")}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
+          <Text style={styles.title}>What is your email?</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeEmail}
+            value={email}
+            placeholder="Enter Email"
+          />
+          <View style={styles.passwordContainer}>
+            <Button
+              onPress={() => {
+                setScreen("name");
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Previous</Text>
+            </Button>
+            <Button
+              onPress={() => {
+                const emailValidation = validator(email, "email");
+                if (!emailValidation.success) {
+                  setError(emailValidation.error);
+                } else {
+                  onChangeEmail(emailValidation.sanitized);
+                  setScreen("phone");
+                }
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Next</Text>
+            </Button>
+          </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
+        </View>
+      );
+    case "phone":
+      return (
+        <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={getProgress(currentScreen) / getProgress("max")}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -384,7 +414,7 @@ export default function LoginScreen() {
           <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                previousScreen();
+                setScreen("email");
               }}
               style={styles.sideBySideButton}
             >
@@ -397,7 +427,7 @@ export default function LoginScreen() {
                   setError(phoneNumberValidation.error);
                 } else {
                   onChangePhone(phoneNumberValidation.sanitized);
-                  nextScreen();
+                  setScreen("tenantOrLandlord");
                 }
               }}
               style={styles.sideBySideButton}
@@ -417,12 +447,12 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 4:
+    case "tenantOrLandlord":
       return (
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / totalProgressScreens}
+              progress={getProgress(currentScreen) / getProgress("max")}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -433,7 +463,7 @@ export default function LoginScreen() {
           <Button
             onPress={() => {
               setIsTenant(true);
-              nextScreen();
+              setScreen("houseID");
             }}
             style={styles.button}
           >
@@ -443,7 +473,7 @@ export default function LoginScreen() {
           <Button
             onPress={() => {
               setIsTenant(false);
-              nextScreen();
+              setScreen("address");
             }}
             style={styles.button}
           >
@@ -452,7 +482,7 @@ export default function LoginScreen() {
           <Text></Text>
           <Button
             onPress={() => {
-              previousScreen();
+              setScreen("phone");
             }}
             style={styles.backbuttonLower}
           >
@@ -470,128 +500,127 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 5:
-      if (isTenant) {
-        return (
-          <View style={styles.container}>
-            <View style={styles.progressBarcontainer}>
-              <Progress.Bar
-                progress={progress / totalProgressScreens}
-                width={300}
-                color={"#5B8DCA"}
-                unfilledColor={"#e8e8e8"}
-                borderWidth={0}
-              />
-            </View>
-            <Text style={styles.title}>What is your House ID?</Text>
-            <Text style={styles.subtitle}>
-              Don&apos;t have one? Ask your Landlord!
-            </Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={onChangeHouseID}
-              value={houseID}
-              maxLength={8}
-              placeholder="Enter 8 Digit House ID"
-            />
-            <View style={styles.passwordContainer}>
-              <Button
-                onPress={() => {
-                  previousScreen();
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Previous</Text>
-              </Button>
-              <Button
-                onPress={() => {
-                  const houseIDValidation = validator(houseID, "houseID");
-                  if (!houseIDValidation.success) {
-                    setError(houseIDValidation.error);
-                  } else {
-                    onChangeHouseID(houseIDValidation.sanitized);
-                    nextScreen();
-                  }
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Next</Text>
-              </Button>
-            </View>
-            <Animated.View
-              style={[
-                styles.errorBox,
-                {
-                  opacity: fadeAnim,
-                },
-              ]}
-            >
-              <ErrorBox text={errorMessage} />
-            </Animated.View>
-          </View>
-        );
-      } else {
-        return (
-          <View style={styles.container}>
-            <View style={styles.progressBarcontainer}>
-              <Progress.Bar
-                progress={progress / totalProgressScreens}
-                width={300}
-                color={"#5B8DCA"}
-                unfilledColor={"#e8e8e8"}
-                borderWidth={0}
-              />
-            </View>
-            <Text style={styles.title}>What is your Address?</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={onChangeAddress}
-              value={address}
-              placeholder="Enter Address"
-            />
-            <View style={styles.passwordContainer}>
-              <Button
-                onPress={() => {
-                  previousScreen();
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Previous</Text>
-              </Button>
-              <Button
-                onPress={() => {
-                  const addressValidation = validator(address, "address");
-                  if (!addressValidation.success) {
-                    setError(addressValidation.error);
-                  } else {
-                    onChangeAddress(addressValidation.sanitized);
-                    nextScreen();
-                  }
-                }}
-                style={styles.sideBySideButton}
-              >
-                <Text style={styles.linkText}>Next</Text>
-              </Button>
-            </View>
-            <Animated.View
-              style={[
-                styles.errorBox,
-                {
-                  opacity: fadeAnim,
-                },
-              ]}
-            >
-              <ErrorBox text={errorMessage} />
-            </Animated.View>
-          </View>
-        );
-      }
-    case 6:
+    case "houseID":
       return (
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / totalProgressScreens}
+              progress={getProgress(currentScreen) / getProgress("max")}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
+          <Text style={styles.title}>What is your House ID?</Text>
+          <Text style={styles.subtitle}>
+            Don&apos;t have one? Ask your Landlord!
+          </Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeHouseID}
+            value={houseID}
+            maxLength={8}
+            placeholder="Enter 8 Digit House ID"
+          />
+          <View style={styles.passwordContainer}>
+            <Button
+              onPress={() => {
+                setScreen("tenantOrLandlord");
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Previous</Text>
+            </Button>
+            <Button
+              onPress={() => {
+                const houseIDValidation = validator(houseID, "houseID");
+                if (!houseIDValidation.success) {
+                  setError(houseIDValidation.error);
+                } else {
+                  onChangeHouseID(houseIDValidation.sanitized);
+                  setScreen("password");
+                }
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Next</Text>
+            </Button>
+          </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
+        </View>
+      );
+    case "address": {
+      return (
+        <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={getProgress(currentScreen) / getProgress("max")}
+              width={300}
+              color={"#5B8DCA"}
+              unfilledColor={"#e8e8e8"}
+              borderWidth={0}
+            />
+          </View>
+          <Text style={styles.title}>What is your Address?</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeAddress}
+            value={address}
+            placeholder="Enter Address"
+          />
+          <View style={styles.passwordContainer}>
+            <Button
+              onPress={() => {
+                setScreen("tenantOrLandlord");
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Previous</Text>
+            </Button>
+            <Button
+              onPress={() => {
+                const addressValidation = validator(address, "address");
+                if (!addressValidation.success) {
+                  setError(addressValidation.error);
+                } else {
+                  onChangeAddress(addressValidation.sanitized);
+                  setScreen("password");
+                }
+              }}
+              style={styles.sideBySideButton}
+            >
+              <Text style={styles.linkText}>Next</Text>
+            </Button>
+          </View>
+          <Animated.View
+            style={[
+              styles.errorBox,
+              {
+                opacity: fadeAnim,
+              },
+            ]}
+          >
+            <ErrorBox text={errorMessage} />
+          </Animated.View>
+        </View>
+      );
+    }
+    case "password":
+      return (
+        <View style={styles.container}>
+          <View style={styles.progressBarcontainer}>
+            <Progress.Bar
+              progress={getProgress(currentScreen) / getProgress("max")}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -617,7 +646,11 @@ export default function LoginScreen() {
           <View style={styles.passwordContainer}>
             <Button
               onPress={() => {
-                previousScreen();
+                if (isTenant) {
+                  setScreen("houseID");
+                } else {
+                  setScreen("address");
+                }
               }}
               style={styles.sideBySideButton}
             >
@@ -660,12 +693,12 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 7:
+    case "waiting":
       return (
         <View style={styles.container}>
           <View style={styles.progressBarcontainer}>
             <Progress.Bar
-              progress={progress / totalProgressScreens}
+              progress={getProgress(currentScreen) / getProgress("max")}
               width={300}
               color={"#5B8DCA"}
               unfilledColor={"#e8e8e8"}
@@ -689,7 +722,7 @@ export default function LoginScreen() {
           </Animated.View>
         </View>
       );
-    case 8:
+    case "allSet":
       return (
         <View style={styles.container}>
           <Text style={styles.title}>You are all set.</Text>
@@ -738,7 +771,7 @@ export default function LoginScreen() {
           <Text> Default login password: testpassword </Text>
           <Button
             onPress={() => {
-              setProgress(0);
+              setScreen("home");
             }}
             style={styles.button}
           >
