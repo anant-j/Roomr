@@ -1,134 +1,110 @@
-import * as React from "react";
-import { Image, StyleSheet, TouchableOpacity } from "react-native";
-import { Text, View } from "components/Themed";
+import { useAppSelector } from "hooks/typedHooks";
+import React, { useState, useEffect } from "react";
+import { TouchableOpacity, StyleSheet, Alert, Text, View } from "react-native";
+import { Agenda, AgendaEntry, AgendaSchedule } from "react-native-calendars";
+import { taskObject } from "reduxStates/taskSlice";
 
-import { Calendar } from "react-native-calendars";
-import Circle from "components/Circle";
-import { useEffect, useState } from "react";
+interface AgendaState {
+  items?: AgendaSchedule;
+}
 
-const CustomHeader = (props: any) => {
-  const { calendarRef, date } = props;
+export default function CalendarScreen() {
+  const { allTasks } = useAppSelector((state) => state.tasks);
 
-  const monthName = Intl.DateTimeFormat("en-US", {
-    month: "long",
-  }).format(date);
-  const year = date.getFullYear();
+  const initAgendaState: AgendaState = { items: undefined };
+  const [agendaState, setAgendaState] = useState(initAgendaState);
+  const timeZoneOffset = new Date().getTimezoneOffset() * 60000;
+  const todayInUTC: any = new Date();
+  const today = new Date(todayInUTC - timeZoneOffset)
+    .toISOString()
+    .slice(0, 10);
+
+  useEffect(() => {
+    getTasksByDate(allTasks, setAgendaState);
+  }, [allTasks]);
 
   return (
-    <View style={calendarStyles.headerContainer}>
-      <View>
-        <Text style={calendarStyles.year}>{year} Calendar</Text>
-        <Text style={calendarStyles.monthName}>{monthName}</Text>
-      </View>
-      <View style={calendarStyles.arrowSection}>
-        {calendarRef.header.current.props.renderArrow("left")}
-        {calendarRef.header.current.props.renderArrow("right")}
-      </View>
-    </View>
+    <Agenda
+      items={agendaState.items}
+      selected={today}
+      renderItem={renderItem}
+      renderEmptyData={renderEmptyDate}
+      rowHasChanged={rowHasChanged}
+      showClosingKnob={true}
+    />
   );
+}
+
+const getTasksByDate = (allTasks: taskObject[], setAgendaState) => {
+  const tasksByDate = allTasks.reduce(
+    (acc, current) => accumulateTasks(acc, current),
+    {},
+  );
+  const newAgendaState = { items: tasksByDate };
+  setAgendaState(newAgendaState);
 };
 
-const CustomArrow = (props: any) => {
-  const { calendarRef, direction } = props;
+const accumulateTasks = (acc: object, current: taskObject) => {
+  const timeZoneOffset = new Date().getTimezoneOffset() * 60000;
+  const thisDayObject: any = new Date(current.createdOn);
+  const thisTaskDate = new Date(thisDayObject - timeZoneOffset)
+    .toISOString()
+    .slice(0, 10);
 
-  const isLeft = direction === "left";
-  const onPressArrow = isLeft
-    ? calendarRef.header.current.onPressLeft
-    : calendarRef.header.current.onPressRight;
-  const marginRight = isLeft ? 15 : 0;
-
-  const circleStyles = {
-    borderColor: "black",
-    marginRight: marginRight,
+  const taskContent = current.content + " - " + current.createdBy;
+  const agendaItem = {
+    day: thisTaskDate,
+    name: taskContent,
+    height: 50,
   };
 
+  return {
+    ...acc,
+    [thisTaskDate]: acc[thisTaskDate]
+      ? [...acc[thisTaskDate], agendaItem]
+      : [agendaItem],
+  };
+};
+
+const renderItem = (reservation: AgendaEntry, isFirst: boolean) => {
+  const fontSize = 14;
+  const color = isFirst ? "black" : "#43515c";
+
   return (
-    <TouchableOpacity onPress={onPressArrow}>
-      <Circle style={circleStyles}>
-        {isLeft ? (
-          <Image
-            source={require("assets/images/leftArrow.png")}
-            style={[calendarStyles.img, { marginRight: 2 }]}
-          />
-        ) : (
-          <Image
-            source={require("assets/images/rightArrow.png")}
-            style={[calendarStyles.img, { marginLeft: 2 }]}
-          />
-        )}
-      </Circle>
+    <TouchableOpacity
+      style={[styles.item, { height: reservation.height }]}
+      onPress={() => Alert.alert(reservation.name)}
+    >
+      <Text style={{ fontSize, color }}>{reservation.name}</Text>
     </TouchableOpacity>
   );
 };
 
-export default function CalendarScreen() {
-  const calendarRef = React.useRef();
-  const [calendarRefCurrent, setCalendarRefCurrent] = useState(
-    calendarRef.current,
-  );
-
-  useEffect(() => {
-    setCalendarRefCurrent(calendarRef.current);
-  }, [calendarRef]);
-
+const renderEmptyDate = () => {
   return (
-    <>
-      <Calendar
-        hideArrows={true}
-        ref={calendarRef}
-        renderArrow={(direction) =>
-          calendarRefCurrent && (
-            <CustomArrow
-              direction={direction}
-              calendarRef={calendarRefCurrent}
-            />
-          )
-        }
-        renderHeader={(date: Date) => {
-          return (
-            calendarRefCurrent && (
-              <CustomHeader date={date} calendarRef={calendarRefCurrent} />
-            )
-          );
-        }}
-        style={[
-          { height: 500, paddingTop: 20, paddingLeft: 20, paddingRight: 20 },
-        ]}
-      />
-    </>
+    <View style={styles.emptyDate}>
+      <Text>No tasks today!</Text>
+    </View>
   );
-}
+};
 
-const calendarStyles = StyleSheet.create({
-  headerContainer: {
+const rowHasChanged = (r1: AgendaEntry, r2: AgendaEntry) => {
+  return r1.name !== r2.name;
+};
+
+const styles = StyleSheet.create({
+  item: {
+    backgroundColor: "white",
     flex: 1,
-    flexDirection: "row",
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 15,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+    marginTop: 17,
   },
-  monthName: {
-    backgroundColor: "white",
-    color: "black",
-    fontSize: 30,
-    fontWeight: "600",
-    lineHeight: 36,
-  },
-  year: {
-    fontSize: 15,
-    backgroundColor: "white",
-    color: "#BDBDBD",
-    paddingBottom: 5,
-  },
-  arrowSection: {
-    flexDirection: "row",
-    alignSelf: "flex-end",
-    backgroundColor: "white",
-  },
-  img: {
-    backgroundColor: "white",
-    width: 8,
+  emptyDate: {
     height: 15,
+    flex: 1,
+    paddingTop: 30,
+    alignItems: "center",
   },
 });
