@@ -1,12 +1,6 @@
 import { useAppSelector } from "hooks/typedHooks";
 import React, { useState, useEffect } from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  View,
-  useColorScheme,
-} from "react-native";
+import { StyleSheet, Alert, View, useColorScheme } from "react-native";
 import { Button, Text } from "components/Themed";
 import { Agenda, AgendaEntry, AgendaSchedule } from "react-native-calendars";
 
