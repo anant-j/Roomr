@@ -14,6 +14,16 @@ import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/authListener";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
+import "intl";
+import { Platform } from "react-native";
+
+if (Platform.OS === "android") {
+    // See https://github.com/expo/expo/issues/6536 for this issue.
+    if (typeof (Intl as any).__disableRegExpRestore === "function") {
+        (Intl as any).__disableRegExpRestore();
+    }
+}
+import "intl/locale-data/jsonp/en";
 
 export default function App() {
   return (
