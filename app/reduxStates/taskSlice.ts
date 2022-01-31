@@ -20,8 +20,9 @@ export const addTask = (payload: string, houseID: string, email) => {
     try {
       await addDoc(collection(db, `houses/${houseID}/tasks`), {
         content: payload,
-        created_by: email,
-        created_on: new Date(),
+        createdBy: email,
+        createdOn: new Date(),
+        due: new Date(),
       });
     } catch (error: any) {
       dispatch(addTaskError(error));
