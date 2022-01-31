@@ -258,10 +258,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   for (const doc of housesCollection.docs) {
     const collections = await db.collection("houses").doc(doc.id).listCollections();
     for (const collection of collections) {
-      console.log(collection.id);
-      deleteCollection(db, `houses/${doc.id}/${collection.id}`, 100);
+      await deleteCollection(db, `houses/${doc.id}/${collection.id}`, 100);
     }
-    doc.ref.delete();
+    await doc.ref.delete();
   }
   await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
   await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
