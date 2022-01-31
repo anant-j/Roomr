@@ -4,10 +4,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Text,
   View,
   useColorScheme,
 } from "react-native";
+import { Button, Text } from "components/Themed";
 import { Agenda, AgendaEntry, AgendaSchedule } from "react-native-calendars";
 
 interface AgendaState {
@@ -37,8 +37,11 @@ export default function CalendarScreen() {
       // theme["color"] = "#fff";
       theme["backgroundColor"] = "#000";
       theme["calendarBackground"] = "#373737";
-      theme["dayTextColor"] = "#fff";
-      theme["agendaDayTextColor"] = "red";
+      theme["dayTextColor"] = "#e6e3e3";
+      theme["itemBGColor"] = "#373737";
+      theme["agendaDayTextColor"] = "#00BBF2";
+      theme["agendaDayNumColor"] = "#00BBF2";
+      theme["monthTextColor"] = "#e6e3e3";
     }
 
     return theme;
@@ -101,15 +104,22 @@ const accumulateTasks = (acc, current) => {
 
 const renderItem = (reservation: AgendaEntry, isFirst: boolean) => {
   const fontSize = 14;
-  const color = isFirst ? "black" : "#43515c";
 
   return (
-    <TouchableOpacity
+    <Button
       style={[styles.item, { height: reservation.height }]}
+      lightColor="#fff"
+      darkColor="#5e5d5d"
       onPress={() => Alert.alert(reservation.name)}
     >
-      <Text style={{ fontSize, color }}>{reservation.name}</Text>
-    </TouchableOpacity>
+      <Text
+        style={{ fontSize }}
+        lightColor="rgba(0,0,0,0.8)"
+        darkColor="rgba(255,255,255,0.8)"
+      >
+        {reservation.name}
+      </Text>
+    </Button>
   );
 };
 
@@ -127,7 +137,6 @@ const rowHasChanged = (r1: AgendaEntry, r2: AgendaEntry) => {
 
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: "white",
     flex: 1,
     borderRadius: 5,
     padding: 10,
