@@ -39,9 +39,12 @@ export const fetchData = (houseID: string) => {
             doc.data().createdOn.seconds * 1000,
           ).toString();
 
+          const taskDueOn = new Date(doc.data().due.seconds * 1000).toString();
+
           const task = {
             ...doc.data(),
             createdOn: taskCreatedOn,
+            due: taskDueOn,
           };
 
           tasks.push(task);

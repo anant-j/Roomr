@@ -1,8 +1,8 @@
 import { useAppSelector } from "hooks/typedHooks";
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity, StyleSheet, Alert, Text, View } from "react-native";
+import { StyleSheet, Alert, View, useColorScheme } from "react-native";
+import { Button, Text } from "components/Themed";
 import { Agenda, AgendaEntry, AgendaSchedule } from "react-native-calendars";
-import { taskObject } from "reduxStates/taskSlice";
 
 interface AgendaState {
   items?: AgendaSchedule;
@@ -23,6 +23,34 @@ export default function CalendarScreen() {
     getTasksByDate(allTasks, setAgendaState);
   }, [allTasks]);
 
+  const colorScheme = useColorScheme();
+
+  const getTheme = (colorScheme) => {
+    const theme = {};
+    if (colorScheme === "dark") {
+      // theme["color"] = "#fff";
+      theme["backgroundColor"] = "#000";
+      theme["calendarBackground"] = "#373737";
+      theme["dayTextColor"] = "#e6e3e3";
+      theme["itemBGColor"] = "#373737";
+      theme["agendaDayTextColor"] = "#00BBF2";
+      theme["agendaDayNumColor"] = "#00BBF2";
+      theme["monthTextColor"] = "#e6e3e3";
+    }
+
+    return theme;
+  };
+
+  const [{ key, theme }, setTheme] = useState({
+    key: colorScheme,
+    theme: getTheme(colorScheme),
+  });
+
+  useEffect(() => {
+    const theme = getTheme(colorScheme);
+    setTheme({ key: colorScheme, theme: theme });
+  }, [colorScheme]);
+
   return (
     <Agenda
       items={agendaState.items}
@@ -31,11 +59,13 @@ export default function CalendarScreen() {
       renderEmptyData={renderEmptyDate}
       rowHasChanged={rowHasChanged}
       showClosingKnob={true}
+      key={key}
+      theme={theme}
     />
   );
 }
 
-const getTasksByDate = (allTasks: taskObject[], setAgendaState) => {
+const getTasksByDate = (allTasks, setAgendaState) => {
   const tasksByDate = allTasks.reduce(
     (acc, current) => accumulateTasks(acc, current),
     {},
@@ -44,7 +74,7 @@ const getTasksByDate = (allTasks: taskObject[], setAgendaState) => {
   setAgendaState(newAgendaState);
 };
 
-const accumulateTasks = (acc: object, current: taskObject) => {
+const accumulateTasks = (acc, current) => {
   const timeZoneOffset = new Date().getTimezoneOffset() * 60000;
   const thisDayObject: any = new Date(current.createdOn);
   const thisTaskDate = new Date(thisDayObject - timeZoneOffset)
@@ -68,15 +98,22 @@ const accumulateTasks = (acc: object, current: taskObject) => {
 
 const renderItem = (reservation: AgendaEntry, isFirst: boolean) => {
   const fontSize = 14;
-  const color = isFirst ? "black" : "#43515c";
 
   return (
-    <TouchableOpacity
+    <Button
       style={[styles.item, { height: reservation.height }]}
+      lightColor="#fff"
+      darkColor="#5e5d5d"
       onPress={() => Alert.alert(reservation.name)}
     >
-      <Text style={{ fontSize, color }}>{reservation.name}</Text>
-    </TouchableOpacity>
+      <Text
+        style={{ fontSize }}
+        lightColor="rgba(0,0,0,0.8)"
+        darkColor="rgba(255,255,255,0.8)"
+      >
+        {reservation.name}
+      </Text>
+    </Button>
   );
 };
 
@@ -94,7 +131,6 @@ const rowHasChanged = (r1: AgendaEntry, r2: AgendaEntry) => {
 
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: "white",
     flex: 1,
     borderRadius: 5,
     padding: 10,
