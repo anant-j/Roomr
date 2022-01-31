@@ -209,20 +209,20 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     content: "hello",
     to: ["tenant@roomr.com"],
     from: "tenant@roomr.com",
-    sent_at: new Date(),
+    sentAt: new Date(),
   };
 
   const sampleTask = {
     content: "Laundry",
-    created_by: "tenant@roomr.com",
-    created_on: new Date(),
+    createdBy: "tenant@roomr.com",
+    createdOn: new Date(),
     due: new Date(),
   };
 
   const sampleTicket = {
     content: "Fix Laundry Machine",
-    created_by: "tenant@roomr.com",
-    created_on: new Date(),
+    createdBy: "tenant@roomr.com",
+    createdOn: new Date(),
   };
 
   const authUsers = await auth.listUsers();
@@ -254,11 +254,14 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
       doc.ref.delete();
     });
   });
-  await db.collection("houses").get().then((snapshot) => {
-    snapshot.forEach((doc) => {
-      doc.ref.delete();
-    });
-  });
+  const housesCollection = await db.collection("houses").get();
+  for (const doc of housesCollection.docs) {
+    const collections = await db.collection("houses").doc(doc.id).listCollections();
+    for (const collection of collections) {
+      await deleteCollection(db, `houses/${doc.id}/${collection.id}`, 100);
+    }
+    await doc.ref.delete();
+  }
   await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
   await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
   await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
@@ -431,4 +434,45 @@ function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 
+/**
+ * @param  {FirebaseFirestore.Firestore} db
+ * @param  {string} collectionPath
+ * @param  {number} batchSize
+ */
+async function deleteCollection(db, collectionPath, batchSize) {
+  const collectionRef = db.collection(collectionPath);
+  const query = collectionRef.orderBy("__name__").limit(batchSize);
+
+  return new Promise((resolve, reject) => {
+    deleteQueryBatch(db, query, resolve).catch(reject);
+  });
+}
+/**
+ * @param  {FirebaseFirestore.Firestore} db
+ * @param  {any} query
+ * @param  {any} resolve
+ */
+async function deleteQueryBatch(db, query, resolve) {
+  const snapshot = await query.get();
+
+  const batchSize = snapshot.size;
+  if (batchSize === 0) {
+    // When there are no documents left, we are done
+    resolve();
+    return;
+  }
+
+  // Delete documents in a batch
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+
+  // Recurse on the next process tick, to avoid
+  // exploding the stack.
+  process.nextTick(() => {
+    deleteQueryBatch(db, query, resolve);
+  });
+}
 
