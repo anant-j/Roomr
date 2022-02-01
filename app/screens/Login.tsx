@@ -20,7 +20,7 @@ import { useAppSelector } from "hooks/typedHooks";
 
 export default function LoginScreen() {
   const expoToken = useAppSelector((state) => state.auth.expoToken);
-
+  const placeholderColor = "#707070";
   const [currentScreen, setCurrentScreen] = useState("home");
   const [hidePass, setHidePass] = useState(true);
   const [loginMode, setLoginMode] = useState(true);
@@ -217,6 +217,7 @@ export default function LoginScreen() {
               value={email}
               keyboardType="email-address"
               placeholder="Enter Email"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.passwordContainer}>
               <TextInput
@@ -225,6 +226,7 @@ export default function LoginScreen() {
                 secureTextEntry={hidePass ? true : false}
                 onChangeText={onChangePassword}
                 style={[styles.input, styles.passwordInput]}
+                placeholderTextColor={placeholderColor}
               />
               <View style={styles.passwordEye}>
                 <Feather
@@ -292,12 +294,14 @@ export default function LoginScreen() {
               onChangeText={onChangeFirstName}
               value={firstName}
               placeholder="First Name"
+              placeholderTextColor={placeholderColor}
             />
             <TextInput
               style={styles.input}
               onChangeText={onChangeLastName}
               value={lastName}
               placeholder="Last Name"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -353,6 +357,7 @@ export default function LoginScreen() {
               value={email}
               placeholder="Enter Email"
               keyboardType="email-address"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -404,6 +409,7 @@ export default function LoginScreen() {
               value={phone}
               keyboardType="number-pad"
               placeholder="Enter Phone Number"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -506,6 +512,7 @@ export default function LoginScreen() {
               value={houseID}
               maxLength={8}
               placeholder="Enter 8 Digit House ID"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -556,6 +563,7 @@ export default function LoginScreen() {
               onChangeText={onChangeAddress}
               value={address}
               placeholder="Enter Address"
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -608,12 +616,14 @@ export default function LoginScreen() {
               secureTextEntry={true}
               onChangeText={onChangePassword}
               style={styles.input}
+              placeholderTextColor={placeholderColor}
             />
             <TextInput
               placeholder="Enter Password Again"
               secureTextEntry={true}
               onChangeText={onChangePasswordAgain}
               style={styles.input}
+              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
