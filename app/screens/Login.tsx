@@ -191,7 +191,7 @@ export default function LoginScreen() {
             }}
             style={styles.button}
           >
-            <Text style={styles.linkText}>Login</Text>
+            <Text style={styles.buttonText}>Login</Text>
           </Button>
           <Text></Text>
           <Button
@@ -201,7 +201,7 @@ export default function LoginScreen() {
             }}
             style={styles.button}
           >
-            <Text style={styles.linkText}>Register</Text>
+            <Text style={styles.buttonText}>Register</Text>
           </Button>
         </View>
       );
@@ -242,7 +242,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -264,7 +264,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Login</Text>
+                <Text style={styles.buttonText}>Login</Text>
               </Button>
             </View>
           </View>
@@ -306,7 +306,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -324,7 +324,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Next</Text>
+                <Text style={styles.buttonText}>Next</Text>
               </Button>
             </View>
           </View>
@@ -361,7 +361,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -375,7 +375,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Next</Text>
+                <Text style={styles.buttonText}>Next</Text>
               </Button>
             </View>
           </View>
@@ -412,7 +412,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -426,7 +426,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Next</Text>
+                <Text style={styles.buttonText}>Next</Text>
               </Button>
             </View>
           </View>
@@ -456,7 +456,7 @@ export default function LoginScreen() {
               }}
               style={styles.button}
             >
-              <Text style={styles.linkText}>Tenant</Text>
+              <Text style={styles.buttonText}>Tenant</Text>
             </Button>
             <Text></Text>
             <Button
@@ -466,7 +466,7 @@ export default function LoginScreen() {
               }}
               style={styles.button}
             >
-              <Text style={styles.linkText}>Landlord</Text>
+              <Text style={styles.buttonText}>Landlord</Text>
             </Button>
             <Text></Text>
             <Button
@@ -514,7 +514,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -528,7 +528,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Next</Text>
+                <Text style={styles.buttonText}>Next</Text>
               </Button>
             </View>
           </View>
@@ -564,7 +564,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -578,7 +578,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Next</Text>
+                <Text style={styles.buttonText}>Next</Text>
               </Button>
             </View>
           </View>
@@ -626,7 +626,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideLeft]}
               >
-                <Text style={styles.linkText}>Previous</Text>
+                <Text style={styles.buttonText}>Previous</Text>
               </Button>
               <Button
                 onPress={() => {
@@ -650,7 +650,7 @@ export default function LoginScreen() {
                 }}
                 style={[styles.button, styles.sideBySideRight]}
               >
-                <Text style={styles.linkText}>Register</Text>
+                <Text style={styles.buttonText}>Register</Text>
               </Button>
             </View>
           </View>
@@ -693,7 +693,7 @@ export default function LoginScreen() {
             }}
             style={[styles.button, styles.bigSpacer]}
           >
-            <Text style={styles.linkText}>Continue to app</Text>
+            <Text style={styles.buttonText}>Continue to app</Text>
           </Button>
           {errorComponent()}
         </View>
@@ -713,7 +713,7 @@ export default function LoginScreen() {
             }}
             style={styles.button}
           >
-            <Text style={styles.linkText}>Back to home</Text>
+            <Text style={styles.buttonText}>Back to home</Text>
           </Button>
           {errorComponent()}
         </View>
@@ -727,6 +727,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
+
   maintitle: {
     position: "relative",
     marginTop: 100,
@@ -739,10 +740,56 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 20,
   },
+
   errorBox: {
     marginTop: 25,
     height: 75,
     width: "90%",
+  },
+
+  logo: {
+    marginTop: 40,
+    width: 80,
+    height: 80,
+    resizeMode: "contain",
+  },
+
+  inputContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  input: {
+    width: "90%",
+    height: 50,
+    borderWidth: 2,
+    marginTop: 12,
+    borderRadius: 10,
+    borderColor: "#5B8DCA",
+    fontSize: 20,
+    padding: 10,
+  },
+
+  passwordContainer: {
+    flexDirection: "row",
+    marginTop: 12,
+    width: "90%",
+  },
+  passwordInput: {
+    margin: 0,
+    marginTop: 0,
+    width: "85%",
+  },
+  passwordEye: {
+    alignSelf: "center",
+    margin: 5,
+    padding: 5,
+  },
+
+  buttonsContainer: {
+    flexDirection: "row",
+    width: "90%",
+    marginTop: 15,
+    justifyContent: "space-evenly",
   },
   button: {
     borderRadius: 10,
@@ -752,7 +799,7 @@ const styles = StyleSheet.create({
     width: "90%",
     alignItems: "center",
   },
-  linkText: {
+  buttonText: {
     fontSize: 25,
     color: "white",
   },
@@ -766,64 +813,19 @@ const styles = StyleSheet.create({
     marginRight: 0,
     width: "48%",
   },
+
   bigSpacer: {
     marginTop: 500,
   },
-  logo: {
-    marginTop: 40,
-    width: 80,
-    height: 80,
-    resizeMode: "contain",
-  },
-  input: {
-    width: "90%",
-    height: 50,
-    borderWidth: 2,
-    marginTop: 12,
-    borderRadius: 10,
-    borderColor: "#5B8DCA",
-    fontSize: 20,
-    padding: 10,
-  },
-  passwordInput: {
-    margin: 0,
-    marginTop: 0,
-    width: "85%",
-  },
-  inputContainer: {
-    width: "100%",
-    alignItems: "center",
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    marginTop: 12,
-    width: "90%",
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    width: "90%",
-    marginTop: 15,
-    // alignItems: "center",
-    justifyContent: "space-evenly",
-  },
+
   progressBarcontainer: {
     position: "absolute",
     top: 75,
   },
-  passwordEye: {
-    alignSelf: "center",
-    margin: 5,
-    padding: 5,
-  },
-  backbutton: {
-    position: "absolute",
-    top: 150,
-    left: 30,
-    margin: 0,
-    padding: 0,
-    borderRadius: 50,
-  },
+
   backbuttonLower: {
     borderRadius: 50,
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 });
