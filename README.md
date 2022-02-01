@@ -2,7 +2,7 @@
 
 https://expo.dev/@capstone2022/roomr
 
-![image](https://user-images.githubusercontent.com/28623347/150661461-7694d91b-2fc8-4f64-bd50-0c159fe80758.png)
+![image](https://user-images.githubusercontent.com/28623347/152003243-07b7a14d-2422-48e3-97e1-2d8e67ce6ea5.png)
 
 
 # Roomr
