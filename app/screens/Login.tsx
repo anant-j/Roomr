@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Image,
   TouchableWithoutFeedback,
+  TextProps,
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { login } from "../firebase";
@@ -17,6 +18,8 @@ import { validator } from "../utils/Validations";
 import * as Progress from "react-native-progress";
 import { tenantSignup, landlordSignup } from "../firebase";
 import { useAppSelector } from "hooks/typedHooks";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function LoginScreen() {
   const expoToken = useAppSelector((state) => state.auth.expoToken);
@@ -36,6 +39,26 @@ export default function LoginScreen() {
   const [passwordAgain, onChangePasswordAgain] = useState("");
   const [houseID, onChangeHouseID] = useState("");
   const [address, onChangeAddress] = useState("");
+
+  const GradientText = (
+    props: JSX.IntrinsicAttributes & {
+      lightColor?: string;
+      darkColor?: string;
+    } & Readonly<TextProps> &
+      Readonly<{ children?: React.ReactNode }>,
+  ) => {
+    return (
+      <MaskedView maskElement={<Text {...props} />}>
+        <LinearGradient
+          colors={["#FFFFFF", "#5587C1", "#4574AB", "#39659A", "#0000FF"]}
+          // start={{ x: 0, y: 0 }}
+          // end={{ x: 0, y: 1 }}
+        >
+          <Text {...props} style={[props.style, { opacity: 0 }]} />
+        </LinearGradient>
+      </MaskedView>
+    );
+  };
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -178,7 +201,10 @@ export default function LoginScreen() {
     case "home":
       return (
         <View style={styles.container}>
-          <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text>
+          {/* <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text> */}
+          <GradientText style={[styles.title, styles.maintitle]}>
+            Welcome to Roomr
+          </GradientText>
           <Image
             style={styles.logo}
             source={require("../assets/images/icon_transparent.png")}
@@ -208,7 +234,7 @@ export default function LoginScreen() {
     case "login":
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>Log In</Text>
+          <Text style={styles.title}>Log In</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -284,9 +310,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your name?
-          </Text>
+          <Text style={styles.title}>What is your name?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -346,9 +370,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your email?
-          </Text>
+          <Text style={styles.title}>What is your email?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -398,9 +420,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your phone number?
-          </Text>
+          <Text style={styles.title}>What is your phone number?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -450,9 +470,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            Are you a Tenant or a Landlord?
-          </Text>
+          <Text style={styles.title}>Are you a Tenant or a Landlord?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <Button
@@ -498,9 +516,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your House ID?
-          </Text>
+          <Text style={styles.title}>What is your House ID?</Text>
           <Text style={styles.subtitle}>
             Don&apos;t have one? Ask your Landlord!
           </Text>
@@ -553,9 +569,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your Address?
-          </Text>
+          <Text style={styles.title}>What is your Address?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -605,9 +619,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            Please create a Password.
-          </Text>
+          <Text style={styles.title}>Please create a Password.</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -669,7 +681,7 @@ export default function LoginScreen() {
     case "waiting":
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>Please wait</Text>
+          <Text style={styles.title}>Please wait</Text>
           {errorComponent()}
           <LottieView
             source={require("../assets/animations/loading.json")}
@@ -680,7 +692,7 @@ export default function LoginScreen() {
     case "allSet":
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>You are all set.</Text>
+          <Text style={styles.title}>You are all set.</Text>
           <TouchableWithoutFeedback
             onPress={() => {
               LottieRef.current.play();
@@ -711,9 +723,7 @@ export default function LoginScreen() {
     default:
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>
-            Uh oh, something went wrong!
-          </Text>
+          <Text style={styles.title}>Uh oh, something went wrong!</Text>
           <Text>This is just temporary until all wiring is put in place</Text>
           <Text> Default login username: test@test.com</Text>
           <Text> Default login password: testpassword </Text>
@@ -739,13 +749,17 @@ const styles = StyleSheet.create({
   },
 
   maintitle: {
+    // width: "70%",
+    alignSelf: "center",
+    textAlign: "center",
+    fontSize: 50,
+  },
+  title: {
+    width: "80%",
     position: "relative",
     marginTop: 100,
     fontSize: 40,
     fontWeight: "bold",
-  },
-  title: {
-    width: "80%",
   },
   subtitle: {
     fontSize: 20,
