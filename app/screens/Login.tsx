@@ -50,7 +50,7 @@ export default function LoginScreen() {
     return (
       <MaskedView maskElement={<Text {...props} />}>
         <LinearGradient
-          colors={["#FFFFFF", "#5587C1", "#4574AB", "#39659A", "#0000FF"]}
+          colors={["#FFFFFF", "#5587C1", "#4574AB", "#39659A", "#244C7C"]}
           // start={{ x: 0, y: 0 }}
           // end={{ x: 0, y: 1 }}
         >
@@ -243,7 +243,6 @@ export default function LoginScreen() {
               value={email}
               keyboardType="email-address"
               placeholder="Enter Email"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.passwordContainer}>
               <TextInput
@@ -258,7 +257,7 @@ export default function LoginScreen() {
                 <Feather
                   name={hidePass ? "eye-off" : "eye"}
                   size={25}
-                  color="grey"
+                  color="#878787"
                   onPress={() => setHidePass(!hidePass)}
                 />
               </View>
@@ -318,14 +317,12 @@ export default function LoginScreen() {
               onChangeText={onChangeFirstName}
               value={firstName}
               placeholder="First Name"
-              placeholderTextColor={placeholderColor}
             />
             <TextInput
               style={styles.input}
               onChangeText={onChangeLastName}
               value={lastName}
               placeholder="Last Name"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -379,7 +376,6 @@ export default function LoginScreen() {
               value={email}
               placeholder="Enter Email"
               keyboardType="email-address"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -429,7 +425,6 @@ export default function LoginScreen() {
               value={phone}
               keyboardType="number-pad"
               placeholder="Enter Phone Number"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -528,7 +523,6 @@ export default function LoginScreen() {
               value={houseID}
               maxLength={8}
               placeholder="Enter 8 Digit House ID"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -577,7 +571,6 @@ export default function LoginScreen() {
               onChangeText={onChangeAddress}
               value={address}
               placeholder="Enter Address"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -628,14 +621,12 @@ export default function LoginScreen() {
               secureTextEntry={true}
               onChangeText={onChangePassword}
               style={styles.input}
-              placeholderTextColor={placeholderColor}
             />
             <TextInput
               placeholder="Enter Password Again"
               secureTextEntry={true}
               onChangeText={onChangePasswordAgain}
               style={styles.input}
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -785,10 +776,10 @@ const styles = StyleSheet.create({
   input: {
     width: "90%",
     height: 50,
-    borderWidth: 2,
     marginTop: 12,
     borderRadius: 10,
-    borderColor: "#5B8DCA",
+    // borderWidth: 2,
+    // borderColor: "#5B8DCA",
     fontSize: 20,
     padding: 10,
   },
@@ -796,15 +787,16 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: "row",
     marginTop: 12,
-    width: "90%",
   },
   passwordInput: {
     margin: 0,
     marginTop: 0,
-    width: "85%",
   },
   passwordEye: {
     alignSelf: "center",
+    position: "absolute",
+    right: 2,
+    backgroundColor: "transparent",
     margin: 5,
     padding: 5,
   },
