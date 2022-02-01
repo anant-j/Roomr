@@ -243,6 +243,7 @@ export default function LoginScreen() {
               value={email}
               keyboardType="email-address"
               placeholder="Enter Email"
+              autoCapitalize="none"
             />
             <View style={styles.passwordContainer}>
               <TextInput
@@ -252,6 +253,7 @@ export default function LoginScreen() {
                 onChangeText={onChangePassword}
                 style={[styles.input, styles.passwordInput]}
                 placeholderTextColor={placeholderColor}
+                autoCapitalize="none"
               />
               <View style={styles.passwordEye}>
                 <Feather
@@ -317,12 +319,14 @@ export default function LoginScreen() {
               onChangeText={onChangeFirstName}
               value={firstName}
               placeholder="First Name"
+              autoCapitalize="sentences"
             />
             <TextInput
               style={styles.input}
               onChangeText={onChangeLastName}
               value={lastName}
               placeholder="Last Name"
+              autoCapitalize="sentences"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -376,6 +380,7 @@ export default function LoginScreen() {
               value={email}
               placeholder="Enter Email"
               keyboardType="email-address"
+              autoCapitalize="none"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -523,6 +528,7 @@ export default function LoginScreen() {
               value={houseID}
               maxLength={8}
               placeholder="Enter 8 Digit House ID"
+              autoCapitalize="characters"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -571,6 +577,7 @@ export default function LoginScreen() {
               onChangeText={onChangeAddress}
               value={address}
               placeholder="Enter Address"
+              autoCapitalize="words"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -621,12 +628,14 @@ export default function LoginScreen() {
               secureTextEntry={true}
               onChangeText={onChangePassword}
               style={styles.input}
+              autoCapitalize="none"
             />
             <TextInput
               placeholder="Enter Password Again"
               secureTextEntry={true}
               onChangeText={onChangePasswordAgain}
               style={styles.input}
+              autoCapitalize="none"
             />
             <View style={styles.buttonsContainer}>
               <Button
