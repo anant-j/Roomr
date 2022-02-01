@@ -167,7 +167,7 @@ export default function LoginScreen() {
           <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text>
           <Image
             style={styles.logo}
-            source={require("../assets/images/transparentIcon.png")}
+            source={require("../assets/images/icon_transparent.png")}
           />
           <Button
             onPress={() => {
@@ -805,6 +805,8 @@ const styles = StyleSheet.create({
     // marginTop: 1000,
   },
   logo: {
+    position: "absolute",
+    top: -250,
     width: 80,
     resizeMode: "contain",
   },
