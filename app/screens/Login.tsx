@@ -260,7 +260,6 @@ export default function LoginScreen() {
                 secureTextEntry={hidePass ? true : false}
                 onChangeText={onChangePassword}
                 style={[styles.input, styles.passwordInput]}
-                placeholderTextColor={placeholderColor}
                 autoCapitalize="none"
               />
               <View style={styles.passwordEye}>

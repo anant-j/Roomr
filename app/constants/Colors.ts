@@ -22,6 +22,6 @@ export default {
     touchableOpacity: "#373737",
     buttonBlue: "#5B8DCA",
     textBackground: "#383838",
-    textPlaceholder: "#d4d4d4",
+    textPlaceholder: "#9c9c9c",
   },
 };
