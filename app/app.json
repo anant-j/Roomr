@@ -33,8 +33,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+      },
+      "versionCode": 1,
+      "package": "com.capstone.roomr"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
