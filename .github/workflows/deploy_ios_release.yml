@@ -11,19 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: 16.x
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v7
-        working-directory: ./app
         with:
+          expo-packager: yarn
           expo-version: 5.x
           eas-version: latest
+          expo-cache: true
+          eas-cache: true
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Install dependencies
+      - name: Cache Node Modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Packages
         working-directory: ./app
-        run: npm ci
+        run: yarn install
       - name: Build on EAS
         working-directory: ./app
         run: eas build -p ios --non-interactive --auto-submit
