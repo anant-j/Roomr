@@ -4,7 +4,8 @@ https://expo.dev/@capstone2022/roomr
 
 ![image](https://user-images.githubusercontent.com/28623347/152003243-07b7a14d-2422-48e3-97e1-2d8e67ce6ea5.png)
 
-
+IOS Build: https://expo.dev/accounts/capstone2022/projects/roomr/builds
+IOS Release: https://expo.dev/accounts/capstone2022/projects/roomr/submissions
 # Roomr
 Capstone Project 4ZP6 Fall 2021 - Winter 2022
 

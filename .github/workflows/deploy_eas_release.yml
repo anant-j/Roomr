@@ -1,0 +1,45 @@
+name: EAS Build and Submit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+jobs:
+  build:
+    name: Install and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v7
+        with:
+          expo-packager: yarn
+          expo-version: 5.x
+          eas-version: latest
+          expo-cache: true
+          eas-cache: true
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Cache Node Modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Packages
+        working-directory: ./app
+        run: yarn install
+      - name: Build on EAS IOS
+        working-directory: ./app
+        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas build -p ios --non-interactive --auto-submit --no-wait
+      - name: Build on EAS Android 
+        working-directory: ./app
+        run: eas build -p android --non-interactive --no-wait
