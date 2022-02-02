@@ -1,13 +1,16 @@
 {
   "expo": {
-    "name": "roomr",
+    "name": "Roomr",
     "slug": "roomr",
+    "description": "House management made easy for tenants and landlords. Chat, create support tickets, reminders, announcements and much more!",
     "owner": "capstone2022",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "primaryColor": "#5B8DCA",
+    "githubUrl": "https://github.com/anant-j/Roomr",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -32,7 +35,6 @@
     },
     "web": {
       "favicon": "./assets/images/icon.png"
-    },
-    "description": ""
+    }
   }
 }
