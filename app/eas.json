@@ -10,7 +10,11 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "android": {
+        "buildType": "apk"
+      }
+    }
   },
   "submit": {
     "production": {
@@ -18,9 +22,6 @@
         "appleId": "roomr.capstone@gmail.com",
         "ascAppId": "1608190383",
         "appleTeamId": "EEDG8GLDPQ"
-      },
-      "android":{
-        "buildType": "apk"
       }
     }
   }
