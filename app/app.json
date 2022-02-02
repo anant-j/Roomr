@@ -22,7 +22,10 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.capstone.roomr",
-      "buildNumber": "1.0.1"
+      "buildNumber": "1.0.1",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
