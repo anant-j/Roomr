@@ -23,7 +23,6 @@ import { LinearGradient } from "expo-linear-gradient";
 
 export default function LoginScreen() {
   const expoToken = useAppSelector((state) => state.auth.expoToken);
-  const placeholderColor = "#707070";
   const [currentScreen, setCurrentScreen] = useState("home");
   const [hidePass, setHidePass] = useState(true);
   const [loginMode, setLoginMode] = useState(true);
