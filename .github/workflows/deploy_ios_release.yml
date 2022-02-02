@@ -39,4 +39,4 @@ jobs:
         run: yarn install
       - name: Build on EAS
         working-directory: ./app
-        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas build -p ios --non-interactive --auto-submit
+        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas build -p ios --non-interactive --auto-submit --no-wait
