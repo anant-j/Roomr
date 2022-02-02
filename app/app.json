@@ -21,7 +21,8 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.capstone.roomr"
+      "bundleIdentifier": "com.capstone.roomr",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
