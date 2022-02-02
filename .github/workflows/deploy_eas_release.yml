@@ -1,4 +1,4 @@
-name: EAS Build and Submit IOS
+name: EAS Build and Submit
 on:
   workflow_dispatch:
   push:
@@ -37,6 +37,9 @@ jobs:
       - name: Install Packages
         working-directory: ./app
         run: yarn install
-      - name: Build on EAS
+      - name: Build on EAS IOS
         working-directory: ./app
         run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas build -p ios --non-interactive --auto-submit --no-wait
+      - name: Build on EAS Android 
+        working-directory: ./app
+        run: eas build -p android --non-interactive --no-wait
