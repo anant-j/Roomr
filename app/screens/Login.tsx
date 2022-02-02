@@ -105,10 +105,6 @@ export default function LoginScreen() {
         houseID: houseID,
         expo_token: expoToken,
       });
-      if (result.data.status === "success") {
-        login(email, password);
-        return;
-      }
     } else {
       result = await landlordSignup({
         name: {
@@ -122,11 +118,13 @@ export default function LoginScreen() {
         expo_token: expoToken,
       });
       if (result.data.status === "success") {
-        setScreen("allSet");
-        return;
+        onChangeHouseID(result.data.house);
       }
     }
-    if (result.data.status === "error") {
+    if (result.data.status === "success") {
+      setScreen("allSet");
+      return;
+    } else if (result.data.status === "error") {
       setError(result.data.code);
     }
   };
@@ -174,6 +172,16 @@ export default function LoginScreen() {
       </Animated.View>
     );
   };
+
+  const getHouseID = () => {
+    if (isTenant) {
+      return null;
+    }
+    return (
+      <Text style={styles.allSetHouseID}>Your House ID is: {houseID}</Text>
+    );
+  };
+
   switch (currentScreen) {
     case "home":
       return (
@@ -681,6 +689,7 @@ export default function LoginScreen() {
       return (
         <View style={styles.container}>
           <Text style={[styles.title, styles.maintitle]}>You are all set.</Text>
+          {errorComponent()}
           <TouchableWithoutFeedback
             onPress={() => {
               LottieRef.current.play();
@@ -693,19 +702,21 @@ export default function LoginScreen() {
               loop={false}
             />
           </TouchableWithoutFeedback>
-          <Button
-            onPress={() => {
-              login(email, password).then((result) => {
-                if (!result.success) {
-                  setError(result.error);
-                }
-              });
-            }}
-            style={[styles.button, styles.bigSpacer]}
-          >
-            <Text style={styles.buttonText}>Continue to app</Text>
-          </Button>
-          {errorComponent()}
+          <View style={styles.allSetContainer}>
+            {getHouseID()}
+            <Button
+              onPress={() => {
+                login(email, password).then((result) => {
+                  if (!result.success) {
+                    setError(result.error);
+                  }
+                });
+              }}
+              style={[styles.button, styles.allSetContinueButton]}
+            >
+              <Text style={styles.buttonText}>Continue to app</Text>
+            </Button>
+          </View>
         </View>
       );
     default:
@@ -824,8 +835,22 @@ const styles = StyleSheet.create({
     width: "48%",
   },
 
-  bigSpacer: {
-    marginTop: 500,
+  allSetContainer: {
+    marginTop: 350,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "90%",
+  },
+  allSetHouseID: {
+    backgroundColor: "#373737",
+    borderRadius: 20,
+    overflow: "hidden",
+    color: "white",
+    padding: 15,
+    fontSize: 18,
+  },
+  allSetContinueButton: {
+    marginTop: 15,
   },
 
   progressBarcontainer: {
