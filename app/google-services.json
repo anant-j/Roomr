@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "988138097951",
+    "project_id": "roomr-2022",
+    "storage_bucket": "roomr-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988138097951:android:e4ee2d0e8f129c78d6342a",
+        "android_client_info": {
+          "package_name": "com.capstone.roomr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "988138097951-fclcq189nt3g5om3dkjbd813fpamsjbm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDngaP6u95YCrWhGsTXysIsWw_EcaCCaOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "988138097951-fclcq189nt3g5om3dkjbd813fpamsjbm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
