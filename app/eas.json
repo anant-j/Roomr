@@ -18,6 +18,9 @@
         "appleId": "roomr.capstone@gmail.com",
         "ascAppId": "1608190383",
         "appleTeamId": "EEDG8GLDPQ"
+      },
+      "android":{
+        "buildType": "apk"
       }
     }
   }
