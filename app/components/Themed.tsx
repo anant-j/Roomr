@@ -89,6 +89,26 @@ export function Button(props: TouchableOpacityProps) {
 export function TextInput(props: TextInputProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+  const backgroundColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "textBackground",
+  );
+  const placeholderTextColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "textPlaceholder",
+  );
 
-  return <DefaultTextInput style={[{ color }, style]} {...otherProps} />;
+  return (
+    <DefaultTextInput
+      placeholderTextColor={placeholderTextColor}
+      style={[
+        {
+          color,
+          backgroundColor,
+        },
+        style,
+      ]}
+      {...otherProps}
+    />
+  );
 }
