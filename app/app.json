@@ -36,7 +36,8 @@
         "backgroundColor": "#ffffff"
       },
       "versionCode": 1,
-      "package": "com.capstone.roomr"
+      "package": "com.capstone.roomr",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
