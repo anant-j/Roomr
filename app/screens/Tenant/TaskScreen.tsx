@@ -1,11 +1,10 @@
 import * as React from "react";
 import { Text, View, Button } from "components/Themed";
-import { StyleSheet, Keyboard } from "react-native";
+import { StyleSheet } from "react-native";
 import { useState } from "react";
 
 import CircularProgress from "react-native-circular-progress-indicator";
-import { addTask } from "reduxStates/taskSlice";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
+import { useAppSelector } from "hooks/typedHooks";
 import TaskList from "components/TaskList";
 import { useNavigation } from "@react-navigation/native";
 

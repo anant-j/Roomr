@@ -15,6 +15,7 @@ module.exports = function (api) {
             constants: "./constants",
             assets: ["./assets"],
             reduxStates: "./reduxStates",
+            utils: "./utils",
           },
         },
       ],

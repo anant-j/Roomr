@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
   icon: {
     alignItems: "center",
     justifyContent: "center",
-    // width: 20,
     backgroundColor: "transparent",
   },
   item: {
@@ -43,7 +42,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "transparent",
     maxWidth: "90%",
-    // marginBottom: 20,
   },
   itemText: {
     fontSize: 17,
