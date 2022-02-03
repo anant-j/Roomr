@@ -17,7 +17,7 @@ import { Text, View } from "components/Themed";
 import Colors from "constants/Colors";
 import useColorScheme from "hooks/useColorScheme";
 
-import ModalScreen from "screens/Tenant/ModalScreen";
+import SettingsModal from "screens/Tenant/SettingsModal";
 import NotFoundScreen from "screens/NotFoundScreen";
 import HomeScreen from "screens/Tenant/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
@@ -33,6 +33,7 @@ import {
   RootTabScreenProps,
 } from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
+import CreateTaskModal from "screens/Tenant/CreateTaskModal";
 
 export default function Navigation({
   colorScheme,
@@ -75,7 +76,8 @@ function RootNavigator() {
         options={{ title: "Oops!" }}
       />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Settings" component={SettingsModal} />
+        <Stack.Screen name="Create Task" component={CreateTaskModal} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -107,7 +109,7 @@ function BottomTabNavigator() {
           headerRight: () => (
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <Pressable
-                onPress={() => navigation.navigate("Modal")}
+                onPress={() => navigation.navigate("Settings")}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.5 : 1,
                 })}
@@ -120,7 +122,7 @@ function BottomTabNavigator() {
                 />
               </Pressable>
               <Pressable
-                onPress={() => navigation.navigate("Modal")}
+                onPress={() => navigation.navigate("Settings")}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.5 : 1,
                 })}

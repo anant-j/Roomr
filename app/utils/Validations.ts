@@ -13,6 +13,8 @@ export const validator = (content: string | number, type: string) => {
       return houseIDValidation(content);
     case "address":
       return houseAddressValidations(content);
+    case "taskName":
+      return taskNameValidations(content);
     default:
       return { success: false, error: "unknown" };
       break;
@@ -75,4 +77,11 @@ function houseAddressValidations(address) {
     return { success: false, error: "invalid-address" };
   }
   return { success: true, sanitized: address };
+}
+
+function taskNameValidations(taskName) {
+  if (taskName.length < 1) {
+    return { success: false, error: "invalid-task-name" };
+  }
+  return { success: true, sanitized: taskName };
 }
