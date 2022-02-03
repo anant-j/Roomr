@@ -6,7 +6,7 @@ import { Text, View, Button } from "components/Themed";
 import { signout } from "../../reduxStates/authSlice";
 import { useAppDispatch } from "hooks/typedHooks";
 
-export default function ModalScreen() {
+export default function SettingsModal() {
   const dispatch = useAppDispatch();
   const logout = () => {
     dispatch(signout());
