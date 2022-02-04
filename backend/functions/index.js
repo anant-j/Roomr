@@ -18,7 +18,7 @@ exports.sendMessage = functions.https.onCall(async (data, context) => {
     };
   }
   const sender = auth.token.email;
-  const recipients = data.to;
+  let recipients = data.to;
   if (!notificationMessage) {
     return {
       status: "error",
@@ -31,23 +31,36 @@ exports.sendMessage = functions.https.onCall(async (data, context) => {
       code: "RECIPIENTS_NOT_SPECIFIED",
     };
   }
+  if (!Array.isArray(recipients)) {
+    recipients = [recipients];
+  }
   const senderDoc = await db.collection("users").doc(sender).get();
-  const receiverDocs = await db
-      .collection("users")
-      .where("uid", "in", recipients)
-      .get();
   if (!senderDoc.exists) {
     return {
       status: "error",
       code: "USER_DOES_NOT_EXIST",
     };
   }
+  const subtitle = `Message from ${senderDoc.data().name.first}`;
   const recipientNotificationTokens = [];
   const allHouseIDs = [];
-  receiverDocs.forEach((doc) => {
-    recipientNotificationTokens.push(doc.data().expo_token);
-    allHouseIDs.push([doc.data().houses]);
-  });
+  for (const recipient of recipients) {
+    const recipientDoc = await db.collection("users").doc(recipient).get();
+    if (!recipientDoc.exists) {
+      return {
+        status: "error",
+        code: "RECIPIENT_DOES_NOT_EXIST",
+      };
+    }
+    recipientNotificationTokens.push(recipientDoc.data().expo_token);
+    allHouseIDs.push(recipientDoc.data().houses);
+  }
+  if (recipientNotificationTokens.length === 0 || allHouseIDs.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_FOUND",
+    };
+  }
   const houseId = findCommonElements(allHouseIDs)[0];
   await db
       .collection("houses")
@@ -57,9 +70,9 @@ exports.sendMessage = functions.https.onCall(async (data, context) => {
         content: notificationMessage,
         from: sender,
         sentAt: new Date(),
-        to: [recipients],
+        to: recipients,
       });
-  await sendExpoNotifications(notificationMessage, recipientNotificationTokens);
+  await sendExpoNotifications(notificationMessage, recipientNotificationTokens, subtitle);
   return {
     status: "success",
     code: "MESSAGE_SENT",
@@ -312,8 +325,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
 /**
  * @param  {string} message
  * @param  {Array} tokens
+ * @param {string} subtitle
  */
-async function sendExpoNotifications(message, tokens) {
+async function sendExpoNotifications(message, tokens, subtitle = false) {
   const messages = [];
   for (const pushToken of tokens) {
     if (!Expo.isExpoPushToken(pushToken)) {
@@ -321,11 +335,20 @@ async function sendExpoNotifications(message, tokens) {
       continue;
     }
 
-    messages.push({
-      to: pushToken,
-      sound: "default",
-      body: message,
-    });
+    if (!subtitle) {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+      });
+    } else {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+        subtitle: subtitle,
+      });
+    }
   }
 
   const chunks = expo.chunkPushNotifications(messages);
