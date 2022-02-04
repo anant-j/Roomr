@@ -8,25 +8,62 @@ const db = admin.firestore();
 const auth = admin.auth();
 const expo = new Expo();
 
-exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const notificationMessage = req.query.message;
-  const recipient = req.query.to;
+exports.sendMessage = functions.https.onCall(async (data, context) => {
+  const notificationMessage = data.message;
+  const auth = context.auth;
+  if (!auth) {
+    return {
+      status: "error",
+      code: "USER_NOT_AUTHENTICATED",
+    };
+  }
+  const sender = auth.token.email;
+  const recipients = data.to;
   if (!notificationMessage) {
-    return res.status(400).send("No message specified");
+    return {
+      status: "error",
+      code: "NO_MESSAGE_SPECIFIED",
+    };
   }
-  if (!recipient) {
-    return res.status(400).send("No recipient specified");
+  if (!recipients || recipients.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_SPECIFIED",
+    };
   }
-  const notificationRef = await db.collection("users").doc(recipient).get();
-  if (notificationRef.exists) {
-    const id = notificationRef.data().expo_token;
-    const notificationList = [id];
-    sendExpoNotifications(notificationMessage, notificationList);
-    res.send("Messages sent");
-  } else {
-    return res.status(400).send("User not found");
+  const senderDoc = await db.collection("users").doc(sender).get();
+  const receiverDocs = await db
+      .collection("users")
+      .where("uid", "in", recipients)
+      .get();
+  if (!senderDoc.exists) {
+    return {
+      status: "error",
+      code: "USER_DOES_NOT_EXIST",
+    };
   }
-  res.send("Notification sent");
+  const recipientNotificationTokens = [];
+  const allHouseIDs = [];
+  receiverDocs.forEach((doc) => {
+    recipientNotificationTokens.push(doc.data().expo_token);
+    allHouseIDs.push([doc.data().houses]);
+  });
+  const houseId = findCommonElements(allHouseIDs)[0];
+  await db
+      .collection("houses")
+      .doc(houseId)
+      .collection("chats")
+      .add({
+        content: notificationMessage,
+        from: sender,
+        sentAt: new Date(),
+        to: [recipients],
+      });
+  await sendExpoNotifications(notificationMessage, recipientNotificationTokens);
+  return {
+    status: "success",
+    code: "MESSAGE_SENT",
+  };
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
@@ -432,6 +469,19 @@ async function getHouseId(address) {
  */
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
+/**
+ * @param  {array} arrays
+ * @return {array}
+ */
+function findCommonElements(arrays) {
+  const result = arrays.shift().filter(function(v) {
+    return arrays.every(function(a) {
+      return a.indexOf(v) !== -1;
+    });
+  });
+  return result;
 }
 
 /**
