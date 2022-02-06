@@ -1,7 +1,12 @@
 import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { db } from "../firebase";
 import { LogoutWithError } from "./authSlice";
-import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
+import {
+  fetchChatsFulfilled,
+  fetchChatsPending,
+  fetchMessagesFulfilled,
+  fetchMessagesPending,
+} from "./chatSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
@@ -18,49 +23,50 @@ const fetchChatData = (
   landlord: any = null,
 ) => {
   dispatch(fetchChatsPending());
-  const data = [];
+  const data = {};
   for (const tenant of Object.keys(tenants)) {
     // console.log(tenant);
-    data.push({
-      id: tenant,
+    data[tenant] = {
       name: tenants[tenant],
       lastMessageTimeElapsed: "27m",
-      chatIcon: "url",
-    });
+    };
   }
   if (landlord) {
-    data.push({
+    data[landlord.email] = {
       id: landlord.email,
       name: landlord.name,
       lastMessageTimeElapsed: "27m",
-      chatIcon: "url",
-    });
+    };
   }
+  // const emptyMessages = {};
+  // for (const user of Object.keys(data)) {
+  //   emptyMessages[user] = {};
+  // }
+  // dispatch(fetchMessagesFulfilled(emptyMessages));
   dispatch(fetchChatsFulfilled(data));
 };
 
 // TODO: Use firestore data instead of mock data
 const fetchMessageData = (dispatch: any) => {
   dispatch(fetchMessagesPending());
-  const data2 = [
-    {
-      idMsg: "0",
-      from: "Mark J",
-      timeSent: "1:45pm",
-      content: "hey what up hey what up hey w,",
+  const messages = {
+    "landlord@roomr.com": {
+      "1234": {
+        content: "hello",
+        from: "tenant@roomr.com",
+        to: ["lanlord@roomr.com"],
+        sentAt: new Date().toString(),
+      },
+      "4567": {
+        content: "test",
+        from: "landlord@roomr.com",
+        to: ["tenant@roomr.com"],
+        sentAt: new Date().toString(),
+      },
     },
-    { idMsg: "1", from: "Andy N", timeSent: "1:46pm", content: "hey roomie" },
-    {
-      idMsg: "2",
-      from: "Mark J",
-      timeSent: "1:47pm",
-      content: "lets go get food",
-    },
-  ];
-  dispatch(fetchMessagesFulfilled(data2));
+  };
+  dispatch(fetchMessagesFulfilled(messages));
 };
-//hey what up
-// /hey roomie
 
 export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
@@ -84,9 +90,9 @@ export const fetchData = (houseID: string) => {
       },
     );
     dispatch(fetchTasksPending());
-    const q = query(collection(db, `houses/${houseID}/tasks`));
+    const taskQuery = query(collection(db, `houses/${houseID}/tasks`));
     const unsub2 = onSnapshot(
-      q,
+      taskQuery,
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
@@ -107,7 +113,7 @@ export const fetchData = (houseID: string) => {
 
             tasks.push(task);
           } catch (error) {
-            dispatch(LogoutWithError("STORING_DB_DATA_LOCALLY" + error));
+            dispatch(LogoutWithError("STORING_TASK_DB_DATA_LOCALLY" + error));
           }
         });
         const payload = { tasks: tasks };
@@ -115,12 +121,33 @@ export const fetchData = (houseID: string) => {
       },
       (error) => {
         dispatch(fetchTasksError(error));
-        dispatch(LogoutWithError("FETCH_USER_DATA_DB" + error));
+        dispatch(LogoutWithError("FETCH_TASK_DATA_DB" + error));
       },
     );
-    // fetchChatData(dispatch);
 
+    // const messagesQuery = query(collection(db, `houses/${houseID}/chats`));
+    // const unsub3 = onSnapshot(
+    //   messagesQuery,
+    //   (querySnapshot) => {
+    //     const tasks = [];
+    //     querySnapshot.forEach((doc) => {
+    //       try {
+    //       } catch (error) {
+    //         dispatch(LogoutWithError("STORING_CHAT_DATA_LOCALLY" + error));
+    //       }
+    //     });
+    //     const payload = { tasks: tasks };
+    //     dispatch(fetchTasksFulfilled(payload));
+    //   },
+    //   (error) => {
+    //     // dispatch(fetchTasksError(error));
+    //     dispatch(LogoutWithError("FETCH_CHAT_DATA_DB" + error));
+    //   },
+    // );
+
+    fetchMessageData(dispatch);
     listenerUnsubscribeList.push(unsub1);
     listenerUnsubscribeList.push(unsub2);
+    // listenerUnsubscribeList.push(unsub3);
   };
 };

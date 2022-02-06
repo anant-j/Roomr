@@ -1,24 +1,22 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface chatObject {
-  id: string;
-  name: string;
-  lastMessageTimeElapsed: string;
-  chatIcon: string;
-
-  idMsg: string;
-  from: string;
-  timeSent: string;
-  content: string;
-}
+// export interface chatObject {
+//   id: string;
+//   name: string;
+//   lastMessageTimeElapsed: string;
+//   chatIcon: string;
+//   idMsg: string;
+//   from: string;
+//   timeSent: string;
+//   content: string;
+// }
 
 export interface ChatState {
-  allChats: chatObject[];
+  allChats: object;
   currentActiveChat: string;
   loading: boolean;
   error: boolean;
-
-  allMessages: chatObject[];
+  allMessages: object;
   loadingMsg: boolean;
   sendingMsg: boolean;
   sentMsg: boolean;
@@ -26,12 +24,11 @@ export interface ChatState {
 }
 
 const initialState: ChatState = {
-  allChats: [],
+  allChats: {},
   currentActiveChat: "",
   loading: false,
   error: null,
-
-  allMessages: [],
+  allMessages: {},
   loadingMsg: false,
   sendingMsg: false,
   sentMsg: false,
@@ -88,7 +85,6 @@ export const {
   fetchChatsError,
   fetchChatsPending,
   setActiveChat,
-
   fetchMessagesFulfilled,
   fetchMessagesPending,
   fetchMessagesSending,

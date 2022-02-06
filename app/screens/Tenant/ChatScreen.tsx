@@ -7,9 +7,8 @@ import {
 } from "react-native";
 import { Button, Text, View } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import Task from "components/Task";
-import { chatObject, setActiveChat } from "reduxStates/chatSlice";
-import { useEffect } from "react";
+import { setActiveChat } from "reduxStates/chatSlice";
+import { Feather } from "@expo/vector-icons";
 
 export default function ChatScreen() {
   const {
@@ -24,10 +23,7 @@ export default function ChatScreen() {
     errorMsg,
   } = useAppSelector((state) => state.chats);
 
-  useEffect(() => {
-    console.log(currentActiveChat);
-  }, [currentActiveChat]);
-
+  const { email } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const onChatPress = (id: string) => {
@@ -35,7 +31,6 @@ export default function ChatScreen() {
   };
 
   const onBackToChat = () => {
-    console.log("backkkk");
     dispatch(setActiveChat(""));
   };
 
@@ -61,14 +56,16 @@ export default function ChatScreen() {
                 keyboardShouldPersistTaps="handled"
               >
                 <View style={styles.items}>
-                  {allChats.map((item, index) => {
+                  {Object.keys(allChats).map((item) => {
                     return (
                       <TouchableOpacity
                         // TODO: Better practice is to use unique ID of element as the key
-                        key={index}
-                        onPress={() => onChatPress(item.id)}
+                        key={item}
+                        onPress={() => {
+                          onChatPress(item);
+                        }}
                       >
-                        <ChatItem item={item} />
+                        <ChatItem item={allChats[item]} />
                       </TouchableOpacity>
                     );
                   })}
@@ -82,7 +79,10 @@ export default function ChatScreen() {
         <View style={styles.topContainer}>
           <View style={styles.tasksWrapper}>
             <View style={styles.titleWrapper}>
-              <Text style={styles.sectionTitle}>House 1</Text>
+              <Text style={styles.sectionTitle}>
+                {/* <Text> */}
+                {allChats[currentActiveChat].name}
+              </Text>
             </View>
             {errorMsg && (
               <Text style={styles.sectionTitle}>Error Fetching Messages</Text>
@@ -97,22 +97,37 @@ export default function ChatScreen() {
                 keyboardShouldPersistTaps="handled"
               >
                 <View style={styles.items}>
-                  <Button onPress={() => onBackToChat()}>
-                    <Text>Back</Text>
+                  <Button
+                    onPress={() => onBackToChat()}
+                    style={styles.backbutton}
+                  >
+                    <Feather name="arrow-left" color={"white"} size={30} />
                   </Button>
-                  {allMessages.map((item, index) => {
-                    return (
-                      <TouchableOpacity
-                        // TODO: Better practice is to use unique ID of element as the key
-                        key={index}
-                        onPress={() => {
-                          console.log(item);
-                        }}
-                      >
-                        <MessageItem item={item} />
-                      </TouchableOpacity>
-                    );
-                  })}
+                  {allMessages[currentActiveChat] ? (
+                    Object.keys(allMessages[currentActiveChat]).map(
+                      (item, index) => {
+                        return (
+                          <TouchableOpacity
+                            // TODO: Better practice is to use unique ID of element as the key
+                            key={index}
+                          >
+                            <MessageItem
+                              content={
+                                allMessages[currentActiveChat][item].content
+                              }
+                              name={allChats[currentActiveChat].name}
+                              sender={
+                                allMessages[currentActiveChat][item].from ==
+                                email
+                              }
+                            />
+                          </TouchableOpacity>
+                        );
+                      },
+                    )
+                  ) : (
+                    <Text>No Messages</Text>
+                  )}
                 </View>
               </ScrollView>
             )}
@@ -152,12 +167,12 @@ const ChatItem = (props: any) => {
 };
 
 const MessageItem = (props: any) => {
-  const Initials = props.item.from.split(" ");
+  const Initials = props.name.split(" ");
   const fInitial = Initials[0][0];
   const lInitial = Initials[1][0];
-  const content = props.item.content;
-  return (
-    <>
+  const content = props.content;
+  if (!props.sender) {
+    return (
       <View style={messageItemStyles.bubbleLeft}>
         <View style={messageItemStyles.circle}>
           <Text style={messageItemStyles.initials}>{fInitial + lInitial}</Text>
@@ -167,14 +182,16 @@ const MessageItem = (props: any) => {
           <Text style={messageItemStyles.contentFrom}>{content}</Text>
         </View>
       </View>
-
+    );
+  } else {
+    return (
       <View style={messageItemStyles.bubbleRight}>
         <View style={messageItemStyles.sent}>
           <Text style={messageItemStyles.contentTo}>{content}</Text>
         </View>
       </View>
-    </>
-  );
+    );
+  }
 };
 
 const InputBox = (props: any) => {
@@ -316,5 +333,11 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flex: 1,
+  },
+  backbutton: {
+    borderRadius: 50,
+    paddingLeft: 10,
+    paddingRight: 10,
+    width: 50,
   },
 });
