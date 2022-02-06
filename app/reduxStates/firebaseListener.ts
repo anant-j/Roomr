@@ -6,18 +6,29 @@ import {
   fetchTasksFulfilled,
   fetchTasksError,
 } from "./taskSlice";
-import { updateTenants } from "./usersSlice";
+import { updateTenants, updateLandlord } from "./usersSlice";
 
 const listenerUnsubscribeList = [];
 
 // TODO: Use firestore data instead of mock data
-const fetchChatData = (dispatch: any, tenants: any) => {
+const fetchChatData = (
+  dispatch: any,
+  tenants: any = null,
+  landlord: any = null,
+) => {
   dispatch(fetchChatsPending());
   const data = [];
   for (const tenant of Object.keys(tenants)) {
     // console.log(tenant);
     data.push({
       name: tenants[tenant],
+      lastMessageTimeElapsed: "27m",
+      chatIcon: "url",
+    });
+  }
+  if (landlord) {
+    data.push({
+      name: landlord.name,
       lastMessageTimeElapsed: "27m",
       chatIcon: "url",
     });
@@ -33,9 +44,13 @@ export const fetchData = (houseID: string) => {
         if (doc.exists) {
           const tenants = doc.data().tenants;
           if (tenants) {
-            fetchChatData(dispatch, tenants);
             dispatch(updateTenants(tenants));
           }
+          const landlord = doc.data().landlord;
+          if (landlord) {
+            dispatch(updateLandlord(tenants));
+          }
+          fetchChatData(dispatch, tenants, landlord);
         }
       },
       (error) => {
