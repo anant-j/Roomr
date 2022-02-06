@@ -1,5 +1,10 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { Button, Text, View } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import Task from "components/Task";
@@ -7,9 +12,17 @@ import { chatObject, setActiveChat } from "reduxStates/chatSlice";
 import { useEffect } from "react";
 
 export default function ChatScreen() {
-  const { allChats, loading, error, currentActiveChat, allMessages, loadingMsg, sendingMsg, sentMsg, errorMsg } = useAppSelector(
-    (state) => state.chats,
-  );
+  const {
+    allChats,
+    loading,
+    error,
+    currentActiveChat,
+    allMessages,
+    loadingMsg,
+    sendingMsg,
+    sentMsg,
+    errorMsg,
+  } = useAppSelector((state) => state.chats);
 
   useEffect(() => {
     console.log(currentActiveChat);
@@ -96,7 +109,7 @@ export default function ChatScreen() {
                           console.log(item);
                         }}
                       >
-                      <MessageItem item={item} />
+                        <MessageItem item={item} />
                       </TouchableOpacity>
                     );
                   })}
@@ -146,26 +159,18 @@ const MessageItem = (props: any) => {
   return (
     <>
       <View style={messageItemStyles.bubbleLeft}>
-
         <View style={messageItemStyles.circle}>
-          <Text style={messageItemStyles.initials}>
-            {fInitial + lInitial}
-          </Text>
+          <Text style={messageItemStyles.initials}>{fInitial + lInitial}</Text>
         </View>
 
         <View style={messageItemStyles.received}>
-            <Text style={messageItemStyles.contentFrom}>
-              {content}
-            </Text>
+          <Text style={messageItemStyles.contentFrom}>{content}</Text>
         </View>
-        
       </View>
 
       <View style={messageItemStyles.bubbleRight}>
         <View style={messageItemStyles.sent}>
-            <Text style={messageItemStyles.contentTo}>
-              {content}
-            </Text>
+          <Text style={messageItemStyles.contentTo}>{content}</Text>
         </View>
       </View>
     </>
@@ -173,11 +178,9 @@ const MessageItem = (props: any) => {
 };
 
 const InputBox = (props: any) => {
-  return(
+  return (
     <View>
-      <Text style={messageItemStyles.contentTo}>
-        Hello!
-      </Text>
+      <Text style={messageItemStyles.contentTo}>Hello!</Text>
     </View>
   );
 };
@@ -240,13 +243,13 @@ const messageItemStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#55BCF6",
   },
-	received: {
+  received: {
     alignItems: "flex-start",
     borderRadius: 10,
     marginVertical: 5,
-		marginLeft: "5%",
-		padding: 10,
-		backgroundColor: "#5B8DCA",
+    marginLeft: "5%",
+    padding: 10,
+    backgroundColor: "#5B8DCA",
   },
 
   contentFrom: {
@@ -254,7 +257,7 @@ const messageItemStyles = StyleSheet.create({
     flexDirection: "row",
     color: "white",
   },
-  
+
   bubbleRight: {
     borderRadius: 10,
     marginRight: "29%",
@@ -266,7 +269,7 @@ const messageItemStyles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 5,
     padding: 10,
-		backgroundColor: "aliceblue",
+    backgroundColor: "aliceblue",
   },
   contentTo: {
     alignItems: "flex-end",

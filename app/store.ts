@@ -4,7 +4,7 @@ import chatReducer from "reduxStates/chatSlice";
 import authReducer from "reduxStates/authSlice";
 
 export const store = configureStore({
-  reducer: { tasks: taskReducer, chats: chatReducer, auth: authReducer},
+  reducer: { tasks: taskReducer, chats: chatReducer, auth: authReducer },
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
