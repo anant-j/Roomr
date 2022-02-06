@@ -1,5 +1,6 @@
 import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
+import { LogoutWithError } from "./authSlice";
 import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
 import {
   fetchTasksPending,
@@ -35,26 +36,32 @@ export const fetchData = (houseID: string) => {
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          const taskCreatedOn = new Date(
-            doc.data().createdOn.seconds * 1000,
-          ).toString();
+          try {
+            const taskCreatedOn = new Date(
+              doc.data().createdOn.seconds * 1000,
+            ).toString();
 
-          const taskDueOn = new Date(doc.data().due.seconds * 1000).toString();
+            const taskDueOn = new Date(
+              doc.data().due.seconds * 1000,
+            ).toString();
 
-          const task = {
-            ...doc.data(),
-            createdOn: taskCreatedOn,
-            due: taskDueOn,
-          };
+            const task = {
+              ...doc.data(),
+              createdOn: taskCreatedOn,
+              due: taskDueOn,
+            };
 
-          tasks.push(task);
+            tasks.push(task);
+          } catch (error) {
+            dispatch(LogoutWithError("STORING_DB_DATA_LOCALLY" + error));
+          }
         });
-
         const payload = { tasks: tasks };
         dispatch(fetchTasksFulfilled(payload));
       },
       (error) => {
         dispatch(fetchTasksError(error));
+        dispatch(LogoutWithError("FETCH_USER_DATA_DB" + error));
       },
     );
 
