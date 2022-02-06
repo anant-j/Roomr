@@ -39,7 +39,7 @@ export const fetchData = (houseID: string) => {
         console.log(error);
       },
     );
-    
+
     dispatch(fetchTasksPending());
     const taskQuery = query(collection(db, `houses/${houseID}/tasks`));
     const unsub2 = onSnapshot(
