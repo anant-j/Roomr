@@ -69,22 +69,18 @@ const MessageItem = (props: any) => {
         </View>
 
         <View style={messageItemStyles.received}>
-          <View style={messageItemStyles.message}>
             <Text style={messageItemStyles.contentFrom}>
               {content}
             </Text>
-          </View>
         </View>
         
       </View>
 
       <View style={messageItemStyles.bubbleRight}>
         <View style={messageItemStyles.sent}>
-          <View style={messageItemStyles.message2}>
             <Text style={messageItemStyles.contentTo}>
               {content}
             </Text>
-          </View>
         </View>
       </View>
     </>
@@ -114,9 +110,7 @@ const messageItemStyles = StyleSheet.create({
   bubbleLeft: {
     borderRadius: 10,
     marginRight: "25%",
-    //justifyContent: "space-between",
     flexDirection: "row",
-    backgroundColor: "aliceblue",
   },
   circle: {
     width: 40,
@@ -133,9 +127,8 @@ const messageItemStyles = StyleSheet.create({
     color: "#55BCF6",
   },
 	received: {
-    //flex: 1,
     alignItems: "flex-start",
-    justifyContent: "space-between",
+    //justifyContent: "space-between",
     borderRadius: 10,
     marginVertical: 5,
 		marginLeft: "5%",
@@ -144,49 +137,37 @@ const messageItemStyles = StyleSheet.create({
   },
 
   message: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    //flexDirection: "row",
+    //alignItems: "flex-start",
   },
 
   contentFrom: {
-    backgroundColor: "#5B8DCA",
-    flexDirection: "row",
     alignItems: "flex-start",
+    flexDirection: "row",
     color: "white",
   },
   
   bubbleRight: {
-    borderRadius: 10, // Rounded
-    marginRight: "26%",
+    borderRadius: 10,
+    marginRight: "29%",
     flexDirection: "row-reverse",
-    //flexDirection: "row-reverse",
-    //alignContent: "flex-end",
-    //display: "block",
-    //margin: "20%",
-    //width: "auto",
-    //justifyContent: "space-between",
-    backgroundColor: "black",
   },
   sent: {
-    //flex: 1,]
-    flexDirection: "row-reverse",
     alignItems: "flex-end",
-    justifyContent: "space-between",
+    flexDirection: "row-reverse",
+    //justifyContent: "space-between",
     borderRadius: 10,
     marginVertical: 5,
-    //marginLeft: "5%",
     padding: 10,
 		backgroundColor: "aliceblue",
   },
   message2: {
-    flexDirection: "row-reverse",
-    alignItems: "flex-end",
+    //flexDirection: "row-reverse",
+    //alignItems: "flex-end",
   },
   contentTo: {
-    flexDirection: "row-reverse",
     alignItems: "flex-end",
-    //justifyContent: "right",
-    backgroundColor: "aliceblue",
+    flexDirection: "row-reverse",
   },
 });
 

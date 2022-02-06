@@ -46,7 +46,7 @@ const fetchChatData = (dispatch: any) => {
 const fetchMessageData = (dispatch: any) => {
   dispatch(fetchMessagesPending());
   const data = [
-    {id: "0", from: "Mark J", timeSent: "1:45pm", content: "hey what up hey what up hey what"},
+    {id: "0", from: "Mark J", timeSent: "1:45pm", content: "hey what up hey what up hey w,"},
     {id: "1", from: "Andy N", timeSent: "1:46pm", content: "hey roomie"},
     {id: "2", from: "Mark J", timeSent: "1:47pm", content: "lets go get food"},
   ];
