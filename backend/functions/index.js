@@ -8,25 +8,75 @@ const db = admin.firestore();
 const auth = admin.auth();
 const expo = new Expo();
 
-exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const notificationMessage = req.query.message;
-  const recipient = req.query.to;
+exports.sendMessage = functions.https.onCall(async (data, context) => {
+  const notificationMessage = data.message;
+  const auth = context.auth;
+  if (!auth) {
+    return {
+      status: "error",
+      code: "USER_NOT_AUTHENTICATED",
+    };
+  }
+  const sender = auth.token.email;
+  let recipients = data.to;
   if (!notificationMessage) {
-    return res.status(400).send("No message specified");
+    return {
+      status: "error",
+      code: "NO_MESSAGE_SPECIFIED",
+    };
   }
-  if (!recipient) {
-    return res.status(400).send("No recipient specified");
+  if (!recipients || recipients.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_SPECIFIED",
+    };
   }
-  const notificationRef = await db.collection("users").doc(recipient).get();
-  if (notificationRef.exists) {
-    const id = notificationRef.data().expo_token;
-    const notificationList = [id];
-    sendExpoNotifications(notificationMessage, notificationList);
-    res.send("Messages sent");
-  } else {
-    return res.status(400).send("User not found");
+  if (!Array.isArray(recipients)) {
+    recipients = [recipients];
   }
-  res.send("Notification sent");
+  const senderDoc = await db.collection("users").doc(sender).get();
+  if (!senderDoc.exists) {
+    return {
+      status: "error",
+      code: "USER_DOES_NOT_EXIST",
+    };
+  }
+  const subtitle = `Message from ${senderDoc.data().name.first}`;
+  const recipientNotificationTokens = [];
+  const allHouseIDs = [];
+  for (const recipient of recipients) {
+    const recipientDoc = await db.collection("users").doc(recipient).get();
+    if (!recipientDoc.exists) {
+      return {
+        status: "error",
+        code: "RECIPIENT_DOES_NOT_EXIST",
+      };
+    }
+    recipientNotificationTokens.push(recipientDoc.data().expo_token);
+    allHouseIDs.push(recipientDoc.data().houses);
+  }
+  if (recipientNotificationTokens.length === 0 || allHouseIDs.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_FOUND",
+    };
+  }
+  const houseId = findCommonElements(allHouseIDs)[0];
+  await db
+      .collection("houses")
+      .doc(houseId)
+      .collection("chats")
+      .add({
+        content: notificationMessage,
+        from: sender,
+        sentAt: new Date(),
+        to: recipients,
+      });
+  await sendExpoNotifications(notificationMessage, recipientNotificationTokens, subtitle);
+  return {
+    status: "success",
+    code: "MESSAGE_SENT",
+  };
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
@@ -275,8 +325,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
 /**
  * @param  {string} message
  * @param  {Array} tokens
+ * @param {string} subtitle
  */
-async function sendExpoNotifications(message, tokens) {
+async function sendExpoNotifications(message, tokens, subtitle = false) {
   const messages = [];
   for (const pushToken of tokens) {
     if (!Expo.isExpoPushToken(pushToken)) {
@@ -284,11 +335,20 @@ async function sendExpoNotifications(message, tokens) {
       continue;
     }
 
-    messages.push({
-      to: pushToken,
-      sound: "default",
-      body: message,
-    });
+    if (!subtitle) {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+      });
+    } else {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+        subtitle: subtitle,
+      });
+    }
   }
 
   const chunks = expo.chunkPushNotifications(messages);
@@ -432,6 +492,19 @@ async function getHouseId(address) {
  */
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
+/**
+ * @param  {array} arrays
+ * @return {array}
+ */
+function findCommonElements(arrays) {
+  const result = arrays.shift().filter(function(v) {
+    return arrays.every(function(a) {
+      return a.indexOf(v) !== -1;
+    });
+  });
+  return result;
 }
 
 /**

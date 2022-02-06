@@ -55,3 +55,4 @@ export async function logout() {
 
 export const tenantSignup = httpsCallable(functions, "signUpTenant");
 export const landlordSignup = httpsCallable(functions, "signUpLandlord");
+export const sendMessage = httpsCallable(functions, "sendMessage");
