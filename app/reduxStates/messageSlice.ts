@@ -3,6 +3,7 @@ import { ChatState } from "./chatSlice";
 
 // Each Message 
 export interface messageObject {
+  id: string;
   from: string;
   timeSent: string;
   content: string;

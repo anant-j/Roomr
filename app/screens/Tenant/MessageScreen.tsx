@@ -1,12 +1,12 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { ButtonWithImage, Text, View } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import Task from "components/Task";
 import { messageObject } from "reduxStates/messageSlice";
 
 export default function MessageScreen() {
-  const { allChats, loading, error } = useAppSelector((state) => state.chats);
+  const { allMessages, loading, error } = useAppSelector((state) => state.messages);
   
   const dispatch = useAppDispatch();
 
@@ -30,7 +30,7 @@ export default function MessageScreen() {
               keyboardShouldPersistTaps="handled"
             >
               <View style={styles.items}>
-                {allChats.map((item, index) => {
+                {allMessages.map((item, index) => {
                   return (
                     <TouchableOpacity
                       // TODO: Better practice is to use unique ID of element as the key
@@ -46,6 +46,7 @@ export default function MessageScreen() {
               </View>
             </ScrollView>
           )}
+
         </View>
       </View>
     </View>
@@ -53,23 +54,24 @@ export default function MessageScreen() {
 }
 
 const MessageItem = (props: any) => {
-  const splitName = props.item.name.split(" ");
+  const splitName = props.item.from.split(" ");
   const fnameInitial = splitName[0][0];
   const lNameInitial = splitName[1][0];
+  const content = props.item.content;
   return (
     <>
       <View style={messageItemStyles.bubbleLeft}>
 
         <View style={messageItemStyles.circle}>
-            <Text style={messageItemStyles.initials}>
-              {fnameInitial + lNameInitial}
-            </Text>
-          </View>
-        
+          <Text style={messageItemStyles.initials}>
+            {fnameInitial + lNameInitial}
+          </Text>
+        </View>
+
         <View style={messageItemStyles.received}>
           <View style={messageItemStyles.message}>
             <Text style={messageItemStyles.contentFrom}>
-              no changes added to commit (use "git add" and/or "git commit -a")
+              {content}
             </Text>
           </View>
         </View>
@@ -78,9 +80,9 @@ const MessageItem = (props: any) => {
 
       <View style={messageItemStyles.bubbleRight}>
         <View style={messageItemStyles.sent}>
-          <View style={messageItemStyles.message}>
+          <View style={messageItemStyles.message2}>
             <Text style={messageItemStyles.contentTo}>
-              no changes added to commit (use "git add" and/or "git commit -a")
+              {content}
             </Text>
           </View>
         </View>
@@ -88,6 +90,15 @@ const MessageItem = (props: any) => {
     </>
   );
 };
+/*
+<View style={messageItemStyles.sent}>
+          <View style={messageItemStyles.message}>
+            <Text style={messageItemStyles.contentTo}>
+              Hello!
+            </Text>
+          </View>
+        </View>
+*/
 
 const InputBox = (props: any) => {
   return(
@@ -103,8 +114,9 @@ const messageItemStyles = StyleSheet.create({
   bubbleLeft: {
     borderRadius: 10,
     marginRight: "25%",
-    justifyContent: "space-between",
+    //justifyContent: "space-between",
     flexDirection: "row",
+    backgroundColor: "aliceblue",
   },
   circle: {
     width: 40,
@@ -135,6 +147,7 @@ const messageItemStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
   },
+
   contentFrom: {
     backgroundColor: "#5B8DCA",
     flexDirection: "row",
@@ -143,24 +156,36 @@ const messageItemStyles = StyleSheet.create({
   },
   
   bubbleRight: {
-    borderRadius: 10,
-    marginLeft: "30%",
-    justifyContent: "space-between",
-    backgroundColor: "aliceblue",
+    borderRadius: 10, // Rounded
+    marginRight: "26%",
+    flexDirection: "row-reverse",
+    //flexDirection: "row-reverse",
+    //alignContent: "flex-end",
+    //display: "block",
+    //margin: "20%",
+    //width: "auto",
+    //justifyContent: "space-between",
+    backgroundColor: "black",
   },
   sent: {
-    //flex: 1,
+    //flex: 1,]
+    flexDirection: "row-reverse",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
     borderRadius: 10,
     marginVertical: 5,
+    //marginLeft: "5%",
     padding: 10,
-		marginLeft: "5%",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
 		backgroundColor: "aliceblue",
   },
+  message2: {
+    flexDirection: "row-reverse",
+    alignItems: "flex-end",
+  },
   contentTo: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: "row-reverse",
+    alignItems: "flex-end",
+    //justifyContent: "right",
     backgroundColor: "aliceblue",
   },
 });
