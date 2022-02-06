@@ -2,8 +2,16 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+interface TaskObject {
+  completed: boolean;
+  content: string;
+  createdBy: string;
+  createdOn: string;
+  due: string;
+}
+
 export interface TaskState {
-  allTasks: object[];
+  allTasks: TaskObject[];
   loading: boolean;
   error: any;
 }
