@@ -114,7 +114,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     approved: false,
     expo_token: userData.expo_token,
   };
-  const landlord = house.data().landlord;
+  const landlord = house.data().landlord.email;
   const landlordEmailDoc = await db.collection("users").doc(landlord).get();
   if (!landlordEmailDoc.exists) {
     return {
@@ -122,7 +122,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
       code: "LANDLORD_DOES_NOT_EXIST",
     };
   }
-  const landlordEmail = [landlordEmailDoc.data().expo_token];
+  const landlordExpo = [landlordEmailDoc.data().expo_token];
   try {
     await auth.createUser(
         {
@@ -146,14 +146,17 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     };
   }
   await db.collection("users").doc(userData.email).set(userDataFB);
+  let newTenantDoc = house.data().tenants;
+  if (!newTenantDoc) {
+    newTenantDoc = {};
+  }
+  newTenantDoc[userData.email] = userData.name.first + " " + userData.name.last;
   await db
       .collection("houses")
       .doc(houseID)
-      .update({
-        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
-      });
+      .update({tenants: newTenantDoc});
   // eslint-disable-next-line max-len
-  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordEmail);
+  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordExpo);
   return {
     status: "success",
     code: "USER_CREATED",
@@ -205,7 +208,7 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
       code: "UNEXPECTED_AUTH_ERROR",
     };
   }
-  houseID = await addHouse(userData.email, userData.address);
+  houseID = await addHouse(userData.email, userData.address, userData.name.first + " " + userData.name.last);
   const userDataFB = {
     name: {
       first: userData.name.first,
@@ -233,8 +236,8 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   const sampleHouseID = "YOFQXWK3";
   const sampleHouseData = {
     address: "123 Main St",
-    landlord: "landlord@roomr.com",
-    tenants: ["tenant@roomr.com"],
+    landlord: {email: "landlord@roomr.com", name: "Landlord Roomr"},
+    tenants: {"tenant@roomr.com": "Tenant Roomr"},
   };
   const sampleTenantID = "tenant@roomr.com";
   const sampleTenantData = {
@@ -245,7 +248,7 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     approved: true,
     expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
   };
-  const sampleLandlordID = sampleHouseData.landlord;
+  const sampleLandlordID = sampleHouseData.landlord.email;
   const sampleLandlordData = {
     name: {first: "Landlord", last: "Roomr"},
     phone: "1234567890",
@@ -267,12 +270,15 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     createdBy: "tenant@roomr.com",
     createdOn: new Date(),
     due: new Date(),
+    completed: false,
   };
 
   const sampleTicket = {
     content: "Fix Laundry Machine",
     createdBy: "tenant@roomr.com",
     createdOn: new Date(),
+    due: new Date(),
+    completed: false,
   };
 
   const authUsers = await auth.listUsers();
@@ -457,10 +463,11 @@ function validPayload(data, type) {
 /**
  * @param  {string} email
  * @param  {string} address
+ * @param  {string} name
  */
-async function addHouse(email, address) {
+async function addHouse(email, address, name) {
   const landlordData = {
-    landlord: email,
+    landlord: {email: email, name: name},
     address: address,
   };
   let houseID = generateRandomHouseID();

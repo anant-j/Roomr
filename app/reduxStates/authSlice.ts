@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Alert } from "react-native";
 import { logout } from "../firebase";
+import { db } from "../firebase";
+import { doc, updateDoc } from "firebase/firestore";
+
 export interface AuthState {
   expoToken: string;
   email: string;
@@ -40,8 +44,32 @@ export const registerExpoToken = (payload: string) => {
   };
 };
 
+export const updateExpoToken = (oldToken) => {
+  return async (dispatch: any, getState: any) => {
+    const newToken = getState().auth.expoToken;
+    const email = getState().auth.email;
+    if (oldToken !== newToken && email) {
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, {
+        expo_token: newToken,
+      });
+    }
+  };
+};
+
 export const signout = () => {
   return async (dispatch: any) => {
+    await logout();
+    dispatch(cleanAuth());
+  };
+};
+
+export const LogoutWithError = (code: string = null) => {
+  return async (dispatch: any) => {
+    Alert.alert(
+      "An error occurred while fetching your user data.",
+      "Please try again later \n\nError code: " + code,
+    );
     await logout();
     dispatch(cleanAuth());
   };
