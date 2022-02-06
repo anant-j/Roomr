@@ -27,9 +27,6 @@
  import { useEffect } from "react";
  import { fetchData } from "reduxStates/firebaseListener";
  
- //Temp import MessageScreen for ChatScreen
- import MessageScreen from "screens/Tenant/MessageScreen";
- 
  import {
    RootStackParamList,
    RootTabParamList,
@@ -150,7 +147,7 @@
        />
        <BottomTab.Screen
          name="TabThree"
-         component={MessageScreen}
+         component={ChatScreen}
          options={{
            title: "Chat",
            headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,

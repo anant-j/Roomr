@@ -1,7 +1,7 @@
 import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
-import { fetchMessagesFulfilled, fetchMessagesPending } from "./messageSlice";
+import { fetchChatsFulfilled, fetchChatsPending, fetchMessagesFulfilled,
+  fetchMessagesPending } from "./chatSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
@@ -45,12 +45,12 @@ const fetchChatData = (dispatch: any) => {
 // TODO: Use firestore data instead of mock data
 const fetchMessageData = (dispatch: any) => {
   dispatch(fetchMessagesPending());
-  const data = [
-    {id: "0", from: "Mark J", timeSent: "1:45pm", content: "hey what up hey what up hey w,"},
-    {id: "1", from: "Andy N", timeSent: "1:46pm", content: "hey roomie"},
-    {id: "2", from: "Mark J", timeSent: "1:47pm", content: "lets go get food"},
+  const data2 = [
+    {idMsg: "0", from: "Mark J", timeSent: "1:45pm", content: "hey what up hey what up hey w,"},
+    {idMsg: "1", from: "Andy N", timeSent: "1:46pm", content: "hey roomie"},
+    {idMsg: "2", from: "Mark J", timeSent: "1:47pm", content: "lets go get food"},
   ];
-  dispatch(fetchMessagesFulfilled(data));
+  dispatch(fetchMessagesFulfilled(data2));
 };
 //hey what up
 // /hey roomie

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { Button, Text, View } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import Task from "components/Task";
@@ -7,7 +7,7 @@ import { chatObject, setActiveChat } from "reduxStates/chatSlice";
 import { useEffect } from "react";
 
 export default function ChatScreen() {
-  const { allChats, loading, error, currentActiveChat } = useAppSelector(
+  const { allChats, loading, error, currentActiveChat, allMessages, loadingMsg, sendingMsg, sentMsg, errorMsg } = useAppSelector(
     (state) => state.chats,
   );
 
@@ -66,11 +66,44 @@ export default function ChatScreen() {
         </View>
       ) : (
         // Render message component here:
-        <View>
-          <Text>Messages</Text>
-          <Button onPress={() => onBackToChat()}>
-            <Text>Back</Text>
-          </Button>
+        <View style={styles.topContainer}>
+          <View style={styles.tasksWrapper}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.sectionTitle}>House 1</Text>
+            </View>
+            {errorMsg && (
+              <Text style={styles.sectionTitle}>Error Fetching Messages</Text>
+            )}
+            {loadingMsg ? (
+              <Text style={styles.sectionTitle}>Loading...</Text>
+            ) : (
+              <ScrollView
+                contentContainerStyle={{
+                  flexGrow: 1,
+                }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.items}>
+                  <Button onPress={() => onBackToChat()}>
+                    <Text>Back</Text>
+                  </Button>
+                  {allMessages.map((item, index) => {
+                    return (
+                      <TouchableOpacity
+                        // TODO: Better practice is to use unique ID of element as the key
+                        key={index}
+                        onPress={() => {
+                          console.log(item);
+                        }}
+                      >
+                      <MessageItem item={item} />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            )}
+          </View>
         </View>
       )}
     </View>
@@ -102,6 +135,50 @@ const ChatItem = (props: any) => {
         </View>
       </View>
     </>
+  );
+};
+
+const MessageItem = (props: any) => {
+  const Initials = props.item.from.split(" ");
+  const fInitial = Initials[0][0];
+  const lInitial = Initials[1][0];
+  const content = props.item.content;
+  return (
+    <>
+      <View style={messageItemStyles.bubbleLeft}>
+
+        <View style={messageItemStyles.circle}>
+          <Text style={messageItemStyles.initials}>
+            {fInitial + lInitial}
+          </Text>
+        </View>
+
+        <View style={messageItemStyles.received}>
+            <Text style={messageItemStyles.contentFrom}>
+              {content}
+            </Text>
+        </View>
+        
+      </View>
+
+      <View style={messageItemStyles.bubbleRight}>
+        <View style={messageItemStyles.sent}>
+            <Text style={messageItemStyles.contentTo}>
+              {content}
+            </Text>
+        </View>
+      </View>
+    </>
+  );
+};
+
+const InputBox = (props: any) => {
+  return(
+    <View>
+      <Text style={messageItemStyles.contentTo}>
+        Hello!
+      </Text>
+    </View>
   );
 };
 
@@ -141,6 +218,59 @@ const chatItemStyles = StyleSheet.create({
   initials: {
     fontWeight: "bold",
     color: "#55BCF6",
+  },
+});
+
+const messageItemStyles = StyleSheet.create({
+  bubbleLeft: {
+    borderRadius: 10,
+    marginRight: "25%",
+    flexDirection: "row",
+  },
+  circle: {
+    width: 40,
+    height: 40,
+    borderWidth: 2,
+    borderRadius: 50,
+    borderColor: "#55BCF6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  initials: {
+    fontWeight: "bold",
+    color: "#55BCF6",
+  },
+	received: {
+    alignItems: "flex-start",
+    borderRadius: 10,
+    marginVertical: 5,
+		marginLeft: "5%",
+		padding: 10,
+		backgroundColor: "#5B8DCA",
+  },
+
+  contentFrom: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    color: "white",
+  },
+  
+  bubbleRight: {
+    borderRadius: 10,
+    marginRight: "29%",
+    flexDirection: "row-reverse",
+  },
+  sent: {
+    alignItems: "flex-end",
+    flexDirection: "row-reverse",
+    borderRadius: 10,
+    marginVertical: 5,
+    padding: 10,
+		backgroundColor: "aliceblue",
+  },
+  contentTo: {
+    alignItems: "flex-end",
+    flexDirection: "row-reverse",
   },
 });
 
