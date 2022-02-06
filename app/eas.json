@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 0.46.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "roomr.capstone@gmail.com",
+        "ascAppId": "1608190383",
+        "appleTeamId": "EEDG8GLDPQ"
+      }
+    }
+  }
+}

@@ -1,48 +1,41 @@
-import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { db } from "../firebase";
-import {
-  fetchChatsFulfilled,
-  fetchChatsPending,
-  fetchMessagesFulfilled,
-  fetchMessagesPending,
-} from "./chatSlice";
+import { LogoutWithError } from "./authSlice";
+import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
   fetchTasksError,
 } from "./taskSlice";
+import { updateTenants, updateLandlord } from "./usersSlice";
 
 const listenerUnsubscribeList = [];
 
 // TODO: Use firestore data instead of mock data
-const fetchChatData = (dispatch: any) => {
+const fetchChatData = (
+  dispatch: any,
+  tenants: any = null,
+  landlord: any = null,
+) => {
   dispatch(fetchChatsPending());
-  const data = [
-    { id: "1", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    {
-      id: "2",
-      name: "Chris G",
-      lastMessageTimeElapsed: "53m",
+  const data = [];
+  for (const tenant of Object.keys(tenants)) {
+    // console.log(tenant);
+    data.push({
+      id: tenant,
+      name: tenants[tenant],
+      lastMessageTimeElapsed: "27m",
       chatIcon: "url",
-    },
-    { id: "3", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { id: "4", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    {
-      id: "5",
-      name: "Chris G",
-      lastMessageTimeElapsed: "53m",
+    });
+  }
+  if (landlord) {
+    data.push({
+      id: landlord.email,
+      name: landlord.name,
+      lastMessageTimeElapsed: "27m",
       chatIcon: "url",
-    },
-    { id: "6", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { id: "7", name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    {
-      id: "8",
-      name: "Chris G",
-      lastMessageTimeElapsed: "53m",
-      chatIcon: "url",
-    },
-    { id: "9", name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-  ];
+    });
+  }
   dispatch(fetchChatsFulfilled(data));
 };
 
@@ -71,37 +64,63 @@ const fetchMessageData = (dispatch: any) => {
 
 export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
+    const unsub1 = onSnapshot(
+      doc(db, "houses", houseID),
+      (doc: any) => {
+        if (doc.exists) {
+          const tenants = doc.data().tenants;
+          if (tenants) {
+            dispatch(updateTenants(tenants));
+          }
+          const landlord = doc.data().landlord;
+          if (landlord) {
+            dispatch(updateLandlord(tenants));
+          }
+          fetchChatData(dispatch, tenants, landlord);
+        }
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
     dispatch(fetchTasksPending());
     const q = query(collection(db, `houses/${houseID}/tasks`));
-    const unsub = onSnapshot(
+    const unsub2 = onSnapshot(
       q,
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          tasks.push(doc.data().content);
+          try {
+            const { completed, content, createdBy, createdOn, due } =
+              doc.data();
+
+            const createdOnDate = new Date(createdOn.seconds * 1000).toString();
+            const dueOnDate = new Date(due.seconds * 1000).toString();
+
+            const task = {
+              completed,
+              content,
+              createdBy,
+              createdOn: createdOnDate,
+              due: dueOnDate,
+            };
+
+            tasks.push(task);
+          } catch (error) {
+            dispatch(LogoutWithError("STORING_DB_DATA_LOCALLY" + error));
+          }
         });
-        dispatch(fetchTasksFulfilled(tasks));
+        const payload = { tasks: tasks };
+        dispatch(fetchTasksFulfilled(payload));
       },
       (error) => {
         dispatch(fetchTasksError(error));
+        dispatch(LogoutWithError("FETCH_USER_DATA_DB" + error));
       },
     );
+    // fetchChatData(dispatch);
 
-    // const unsub = onSnapshot(
-    //   doc(db, "houses", houseID),
-    //   (doc: any) => {
-    //     const updatedTasks = doc.data().taskList;
-    //     dispatch(fetchTasksFulfilled(updatedTasks));
-    //   },
-    //   (error) => {
-    //     dispatch(fetchTasksError(error));
-    //   },
-    // );
-
-    fetchChatData(dispatch);
-
-    fetchMessageData(dispatch);
-
-    listenerUnsubscribeList.push(unsub);
+    listenerUnsubscribeList.push(unsub1);
+    listenerUnsubscribeList.push(unsub2);
   };
 };

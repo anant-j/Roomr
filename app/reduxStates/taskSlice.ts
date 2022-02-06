@@ -2,8 +2,16 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+interface TaskObject {
+  completed: boolean;
+  content: string;
+  createdBy: string;
+  createdOn: string;
+  due: string;
+}
+
 export interface TaskState {
-  allTasks: string[];
+  allTasks: TaskObject[];
   loading: boolean;
   error: any;
 }
@@ -22,6 +30,7 @@ export const addTask = (payload: string, houseID: string, email) => {
         content: payload,
         createdBy: email,
         createdOn: new Date(),
+        due: new Date(),
       });
     } catch (error: any) {
       dispatch(addTaskError(error));
@@ -39,7 +48,7 @@ export const taskSlice = createSlice({
     // immutable state based off those changes
     fetchTasksFulfilled: (state, action) => {
       state.loading = false;
-      const newTasks = action.payload;
+      const newTasks = action.payload.tasks;
       state.allTasks = newTasks;
     },
     fetchTasksPending: (state) => {

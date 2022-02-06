@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Alert } from "react-native";
 import { logout } from "../firebase";
+import { db } from "../firebase";
+import { doc, updateDoc } from "firebase/firestore";
+
 export interface AuthState {
-  loggedIn: boolean;
   expoToken: string;
-  authFlowDoneOnce: boolean;
   email: string;
   type: string;
   name: {
@@ -15,10 +17,8 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  loggedIn: false,
   expoToken: "",
-  authFlowDoneOnce: false,
-  email: "",
+  email: null,
   type: null,
   name: {
     first: "",
@@ -44,8 +44,32 @@ export const registerExpoToken = (payload: string) => {
   };
 };
 
+export const updateExpoToken = (oldToken) => {
+  return async (dispatch: any, getState: any) => {
+    const newToken = getState().auth.expoToken;
+    const email = getState().auth.email;
+    if (oldToken !== newToken && email) {
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, {
+        expo_token: newToken,
+      });
+    }
+  };
+};
+
 export const signout = () => {
   return async (dispatch: any) => {
+    await logout();
+    dispatch(cleanAuth());
+  };
+};
+
+export const LogoutWithError = (code: string = null) => {
+  return async (dispatch: any) => {
+    Alert.alert(
+      "An error occurred while fetching your user data.",
+      "Please try again later \n\nError code: " + code,
+    );
     await logout();
     dispatch(cleanAuth());
   };
@@ -55,14 +79,8 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setActiveAuth: (state, action: PayloadAction<boolean>) => {
-      state.loggedIn = action.payload;
-    },
     setExpoToken: (state, action: PayloadAction<string>) => {
       state.expoToken = action.payload;
-    },
-    setAuthFlowDoneOnce: (state) => {
-      state.authFlowDoneOnce = true;
     },
     setUserData: (state, action: PayloadAction<UserObject>) => {
       state.approved = action.payload.approved;
@@ -78,19 +96,12 @@ export const authSlice = createSlice({
       state.type = initialState.type;
       state.name = initialState.name;
       state.houses = initialState.houses;
-      state.loggedIn = initialState.loggedIn;
-      state.authFlowDoneOnce = initialState.authFlowDoneOnce;
+      state.email = initialState.email;
     },
   },
 });
 
-export const {
-  setActiveAuth,
-  setExpoToken,
-  setAuthFlowDoneOnce,
-  setUserData,
-  setEmail,
-  cleanAuth,
-} = authSlice.actions;
+export const { setExpoToken, setUserData, setEmail, cleanAuth } =
+  authSlice.actions;
 
 export default authSlice.reducer;

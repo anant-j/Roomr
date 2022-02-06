@@ -1,10 +1,11 @@
 [![Expo Production Build](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml/badge.svg?branch=main)](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml)
 
-https://expo.dev/@anant-j/roomr
+https://expo.dev/@capstone2022/roomr
 
-![image](https://user-images.githubusercontent.com/28623347/150661461-7694d91b-2fc8-4f64-bd50-0c159fe80758.png)
+![image](https://user-images.githubusercontent.com/28623347/152003243-07b7a14d-2422-48e3-97e1-2d8e67ce6ea5.png)
 
-
+IOS Build: https://expo.dev/accounts/capstone2022/projects/roomr/builds
+IOS Release: https://expo.dev/accounts/capstone2022/projects/roomr/submissions
 # Roomr
 Capstone Project 4ZP6 Fall 2021 - Winter 2022
 

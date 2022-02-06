@@ -1,40 +1,93 @@
+/* eslint-disable max-len */
 const {default: Expo} = require("expo-server-sdk");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const validations = require("./validations");
 admin.initializeApp();
 const db = admin.firestore();
 const auth = admin.auth();
 const expo = new Expo();
 
-exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const notificationMessage = req.query.message;
-  const recipient = req.query.to;
+exports.sendMessage = functions.https.onCall(async (data, context) => {
+  const notificationMessage = data.message;
+  const auth = context.auth;
+  if (!auth) {
+    return {
+      status: "error",
+      code: "USER_NOT_AUTHENTICATED",
+    };
+  }
+  const sender = auth.token.email;
+  let recipients = data.to;
   if (!notificationMessage) {
-    return res.status(400).send("No message specified");
+    return {
+      status: "error",
+      code: "NO_MESSAGE_SPECIFIED",
+    };
   }
-  if (!recipient) {
-    return res.status(400).send("No recipient specified");
+  if (!recipients || recipients.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_SPECIFIED",
+    };
   }
-  const notificationRef = await db.collection("users").doc(recipient).get();
-  if (notificationRef.exists) {
-    const id = notificationRef.data().expo_token;
-    const notificationList = [id];
-    sendExpoNotifications(notificationMessage, notificationList);
-    res.send("Messages sent");
-  } else {
-    return res.status(400).send("User not found");
+  if (!Array.isArray(recipients)) {
+    recipients = [recipients];
   }
-  res.send("Notification sent");
+  const senderDoc = await db.collection("users").doc(sender).get();
+  if (!senderDoc.exists) {
+    return {
+      status: "error",
+      code: "USER_DOES_NOT_EXIST",
+    };
+  }
+  const subtitle = `Message from ${senderDoc.data().name.first}`;
+  const recipientNotificationTokens = [];
+  const allHouseIDs = [];
+  for (const recipient of recipients) {
+    const recipientDoc = await db.collection("users").doc(recipient).get();
+    if (!recipientDoc.exists) {
+      return {
+        status: "error",
+        code: "RECIPIENT_DOES_NOT_EXIST",
+      };
+    }
+    recipientNotificationTokens.push(recipientDoc.data().expo_token);
+    allHouseIDs.push(recipientDoc.data().houses);
+  }
+  if (recipientNotificationTokens.length === 0 || allHouseIDs.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_FOUND",
+    };
+  }
+  const houseId = findCommonElements(allHouseIDs)[0];
+  await db
+      .collection("houses")
+      .doc(houseId)
+      .collection("chats")
+      .add({
+        content: notificationMessage,
+        from: sender,
+        sentAt: new Date(),
+        to: recipients,
+      });
+  await sendExpoNotifications(notificationMessage, recipientNotificationTokens, subtitle);
+  return {
+    status: "success",
+    code: "MESSAGE_SENT",
+  };
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "tenant")) {
+  let userData = validPayload(data, "tenant");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   const houseID = userData.houseID.toUpperCase();
   const house = await db.collection("houses").doc(houseID).get();
   const userInFB = await db.collection("users").doc(userData.email).get();
@@ -61,7 +114,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     approved: false,
     expo_token: userData.expo_token,
   };
-  const landlord = house.data().landlord;
+  const landlord = house.data().landlord.email;
   const landlordEmailDoc = await db.collection("users").doc(landlord).get();
   if (!landlordEmailDoc.exists) {
     return {
@@ -69,7 +122,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
       code: "LANDLORD_DOES_NOT_EXIST",
     };
   }
-  const landlordEmail = [landlordEmailDoc.data().expo_token];
+  const landlordExpo = [landlordEmailDoc.data().expo_token];
   try {
     await auth.createUser(
         {
@@ -89,17 +142,21 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
   await db.collection("users").doc(userData.email).set(userDataFB);
+  let newTenantDoc = house.data().tenants;
+  if (!newTenantDoc) {
+    newTenantDoc = {};
+  }
+  newTenantDoc[userData.email] = userData.name.first + " " + userData.name.last;
   await db
       .collection("houses")
       .doc(houseID)
-      .update({
-        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
-      });
+      .update({tenants: newTenantDoc});
   // eslint-disable-next-line max-len
-  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordEmail);
+  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordExpo);
   return {
     status: "success",
     code: "USER_CREATED",
@@ -107,13 +164,14 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
 });
 
 exports.signUpLandlord = functions.https.onCall(async (data, context) => {
-  const userData = data;
-  if (!validPayload(userData, "landlord")) {
+  let userData = validPayload(data, "landlord");
+  if (!userData.valid) {
     return {
       status: "error",
-      code: "INVALID_USER_DATA",
+      code: userData.error,
     };
   }
+  userData = userData.sanitizedPayload;
   let houseID = await getHouseId(userData.address);
   if (houseID != 0) {
     return {
@@ -147,9 +205,10 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
     }
     return {
       status: "error",
-      code: "UNEXPECTED_ERROR"};
+      code: "UNEXPECTED_AUTH_ERROR",
+    };
   }
-  houseID = await addHouse(userData.email, userData.address);
+  houseID = await addHouse(userData.email, userData.address, userData.name.first + " " + userData.name.last);
   const userDataFB = {
     name: {
       first: userData.name.first,
@@ -168,11 +227,113 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
   };
 });
 
+exports.resetDB = functions.https.onRequest(async (req, res) => {
+  const token = req.query.token;
+  if (token!="4ZMGFEHLV5HV") {
+    res.status(403).send("Invalid token");
+    return;
+  }
+  const sampleHouseID = "YOFQXWK3";
+  const sampleHouseData = {
+    address: "123 Main St",
+    landlord: {email: "landlord@roomr.com", name: "Landlord Roomr"},
+    tenants: {"tenant@roomr.com": "Tenant Roomr"},
+  };
+  const sampleTenantID = "tenant@roomr.com";
+  const sampleTenantData = {
+    name: {first: "Tenant", last: "Roomr"},
+    phone: "1234567890",
+    type: "tenant",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+  const sampleLandlordID = sampleHouseData.landlord.email;
+  const sampleLandlordData = {
+    name: {first: "Landlord", last: "Roomr"},
+    phone: "1234567890",
+    type: "landlord",
+    houses: [sampleHouseID],
+    approved: true,
+    expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
+  };
+
+  const sampleChat = {
+    content: "hello",
+    to: ["tenant@roomr.com"],
+    from: "tenant@roomr.com",
+    sentAt: new Date(),
+  };
+
+  const sampleTask = {
+    content: "Laundry",
+    createdBy: "tenant@roomr.com",
+    createdOn: new Date(),
+    due: new Date(),
+    completed: false,
+  };
+
+  const sampleTicket = {
+    content: "Fix Laundry Machine",
+    createdBy: "tenant@roomr.com",
+    createdOn: new Date(),
+    due: new Date(),
+    completed: false,
+  };
+
+  const authUsers = await auth.listUsers();
+  for (const authUser of authUsers.users) {
+    await auth.deleteUser(authUser.uid);
+  }
+  await auth.createUser(
+      {
+        email: sampleLandlordID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleLandlordData.name.first +
+         " " + sampleLandlordData.name.last,
+        disabled: false,
+      },
+  );
+  await auth.createUser(
+      {
+        email: sampleTenantID,
+        emailVerified: false,
+        password: "password",
+        displayName: sampleTenantData.name.first +
+        " " + sampleTenantData.name.last,
+        disabled: false,
+      },
+  );
+  await db.collection("users").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+  });
+  const housesCollection = await db.collection("houses").get();
+  for (const doc of housesCollection.docs) {
+    const collections = await db.collection("houses").doc(doc.id).listCollections();
+    for (const collection of collections) {
+      await deleteCollection(db, `houses/${doc.id}/${collection.id}`, 100);
+    }
+    await doc.ref.delete();
+  }
+  await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
+  await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
+  await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
+  await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
+  await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
+  await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
+  res.send("Database reset");
+});
+
+
 /**
  * @param  {string} message
  * @param  {Array} tokens
+ * @param {string} subtitle
  */
-async function sendExpoNotifications(message, tokens) {
+async function sendExpoNotifications(message, tokens, subtitle = false) {
   const messages = [];
   for (const pushToken of tokens) {
     if (!Expo.isExpoPushToken(pushToken)) {
@@ -180,11 +341,20 @@ async function sendExpoNotifications(message, tokens) {
       continue;
     }
 
-    messages.push({
-      to: pushToken,
-      sound: "default",
-      body: message,
-    });
+    if (!subtitle) {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+      });
+    } else {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+        subtitle: subtitle,
+      });
+    }
   }
 
   const chunks = expo.chunkPushNotifications(messages);
@@ -211,45 +381,93 @@ async function sendExpoNotifications(message, tokens) {
  * @return {boolean}
  */
 function validPayload(data, type) {
-  if (
-    !data ||
-    !data.name ||
+  const sanitizedPayload = {};
+  if (!data) {
+    return {
+      valid: false,
+      error: "INVALID_PAYLOAD",
+    };
+  }
+  if (!data.name ||
     !data.name.first ||
     !data.name.last ||
-    !data.email ||
-    !data.phone ||
-    !data.password ||
-    !data.expo_token
-  ) {
-    return false;
-  }
-  if (type == "tenant") {
-    if (!data.houseID) {
-      return false;
-    }
+    !validations.name(data.name.first).success ||
+    !validations.name(data.name.last).success) {
+    return {
+      valid: false,
+      error: "invalid-name",
+    };
   } else {
-    if (!data.address) {
-      return false;
+    sanitizedPayload.name = {
+      first: validations.name(data.name.first).sanitized,
+      last: validations.name(data.name.last).sanitized,
+    };
+    if (!data.email || !validations.email(data.email).success) {
+      return {
+        valid: false,
+        error: "invalid-email",
+      };
+    } else {
+      sanitizedPayload.email = validations.email(data.email).sanitized;
     }
+    if (!data.password || !validations.password(data.password).success) {
+      return {
+        valid: false,
+        error: "invalid-password",
+      };
+    } else {
+      sanitizedPayload.password = validations.password(data.password).sanitized;
+    }
+    if (!data.phone || !validations.phone(data.phone).success) {
+      return {
+        valid: false,
+        error: "invalid-phone-number",
+      };
+    } else {
+      sanitizedPayload.phone = validations.phone(data.phone).sanitized;
+    }
+    if (!data.expo_token) {
+      return {
+        valid: false,
+        error: "INVALID_EXPO_TOKEN",
+      };
+    } else {
+      sanitizedPayload.expo_token = data.expo_token;
+    }
+    if (type == "tenant") {
+      if (!data.houseID || !validations.houseID(data.houseID).success) {
+        return {
+          valid: false,
+          error: "invalid-house-id",
+        };
+      } else {
+        sanitizedPayload.houseID = validations.houseID(data.houseID).sanitized;
+      }
+    } else {
+      if (!data.address || !validations.address(data.address).success) {
+        return {
+          valid: false,
+          error: "invalid-address",
+        };
+      } else {
+        sanitizedPayload.address = validations.address(data.address).sanitized;
+      }
+    }
+    return {
+      valid: true,
+      sanitizedPayload: sanitizedPayload,
+    };
   }
-  // if (!data.address ||
-  //     !data.address.street ||
-  //     !data.address.city ||
-  //     !data.address.state ||
-  //     !data.address.zip
-  // ) {
-  //   return false;
-  // }
-  return true;
 }
 
 /**
  * @param  {string} email
  * @param  {string} address
+ * @param  {string} name
  */
-async function addHouse(email, address) {
+async function addHouse(email, address, name) {
   const landlordData = {
-    landlord: email,
+    landlord: {email: email, name: name},
     address: address,
   };
   let houseID = generateRandomHouseID();
@@ -282,3 +500,59 @@ async function getHouseId(address) {
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
+
+/**
+ * @param  {array} arrays
+ * @return {array}
+ */
+function findCommonElements(arrays) {
+  const result = arrays.shift().filter(function(v) {
+    return arrays.every(function(a) {
+      return a.indexOf(v) !== -1;
+    });
+  });
+  return result;
+}
+
+/**
+ * @param  {FirebaseFirestore.Firestore} db
+ * @param  {string} collectionPath
+ * @param  {number} batchSize
+ */
+async function deleteCollection(db, collectionPath, batchSize) {
+  const collectionRef = db.collection(collectionPath);
+  const query = collectionRef.orderBy("__name__").limit(batchSize);
+
+  return new Promise((resolve, reject) => {
+    deleteQueryBatch(db, query, resolve).catch(reject);
+  });
+}
+/**
+ * @param  {FirebaseFirestore.Firestore} db
+ * @param  {any} query
+ * @param  {any} resolve
+ */
+async function deleteQueryBatch(db, query, resolve) {
+  const snapshot = await query.get();
+
+  const batchSize = snapshot.size;
+  if (batchSize === 0) {
+    // When there are no documents left, we are done
+    resolve();
+    return;
+  }
+
+  // Delete documents in a batch
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+
+  // Recurse on the next process tick, to avoid
+  // exploding the stack.
+  process.nextTick(() => {
+    deleteQueryBatch(db, query, resolve);
+  });
+}
+
