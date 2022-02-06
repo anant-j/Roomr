@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Alert } from "react-native";
 import { logout } from "../firebase";
 export interface AuthState {
   expoToken: string;
@@ -42,6 +43,17 @@ export const registerExpoToken = (payload: string) => {
 
 export const signout = () => {
   return async (dispatch: any) => {
+    await logout();
+    dispatch(cleanAuth());
+  };
+};
+
+export const LogoutWithError = (code: string = null) => {
+  return async (dispatch: any) => {
+    Alert.alert(
+      "An error occurred while fetching your user data.",
+      "Please try again later \n\nError code: " + code,
+    );
     await logout();
     dispatch(cleanAuth());
   };
