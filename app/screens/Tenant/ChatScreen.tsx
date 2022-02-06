@@ -16,7 +16,6 @@ export default function ChatScreen() {
     loading,
     error,
     currentActiveChat,
-    allMessages,
     loadingMsg,
     sendingMsg,
     sentMsg,
@@ -103,8 +102,8 @@ export default function ChatScreen() {
                   >
                     <Feather name="arrow-left" color={"white"} size={30} />
                   </Button>
-                  {allMessages[currentActiveChat] ? (
-                    Object.keys(allMessages[currentActiveChat]).map(
+                  {allChats[currentActiveChat]["messages"] ? (
+                    Object.keys(allChats[currentActiveChat]["messages"]).map(
                       (item, index) => {
                         return (
                           <TouchableOpacity
@@ -113,12 +112,13 @@ export default function ChatScreen() {
                           >
                             <MessageItem
                               content={
-                                allMessages[currentActiveChat][item].content
+                                allChats[currentActiveChat]["messages"][item]
+                                  .content
                               }
                               name={allChats[currentActiveChat].name}
                               sender={
-                                allMessages[currentActiveChat][item].from ==
-                                email
+                                allChats[currentActiveChat]["messages"][item]
+                                  .from == email
                               }
                             />
                           </TouchableOpacity>
