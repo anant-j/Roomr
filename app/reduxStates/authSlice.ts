@@ -1,6 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Alert } from "react-native";
 import { logout } from "../firebase";
+import { db } from "../firebase";
+import { doc, updateDoc } from "firebase/firestore";
+
 export interface AuthState {
   expoToken: string;
   email: string;
@@ -38,6 +41,19 @@ export interface UserObject {
 export const registerExpoToken = (payload: string) => {
   return (dispatch: any) => {
     dispatch(setExpoToken(payload));
+  };
+};
+
+export const updateExpoToken = (oldToken) => {
+  return async (dispatch: any, getState: any) => {
+    const newToken = getState().auth.expoToken;
+    const email = getState().auth.email;
+    if (oldToken !== newToken && email) {
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, {
+        expo_token: newToken,
+      });
+    }
   };
 };
 
