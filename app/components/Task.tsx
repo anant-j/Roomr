@@ -1,6 +1,8 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "./Themed";
+
+// TODO: change props to param object
 const Task = (props: any) => {
   return (
     <View style={styles.item}>
@@ -10,7 +12,7 @@ const Task = (props: any) => {
           lightColor="rgba(0,0,0,0.8)"
           darkColor="rgba(255,255,255,0.8)"
         >
-          {props.text}
+          {props.text.content}
         </Text>
         <View style={styles.circle}></View>
       </View>
@@ -18,7 +20,7 @@ const Task = (props: any) => {
       //   style={styles.itemDate}
       >
         {/* {props.date} */}
-        <Text style={styles.itemDate}>Nov 15</Text>
+        <Text style={styles.itemDate}>{props.text.due}</Text>
       </View>
     </View>
   );

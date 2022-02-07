@@ -24,7 +24,7 @@ export default function TaskList() {
         {allTasks.map((item, index) => {
           return (
             <TouchableOpacity key={index} onPress={() => completeTask(index)}>
-              <Task text={item.content} />
+              <Task text={item} />
               <View
                 style={styles.separator}
                 lightColor="#eee"
