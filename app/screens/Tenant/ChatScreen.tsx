@@ -35,8 +35,9 @@ export default function ChatScreen() {
 
   const lastMessageInfo = (id: string) => {
     const chat = allChats[id];
-    if (!chat) return { time: 0, content: "No messages yet" };
-    if (!chat.messages) return { time: 0, content: "No messages yet" };
+    if (!chat) return { messageFound: false, content: "No messages yet" };
+    if (!chat.messages)
+      return { messageFound: false, content: "No messages yet" };
     const latestMessage = {
       time: new Date(0),
       message: "",
@@ -52,8 +53,21 @@ export default function ChatScreen() {
     }
     const now = new Date();
     const timeElapsed = Math.abs(now.getTime() - latestMessage.time.getTime());
-    const minutes = Math.floor(timeElapsed / (1000 * 60)) + 1;
-    return { time: minutes, content: latestMessage.message };
+    const totalMinutes = Math.floor(timeElapsed / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    let finalString = "";
+    if (hours > 0) {
+      finalString += hours + "h ";
+    }
+    if (minutes > 0) {
+      finalString += minutes + "m";
+    }
+    return {
+      messageFound: true,
+      time: finalString,
+      content: latestMessage.message,
+    };
   };
 
   const ChatItem = (props: any) => {
@@ -71,8 +85,8 @@ export default function ChatScreen() {
           <View style={chatItemStyles.itemRight}>
             <View style={chatItemStyles.chatInfo}>
               <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
-              {lastMessageInfo(props.id).time > 0 ? (
-                <Text>{lastMessageInfo(props.id).time}m ago</Text>
+              {lastMessageInfo(props.id).messageFound ? (
+                <Text>{lastMessageInfo(props.id).time}</Text>
               ) : (
                 <Text>-</Text>
               )}
