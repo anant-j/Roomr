@@ -33,6 +33,64 @@ export default function ChatScreen() {
     dispatch(setActiveChat(""));
   };
 
+  const lastMessageInfo = (id: string) => {
+    const chat = allChats[id];
+    if (!chat) return { time: 0, content: "No messages yet" };
+    if (!chat.messages) return { time: 0, content: "No messages yet" };
+    const latestMessage = {
+      time: new Date(0),
+      message: "",
+    };
+    for (const message of Object.keys(chat.messages)) {
+      if (
+        !latestMessage ||
+        new Date(chat.messages[message].sentAt) > new Date(latestMessage.time)
+      ) {
+        latestMessage.message = chat.messages[message].content;
+        latestMessage.time = new Date(chat.messages[message].sentAt);
+      }
+    }
+    const now = new Date();
+    const timeElapsed = Math.abs(now.getTime() - latestMessage.time.getTime());
+    const minutes = Math.floor(timeElapsed / (1000 * 60)) + 1;
+    return { time: minutes, content: latestMessage.message };
+  };
+
+  const ChatItem = (props: any) => {
+    const splitName = props.item.name.split(/(\s+)/);
+    const fnameInitial = splitName[0][0];
+    const lNameInitial = splitName[2][0];
+    return (
+      <>
+        <View style={chatItemStyles.item}>
+          <View style={chatItemStyles.circle}>
+            <Text style={chatItemStyles.initials}>
+              {fnameInitial + lNameInitial}
+            </Text>
+          </View>
+          <View style={chatItemStyles.itemRight}>
+            <View style={chatItemStyles.chatInfo}>
+              <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
+              {lastMessageInfo(props.id).time > 0 ? (
+                <Text>{lastMessageInfo(props.id).time}m ago</Text>
+              ) : (
+                <Text>-</Text>
+              )}
+            </View>
+            <Text style={chatItemStyles.messagePreview}>
+              {lastMessageInfo(props.id).content}
+            </Text>
+            <View
+              style={chatItemStyles.chatSeparator}
+              lightColor="#eee"
+              darkColor="rgba(255,255,255,0.1)"
+            />
+          </View>
+        </View>
+      </>
+    );
+  };
+
   const onSendMessage = async () => {
     onChangeMessageSending(true);
     let chatRecipients = [currentActiveChat];
@@ -93,7 +151,7 @@ export default function ChatScreen() {
                           onChatPress(item);
                         }}
                       >
-                        <ChatItem item={allChats[item]} />
+                        <ChatItem id={item} item={allChats[item]} />
                       </TouchableOpacity>
                     );
                   })}
@@ -200,34 +258,6 @@ export default function ChatScreen() {
   );
 }
 
-const ChatItem = (props: any) => {
-  const splitName = props.item.name.split(/(\s+)/);
-  const fnameInitial = splitName[0][0];
-  const lNameInitial = splitName[2][0];
-  return (
-    <>
-      <View style={chatItemStyles.item}>
-        <View style={chatItemStyles.circle}>
-          <Text style={chatItemStyles.initials}>
-            {fnameInitial + lNameInitial}
-          </Text>
-        </View>
-        <View style={chatItemStyles.itemRight}>
-          <View style={chatItemStyles.chatInfo}>
-            <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
-            <Text>{props.item.lastMessageTimeElapsed} ago</Text>
-          </View>
-          <View
-            style={chatItemStyles.chatSeparator}
-            lightColor="#eee"
-            darkColor="rgba(255,255,255,0.1)"
-          />
-        </View>
-      </View>
-    </>
-  );
-};
-
 const MessageItem = (props: any) => {
   const splitName = props.name.split(/(\s+)/);
   const fInitial = splitName[0][0];
@@ -261,15 +291,21 @@ const chatItemStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  messagePreview: {
+    flexDirection: "row",
+    marginBottom: 15,
+  },
   contactName: {
-    marginBottom: 25,
+    marginBottom: 5,
+    marginTop: 0,
+    fontWeight: "bold",
   },
   item: {
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-around",
-    marginBottom: 30,
+    marginBottom: 15,
   },
   itemRight: {
     flex: 1,

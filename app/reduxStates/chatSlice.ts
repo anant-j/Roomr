@@ -29,26 +29,22 @@ export const createChats = (tenants, landlord) => {
       if (tenant !== getState().auth.email) {
         data[tenant] = {
           name: tenants[tenant],
-          lastMessageTimeElapsed: "27m",
         };
       }
     }
     if (landlord) {
       data[landlord.email] = {
         name: landlord.name + " (Landlord)",
-        lastMessageTimeElapsed: "27m",
       };
     }
     if (Object.keys(tenants).length > 2) {
       data["tenantgc"] = {
         name: "Tenant Group Chat",
-        lastMessageTimeElapsed: "27m",
       };
     }
     if (Object.keys(tenants).length > 1) {
       data["landlordgc"] = {
         name: "Landlord Group Chat",
-        lastMessageTimeElapsed: "27m",
       };
     }
     dispatch(fetchChatsFulfilled(data));
@@ -85,7 +81,7 @@ export const updateMessage = (id: any, message: any) => {
     ) {
       makeNewMap = false;
     }
-    message["sentAt"] = new Date().toString();
+    message["sentAt"] = new Date(message.sentAt.seconds * 1000).toString();
     dispatch(fetchMessagesFulfilled({ id, message, makeNewMap }));
   };
 };
