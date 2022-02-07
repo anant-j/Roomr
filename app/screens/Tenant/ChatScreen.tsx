@@ -1,5 +1,12 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { Button, Text, View, TextInput } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { setActiveChat } from "reduxStates/chatSlice";
@@ -8,19 +15,12 @@ import { useState } from "react";
 import { sendMessage } from "../../firebase";
 
 export default function ChatScreen() {
-  const {
-    allChats,
-    loading,
-    error,
-    currentActiveChat,
-    loadingMsg,
-    sendingMsg,
-    sentMsg,
-    errorMsg,
-  } = useAppSelector((state) => state.chats);
+  const { allChats, loading, error, currentActiveChat, loadingMsg, errorMsg } =
+    useAppSelector((state) => state.chats);
 
   const { email } = useAppSelector((state) => state.auth);
   const [message, onChangeMessage] = useState("");
+  const [messageSendingInProgress, onChangeMessageSending] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -30,6 +30,22 @@ export default function ChatScreen() {
 
   const onBackToChat = () => {
     dispatch(setActiveChat(""));
+  };
+
+  const onSendMessage = async () => {
+    onChangeMessageSending(true);
+    sendMessage({
+      to: currentActiveChat,
+      message: message,
+    })
+      .then(() => {
+        onChangeMessage("");
+        onChangeMessageSending(false);
+      })
+      .catch((error) => {
+        Alert.alert("An error occured", "Your message could not be sent");
+        onChangeMessageSending(false);
+      });
   };
 
   return (
@@ -91,17 +107,21 @@ export default function ChatScreen() {
             {loadingMsg ? (
               <Text style={styles.sectionTitle}>Loading...</Text>
             ) : (
-              <View style={{ height: "100%" }}>
-                <ScrollView
-                  contentContainerStyle={{
-                    flexGrow: 1,
-                  }}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  <View style={styles.items}>
-                    {allChats[currentActiveChat]["messages"] ? (
-                      Object.keys(allChats[currentActiveChat]["messages"]).map(
-                        (item, index) => {
+              <KeyboardAvoidingView
+                style={{ height: "100%" }}
+                behavior="padding"
+                enabled
+              >
+                <View style={{ height: "70%" }}>
+                  <ScrollView
+                    keyboardDismissMode="on-drag"
+                    keyboardShouldPersistTaps={"always"}
+                  >
+                    <View style={styles.items}>
+                      {allChats[currentActiveChat]["messages"] ? (
+                        Object.keys(
+                          allChats[currentActiveChat]["messages"],
+                        ).map((item, index) => {
                           return (
                             <TouchableOpacity
                               // TODO: Better practice is to use unique ID of element as the key
@@ -120,39 +140,38 @@ export default function ChatScreen() {
                               />
                             </TouchableOpacity>
                           );
-                        },
-                      )
-                    ) : (
-                      <Text>No Messages</Text>
-                    )}
-                  </View>
-                </ScrollView>
+                        })
+                      ) : (
+                        <Text>No Messages</Text>
+                      )}
+                    </View>
+                  </ScrollView>
+                </View>
                 <View style={styles.textInputContainer}>
                   <TextInput
+                    autoFocus={true}
+                    blurOnSubmit={false}
                     style={styles.input}
                     onChangeText={onChangeMessage}
                     value={message}
+                    onSubmitEditing={() => onSendMessage()}
                     placeholder="Enter Message"
-                    autoCapitalize="words"
+                    autoCapitalize="sentences"
                   />
                   <View style={styles.sendButton}>
-                    <Feather
-                      name={"send"}
-                      size={25}
-                      color="#878787"
-                      onPress={() => {
-                        sendMessage({ to: currentActiveChat, message: message })
-                          .then((result) => {
-                            console.log(result);
-                          })
-                          .catch((error) => {
-                            console.log(error);
-                          });
-                      }}
-                    />
+                    {!messageSendingInProgress ? (
+                      <Feather
+                        name={"send"}
+                        size={25}
+                        color="#878787"
+                        onPress={() => onSendMessage()}
+                      />
+                    ) : (
+                      <ActivityIndicator />
+                    )}
                   </View>
                 </View>
-              </View>
+              </KeyboardAvoidingView>
             )}
           </View>
         </View>
@@ -367,17 +386,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   textInputContainer: {
-    position: "absolute",
-    // top: 300,
-    bottom: 200,
+    bottom: 50,
     width: "100%",
-    // flexDirection: "row",
-    // marginTop: 12,
+    flex: 1,
   },
   sendButton: {
     alignSelf: "center",
     position: "absolute",
     right: 2,
+    top: 3,
     backgroundColor: "transparent",
     margin: 10,
     padding: 10,
