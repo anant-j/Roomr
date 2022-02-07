@@ -26,6 +26,7 @@ export default function ChatScreen() {
   const dispatch = useAppDispatch();
 
   const onChatPress = (id: string) => {
+    onChangeMessage("");
     dispatch(setActiveChat(id));
   };
 
@@ -106,6 +107,7 @@ export default function ChatScreen() {
   };
 
   const onSendMessage = async () => {
+    if (message.length === 0) return;
     onChangeMessageSending(true);
     let chatRecipients = [currentActiveChat];
     if (currentActiveChat == "tenantgc" || currentActiveChat == "landlordgc") {
@@ -244,6 +246,7 @@ export default function ChatScreen() {
                     autoFocus={true}
                     blurOnSubmit={false}
                     style={styles.input}
+                    maxLength={50}
                     onChangeText={onChangeMessage}
                     value={message}
                     onSubmitEditing={() => onSendMessage()}
@@ -255,13 +258,18 @@ export default function ChatScreen() {
                       <Feather
                         name={"send"}
                         size={25}
-                        color="#878787"
+                        color={message.length > 0 ? "black" : "gray"}
                         onPress={() => onSendMessage()}
                       />
                     ) : (
-                      <ActivityIndicator />
+                      <ActivityIndicator color="#000000" />
                     )}
                   </View>
+                  {message.length > 0 && (
+                    <Text style={{ alignSelf: "flex-end", marginBottom: 10 }}>
+                      {message.length}/50
+                    </Text>
+                  )}
                 </View>
               </KeyboardAvoidingView>
             )}
@@ -456,7 +464,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   textInputContainer: {
-    bottom: 50,
+    bottom: 60,
     width: "100%",
     flex: 1,
   },
@@ -465,8 +473,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 2,
     top: 3,
-    backgroundColor: "transparent",
-    margin: 10,
-    padding: 10,
+    backgroundColor: "#55BCF6",
+    borderRadius: 20,
+    marginVertical: 15,
+    marginHorizontal: 5,
+    paddingVertical: 5,
+    paddingLeft: 15,
+    paddingRight: 17,
   },
 });
