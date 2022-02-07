@@ -1,14 +1,11 @@
 import * as React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
-import { Button, Text, View } from "components/Themed";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Button, Text, View, TextInput } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { setActiveChat } from "reduxStates/chatSlice";
 import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
+import { sendMessage } from "../../firebase";
 
 export default function ChatScreen() {
   const {
@@ -23,6 +20,8 @@ export default function ChatScreen() {
   } = useAppSelector((state) => state.chats);
 
   const { email } = useAppSelector((state) => state.auth);
+  const [message, onChangeMessage] = useState("");
+
   const dispatch = useAppDispatch();
 
   const onChatPress = (id: string) => {
@@ -77,6 +76,9 @@ export default function ChatScreen() {
         // Render message component here:
         <View style={styles.topContainer}>
           <View style={styles.tasksWrapper}>
+            <Button onPress={() => onBackToChat()} style={styles.backbutton}>
+              <Feather name="arrow-left" color={"white"} size={30} />
+            </Button>
             <View style={styles.titleWrapper}>
               <Text style={styles.sectionTitle}>
                 {/* <Text> */}
@@ -89,47 +91,69 @@ export default function ChatScreen() {
             {loadingMsg ? (
               <Text style={styles.sectionTitle}>Loading...</Text>
             ) : (
-              <ScrollView
-                contentContainerStyle={{
-                  flexGrow: 1,
-                }}
-                keyboardShouldPersistTaps="handled"
-              >
-                <View style={styles.items}>
-                  <Button
-                    onPress={() => onBackToChat()}
-                    style={styles.backbutton}
-                  >
-                    <Feather name="arrow-left" color={"white"} size={30} />
-                  </Button>
-                  {allChats[currentActiveChat]["messages"] ? (
-                    Object.keys(allChats[currentActiveChat]["messages"]).map(
-                      (item, index) => {
-                        return (
-                          <TouchableOpacity
-                            // TODO: Better practice is to use unique ID of element as the key
-                            key={index}
-                          >
-                            <MessageItem
-                              content={
-                                allChats[currentActiveChat]["messages"][item]
-                                  .content
-                              }
-                              name={allChats[currentActiveChat].name}
-                              sender={
-                                allChats[currentActiveChat]["messages"][item]
-                                  .from == email
-                              }
-                            />
-                          </TouchableOpacity>
-                        );
-                      },
-                    )
-                  ) : (
-                    <Text>No Messages</Text>
-                  )}
+              <View style={{ height: "100%" }}>
+                <ScrollView
+                  contentContainerStyle={{
+                    flexGrow: 1,
+                  }}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <View style={styles.items}>
+                    {allChats[currentActiveChat]["messages"] ? (
+                      Object.keys(allChats[currentActiveChat]["messages"]).map(
+                        (item, index) => {
+                          return (
+                            <TouchableOpacity
+                              // TODO: Better practice is to use unique ID of element as the key
+                              key={index}
+                            >
+                              <MessageItem
+                                content={
+                                  allChats[currentActiveChat]["messages"][item]
+                                    .content
+                                }
+                                name={allChats[currentActiveChat].name}
+                                sender={
+                                  allChats[currentActiveChat]["messages"][item]
+                                    .from == email
+                                }
+                              />
+                            </TouchableOpacity>
+                          );
+                        },
+                      )
+                    ) : (
+                      <Text>No Messages</Text>
+                    )}
+                  </View>
+                </ScrollView>
+                <View style={styles.textInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={onChangeMessage}
+                    value={message}
+                    placeholder="Enter Message"
+                    autoCapitalize="words"
+                  />
+                  <View style={styles.sendButton}>
+                    <Feather
+                      name={"send"}
+                      size={25}
+                      color="#878787"
+                      onPress={() => {
+                        console.log("clicked");
+                        sendMessage({ to: currentActiveChat, message: message })
+                          .then((result) => {
+                            console.log(result);
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                          });
+                      }}
+                    />
+                  </View>
                 </View>
-              </ScrollView>
+              </View>
             )}
           </View>
         </View>
@@ -340,5 +364,30 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     width: 50,
     marginBottom: 10,
+  },
+  input: {
+    height: 50,
+    marginTop: 12,
+    borderRadius: 10,
+    // borderWidth: 2,
+    // borderColor: "#5B8DCA",
+    fontSize: 20,
+    padding: 10,
+  },
+  textInputContainer: {
+    position: "absolute",
+    // top: 300,
+    bottom: 200,
+    width: "100%",
+    // flexDirection: "row",
+    // marginTop: 12,
+  },
+  sendButton: {
+    alignSelf: "center",
+    position: "absolute",
+    right: 2,
+    backgroundColor: "transparent",
+    margin: 10,
+    padding: 10,
   },
 });
