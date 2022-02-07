@@ -45,10 +45,12 @@ export const createChats = (tenants, landlord) => {
         lastMessageTimeElapsed: "27m",
       };
     }
-    data["landlordgc"] = {
-      name: "Landlord Group Chat",
-      lastMessageTimeElapsed: "27m",
-    };
+    if (Object.keys(tenants).length > 1) {
+      data["landlordgc"] = {
+        name: "Landlord Group Chat",
+        lastMessageTimeElapsed: "27m",
+      };
+    }
     dispatch(fetchChatsFulfilled(data));
   };
 };
