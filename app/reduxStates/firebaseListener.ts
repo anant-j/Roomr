@@ -60,6 +60,7 @@ export const fetchData = (houseID: string) => {
               createdBy,
               createdOn: createdOnDate,
               due: dueOnDate,
+              id: doc.id,
             };
 
             tasks.push(task);

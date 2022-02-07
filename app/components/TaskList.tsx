@@ -4,14 +4,14 @@ import { ScrollView, TouchableOpacity } from "react-native";
 import { View } from "components/Themed";
 import { StyleSheet } from "react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { removeTask } from "reduxStates/taskSlice";
+import { completeTaskThunk } from "reduxStates/taskSlice";
 
 export default function TaskList() {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
-  const completeTask = (index: number) => {
-    dispatch(removeTask(index));
+  const completeTask = (id: string) => {
+    dispatch(completeTaskThunk(id));
   };
   return (
     <ScrollView
@@ -23,7 +23,7 @@ export default function TaskList() {
       <View style={styles.items}>
         {allTasks.map((item, index) => {
           return (
-            <TouchableOpacity key={index} onPress={() => completeTask(index)}>
+            <TouchableOpacity key={index} onPress={() => completeTask(item.id)}>
               <Task text={item.content} />
               <View
                 style={styles.separator}
