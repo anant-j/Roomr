@@ -141,7 +141,6 @@ export default function ChatScreen() {
                       size={25}
                       color="#878787"
                       onPress={() => {
-                        console.log("clicked");
                         sendMessage({ to: currentActiveChat, message: message })
                           .then((result) => {
                             console.log(result);
@@ -216,14 +215,6 @@ const MessageItem = (props: any) => {
       </View>
     );
   }
-};
-
-const InputBox = (props: any) => {
-  return (
-    <View>
-      <Text style={messageItemStyles.contentTo}>Hello!</Text>
-    </View>
-  );
 };
 
 const chatItemStyles = StyleSheet.create({
@@ -310,11 +301,12 @@ const messageItemStyles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 5,
     padding: 10,
-    backgroundColor: "aliceblue",
+    backgroundColor: "#5B8DCA",
   },
   contentTo: {
     alignItems: "flex-end",
     flexDirection: "row-reverse",
+    color: "white",
   },
 });
 
