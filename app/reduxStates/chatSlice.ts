@@ -47,6 +47,12 @@ export const createChats = (tenants, landlord) => {
 
 export const updateMessage = (id: any, message: any) => {
   return async (dispatch: any, getState: any) => {
+    if (
+      message.from != getState().auth.email &&
+      !message.to.includes(getState().auth.email)
+    ) {
+      return;
+    }
     dispatch(fetchMessagesPending());
     if (message.to[0] == getState().auth.email) {
       message["to"] = [message.from];

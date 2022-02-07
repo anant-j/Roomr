@@ -339,5 +339,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     width: 50,
+    marginBottom: 10,
   },
 });
