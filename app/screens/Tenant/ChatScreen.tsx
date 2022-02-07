@@ -18,6 +18,7 @@ export default function ChatScreen() {
   const { allChats, loading, error, currentActiveChat, loadingMsg, errorMsg } =
     useAppSelector((state) => state.chats);
 
+  const { tenants, landlord } = useAppSelector((state) => state.users);
   const { email } = useAppSelector((state) => state.auth);
   const [message, onChangeMessage] = useState("");
   const [messageSendingInProgress, onChangeMessageSending] = useState(false);
@@ -34,8 +35,21 @@ export default function ChatScreen() {
 
   const onSendMessage = async () => {
     onChangeMessageSending(true);
+    let chatRecipients = [currentActiveChat];
+    if (currentActiveChat == "tenantgc" || currentActiveChat == "landlordgc") {
+      chatRecipients = [];
+      for (const tenant of Object.keys(tenants)) {
+        chatRecipients.push(tenant);
+      }
+    }
+    if (currentActiveChat == "landlordgc") {
+      chatRecipients.push(landlord.email);
+    }
+    if (chatRecipients.includes(email)) {
+      chatRecipients = chatRecipients.filter((item) => item !== email);
+    }
     sendMessage({
-      to: currentActiveChat,
+      to: chatRecipients,
       message: message,
     })
       .then(() => {
@@ -132,7 +146,13 @@ export default function ChatScreen() {
                                   allChats[currentActiveChat]["messages"][item]
                                     .content
                                 }
-                                name={allChats[currentActiveChat].name}
+                                name={
+                                  tenants[
+                                    allChats[currentActiveChat]["messages"][
+                                      item
+                                    ].from
+                                  ]
+                                }
                                 sender={
                                   allChats[currentActiveChat]["messages"][item]
                                     .from == email
@@ -181,9 +201,9 @@ export default function ChatScreen() {
 }
 
 const ChatItem = (props: any) => {
-  const splitName = props.item.name.split(" ");
+  const splitName = props.item.name.split(/(\s+)/);
   const fnameInitial = splitName[0][0];
-  const lNameInitial = splitName[1][0];
+  const lNameInitial = splitName[2][0];
   return (
     <>
       <View style={chatItemStyles.item}>
@@ -209,9 +229,9 @@ const ChatItem = (props: any) => {
 };
 
 const MessageItem = (props: any) => {
-  const Initials = props.name.split(" ");
-  const fInitial = Initials[0][0];
-  const lInitial = Initials[1][0];
+  const splitName = props.name.split(/(\s+)/);
+  const fInitial = splitName[0][0];
+  const lInitial = splitName[2][0];
   const content = props.content;
   if (!props.sender) {
     return (

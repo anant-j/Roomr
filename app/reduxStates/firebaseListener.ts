@@ -30,7 +30,7 @@ export const fetchData = (houseID: string) => {
           }
           const landlord = doc.data().landlord;
           if (landlord) {
-            dispatch(updateLandlord(tenants));
+            dispatch(updateLandlord(landlord));
           }
           dispatch(createChats(tenants, landlord));
         }
