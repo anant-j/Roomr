@@ -229,7 +229,6 @@ const ChatItem = (props: any) => {
 };
 
 const MessageItem = (props: any) => {
-  console.log(props)
   const splitName = props.name.split(/(\s+)/);
   const fInitial = splitName[0][0];
   const lInitial = splitName[2][0];
