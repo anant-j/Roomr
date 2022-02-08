@@ -51,11 +51,9 @@ export const fetchData = (houseID: string) => {
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          console.log(doc);
           try {
             const { completed, content, createdBy, createdOn, due } =
               doc.data();
-            console.log(doc.data());
 
             const createdOnDate = new Date(createdOn.seconds * 1000).toString();
             const dueOnDate = new Date(due.seconds * 1000).toString();
