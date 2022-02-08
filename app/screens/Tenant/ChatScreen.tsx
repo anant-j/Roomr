@@ -189,12 +189,14 @@ export default function ChatScreen() {
   };
 
   const formatJSDate = (date: Date) => {
-    const seconds = date.getSeconds();
-    const minutes = date.getMinutes();
-    const hours = date.getHours();
+    const seconds = date.getSeconds()<10?'0':'';
+    const minutes = date.getMinutes()<10?'0':'';
+    const hours = date.getHours()<10?'0':'';
     const dateNumber = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
+
+
     return {
       seconds,
       minutes,
