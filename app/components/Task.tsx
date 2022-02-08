@@ -4,6 +4,13 @@ import { Text, View } from "./Themed";
 
 // TODO: change props to param object
 const Task = (props: any) => {
+  const { content, due } = props.task;
+
+  const dateFormat = {
+    month: "long",
+    day: "numeric",
+  };
+
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
@@ -12,7 +19,7 @@ const Task = (props: any) => {
           lightColor="rgba(0,0,0,0.8)"
           darkColor="rgba(255,255,255,0.8)"
         >
-          {props.text.content}
+          {content}
         </Text>
         <View style={styles.circle}></View>
       </View>
@@ -20,7 +27,9 @@ const Task = (props: any) => {
       //   style={styles.itemDate}
       >
         {/* {props.date} */}
-        <Text style={styles.itemDate}>{props.text.due}</Text>
+        <Text style={styles.itemDate}>
+          {new Date(due).toLocaleDateString("en-US", dateFormat)}
+        </Text>
       </View>
     </View>
   );

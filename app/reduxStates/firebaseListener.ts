@@ -11,6 +11,17 @@ import { updateTenants, updateLandlord } from "./usersSlice";
 
 const listenerUnsubscribeList = [];
 
+const getSortedTasks = (allTasks) => {
+  const sortedTasks = allTasks.slice().sort((a, b) => {
+    const date1 = new Date(a.due);
+    const date2 = new Date(b.due);
+    if (date2 < date1) return 1;
+    if (date2 > date1) return -1;
+    return 0;
+  });
+  return sortedTasks;
+};
+
 export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
     const unsub1 = onSnapshot(
@@ -40,9 +51,11 @@ export const fetchData = (houseID: string) => {
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
+          console.log(doc);
           try {
             const { completed, content, createdBy, createdOn, due } =
               doc.data();
+            console.log(doc.data());
 
             const createdOnDate = new Date(createdOn.seconds * 1000).toString();
             const dueOnDate = new Date(due.seconds * 1000).toString();
@@ -61,7 +74,8 @@ export const fetchData = (houseID: string) => {
             dispatch(LogoutWithError("STORING_TASK_DB_DATA_LOCALLY" + error));
           }
         });
-        const payload = { tasks: tasks };
+
+        const payload = { tasks: getSortedTasks(tasks) };
         dispatch(fetchTasksFulfilled(payload));
       },
       (error) => {
