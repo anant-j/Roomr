@@ -71,6 +71,18 @@ export default function ChatScreen() {
     };
   };
 
+  const getSortedMessages = () => {
+    if (currentActiveChat == "") return [];
+    const chat = allChats[currentActiveChat].messages;
+    if (!chat) return [];
+    const sortedMessages = Object.keys(chat).sort((a, b) => {
+      return (
+        new Date(chat[a].sentAt).getTime() - new Date(chat[b].sentAt).getTime()
+      );
+    });
+    return sortedMessages;
+  };
+
   const ChatItem = (props: any) => {
     const splitName = props.item.name.split(/(\s+)/);
     const fnameInitial = splitName[0][0];
@@ -206,10 +218,8 @@ export default function ChatScreen() {
                     keyboardShouldPersistTaps={"always"}
                   >
                     <View style={styles.items}>
-                      {allChats[currentActiveChat]["messages"] ? (
-                        Object.keys(
-                          allChats[currentActiveChat]["messages"],
-                        ).map((item, index) => {
+                      {getSortedMessages() !== [] ? (
+                        getSortedMessages().map((item, index) => {
                           return (
                             <TouchableOpacity
                               // TODO: Better practice is to use unique ID of element as the key
@@ -394,7 +404,6 @@ const messageItemStyles = StyleSheet.create({
   },
   sent: {
     alignItems: "flex-end",
-    flexDirection: "row-reverse",
     borderRadius: 10,
     marginVertical: 5,
     padding: 10,
