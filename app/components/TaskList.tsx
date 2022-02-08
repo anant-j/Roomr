@@ -13,6 +13,7 @@ export default function TaskList() {
   const completeTask = (id: string) => {
     dispatch(completeTaskThunk(id));
   };
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -24,7 +25,7 @@ export default function TaskList() {
         {allTasks.map((item, index) => {
           return (
             <TouchableOpacity key={index} onPress={() => completeTask(item.id)}>
-              <Task text={item.content} />
+              <Task task={item} />
               <View
                 style={styles.separator}
                 lightColor="#eee"

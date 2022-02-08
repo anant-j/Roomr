@@ -23,15 +23,17 @@ const initialState: TaskState = {
   error: null,
 };
 
-export const addTask = (payload: string, houseID: string, email) => {
+export const addTask = (payload: object) => {
+  const { content, houseID, email, due, notes } = payload;
   return async (dispatch: any) => {
     dispatch(modifyTaskPending());
     try {
       await addDoc(collection(db, `houses/${houseID}/tasks`), {
-        content: payload,
+        content: content,
         createdBy: email,
         createdOn: new Date(),
-        due: new Date(),
+        due: new Date(due),
+        notes: notes,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));

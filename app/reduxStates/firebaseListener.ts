@@ -20,6 +20,17 @@ const listeners = {
   userDataListener: null,
 };
 
+const getSortedTasks = (allTasks) => {
+  const sortedTasks = allTasks.slice().sort((a, b) => {
+    const date1 = new Date(a.due);
+    const date2 = new Date(b.due);
+    if (date2 < date1) return 1;
+    if (date2 > date1) return -1;
+    return 0;
+  });
+  return sortedTasks;
+};
+
 export const fetchHouseData = (houseID: string) => {
   return (dispatch: any) => {
     if (listeners.houseListener) {
@@ -73,7 +84,7 @@ export const fetchHouseData = (houseID: string) => {
           dispatch(fetchTasksError(error));
         }
       });
-      const payload = { tasks: tasks };
+      const payload = { tasks: getSortedTasks(tasks) };
       dispatch(fetchTasksFulfilled(payload));
     });
 
