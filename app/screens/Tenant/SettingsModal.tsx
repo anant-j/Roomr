@@ -3,7 +3,7 @@ import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { testPushNotification } from "../../notificationHandler";
 import { Text, View, Button } from "components/Themed";
-import { signout } from "../../reduxStates/authSlice";
+import { signout } from "../../reduxStates/firebaseListener";
 import { useAppDispatch } from "hooks/typedHooks";
 
 export default function SettingsModal() {

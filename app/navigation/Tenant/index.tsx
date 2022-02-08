@@ -25,7 +25,7 @@ import ChatScreen from "screens/Tenant/ChatScreen";
 import CalendarScreen from "screens/Tenant/CalendarScreen";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { useEffect } from "react";
-import { fetchData } from "reduxStates/firebaseListener";
+import { fetchHouseData } from "reduxStates/firebaseListener";
 
 import {
   RootStackParamList,
@@ -43,7 +43,7 @@ export default function Navigation({
   const dispatch = useAppDispatch();
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   useEffect(() => {
-    dispatch(fetchData(houseID));
+    dispatch(fetchHouseData(houseID));
   }, []);
 
   return (

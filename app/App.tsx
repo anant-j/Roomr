@@ -41,7 +41,6 @@ const AppWithProvider = () => {
   const responseListener = useRef();
 
   const loggedIn = useAppSelector((state) => state.auth.email);
-  const userDataFetched = useAppSelector((state) => state.auth.type) !== null;
   const dispatch = useAppDispatch();
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
   const approved = useAppSelector((state) => state.auth.approved);
