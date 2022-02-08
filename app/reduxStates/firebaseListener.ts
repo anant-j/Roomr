@@ -1,6 +1,12 @@
-import { onSnapshot, doc, collection, query } from "firebase/firestore";
+import { onSnapshot, doc, collection, query, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { LogoutWithError } from "./authSlice";
+import {
+  setUserData,
+  setEmail,
+  LogoutWithError,
+  cleanAuth,
+  updateExpoToken,
+} from "./authSlice";
 import { createChats, updateMessage } from "./chatSlice";
 import {
   fetchTasksPending,
@@ -8,6 +14,8 @@ import {
   fetchTasksError,
 } from "./taskSlice";
 import { updateTenants, updateLandlord } from "./usersSlice";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
 
 const listenerUnsubscribeList = [];
 
@@ -91,5 +99,59 @@ export const fetchData = (houseID: string) => {
     listenerUnsubscribeList.push(unsub1);
     listenerUnsubscribeList.push(unsub2);
     listenerUnsubscribeList.push(unsub3);
+  };
+};
+
+export const fetchAuth = () => {
+  return (dispatch: any) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.email);
+        getDoc(docRef).then((doc) => {
+          if (doc.exists) {
+            const updatedUserData = doc.data();
+            const userData = {
+              type: updatedUserData.type,
+              name: {
+                first: updatedUserData.firstName,
+                last: updatedUserData.lastName,
+              },
+              houses: updatedUserData.houses,
+              approved: updatedUserData.approved,
+            };
+            const token = updatedUserData.expo_token;
+            dispatch(setUserData(userData));
+            dispatch(setEmail(user.email));
+            dispatch(updateExpoToken(token));
+          } else dispatch(LogoutWithError("FETCH_DB_ON_AUTH"));
+        });
+      } else {
+        dispatch(cleanAuth());
+      }
+    });
+  };
+};
+
+export const listenToUserData = (email) => {
+  return (dispatch: any) => {
+    const unsub = onSnapshot(doc(db, "users", email), (doc: any) => {
+      if (doc.exists) {
+        const updatedUserData = doc.data();
+        const userData = {
+          type: updatedUserData.type,
+          name: {
+            first: updatedUserData.firstName,
+            last: updatedUserData.lastName,
+          },
+          houses: updatedUserData.houses,
+          approved: updatedUserData.approved,
+        };
+        dispatch(setUserData(userData));
+      } else {
+        dispatch(LogoutWithError("USER_DOESNT_EXIST_DB"));
+      }
+    });
+
+    listenerUnsubscribeList.push(unsub);
   };
 };

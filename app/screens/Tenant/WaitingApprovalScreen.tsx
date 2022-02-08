@@ -4,7 +4,7 @@ import { Button, Text, View } from "../../components/Themed";
 import { signout } from "reduxStates/authSlice";
 import LottieView from "lottie-react-native";
 import { useEffect } from "react";
-import { listenToUserData } from "reduxStates/authListener";
+import { listenToUserData } from "reduxStates/firebaseListener";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 
 export default function WaitingScreen() {
