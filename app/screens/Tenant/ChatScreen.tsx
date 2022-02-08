@@ -196,7 +196,6 @@ export default function ChatScreen() {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
-
     return {
       seconds,
       minutes,
