@@ -24,7 +24,7 @@ export default function TaskList() {
       <View style={styles.items}>
         {allTasks.map((item, index) => {
           return (
-            <TouchableOpacity key={index} onPress={() => completeTask(index)}>
+            <TouchableOpacity key={index} onPress={() => completeTask(item.id)}>
               <Task task={item} />
               <View
                 style={styles.separator}
