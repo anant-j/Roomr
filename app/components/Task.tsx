@@ -2,7 +2,6 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "./Themed";
 
-// TODO: change props to param object
 const Task = (props: any) => {
   const { content, due } = props.task;
 
