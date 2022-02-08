@@ -22,6 +22,7 @@ export default function ChatScreen() {
   const { email } = useAppSelector((state) => state.auth);
   const [message, onChangeMessage] = useState("");
   const [messageSendingInProgress, onChangeMessageSending] = useState(false);
+  const [showMessageTimes, showMessageTimesChange] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -88,36 +89,121 @@ export default function ChatScreen() {
     const fnameInitial = splitName[0][0];
     const lNameInitial = splitName[2][0];
     return (
-      <>
-        <View style={chatItemStyles.item}>
-          <View style={chatItemStyles.circle}>
-            <Text style={chatItemStyles.initials}>
-              {fnameInitial + lNameInitial}
-            </Text>
-          </View>
-          <View style={chatItemStyles.itemRight}>
-            <View style={chatItemStyles.chatInfo}>
-              <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
-              {lastMessageInfo(props.id).messageFound ? (
-                <Text>{lastMessageInfo(props.id).time}</Text>
-              ) : (
-                <Text>-</Text>
-              )}
-            </View>
-            <Text style={chatItemStyles.messagePreview}>
-              {lastMessageInfo(props.id).content}
-            </Text>
-            <View
-              style={chatItemStyles.chatSeparator}
-              lightColor="#eee"
-              darkColor="rgba(255,255,255,0.1)"
-            />
-          </View>
+      <View style={chatItemStyles.item}>
+        <View style={chatItemStyles.circle}>
+          <Text style={chatItemStyles.initials}>
+            {fnameInitial + lNameInitial}
+          </Text>
         </View>
-      </>
+        <View style={chatItemStyles.itemRight}>
+          <View style={chatItemStyles.chatInfo}>
+            <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
+            {lastMessageInfo(props.id).messageFound ? (
+              <Text>{lastMessageInfo(props.id).time}</Text>
+            ) : (
+              <Text>-</Text>
+            )}
+          </View>
+          <Text style={chatItemStyles.messagePreview}>
+            {lastMessageInfo(props.id).content}
+          </Text>
+          <View
+            style={chatItemStyles.chatSeparator}
+            lightColor="#eee"
+            darkColor="rgba(255,255,255,0.1)"
+          />
+        </View>
+      </View>
     );
   };
 
+  const MessageItem = (props: any) => {
+    const splitName = props.name.split(/(\s+)/);
+    const fInitial = splitName[0][0];
+    const lInitial = splitName[2][0];
+    const content = props.content;
+    const time = props.time;
+    if (!props.sender) {
+      return (
+        <View style={messageItemStyles.bubbleLeft}>
+          {showMessageTimes && (
+            <View
+              style={{
+                justifyContent: "flex-end",
+                marginBottom: 5,
+                marginLeft: 5,
+              }}
+            >
+              <Text style={{ alignItems: "center", alignSelf: "center" }}>
+                {formatJSDate(new Date(time)).dateNumber}/
+                {formatJSDate(new Date(time)).month}
+              </Text>
+              <Text>
+                {formatJSDate(new Date(time)).hours}:
+                {formatJSDate(new Date(time)).minutes}:
+                {formatJSDate(new Date(time)).seconds}
+              </Text>
+            </View>
+          )}
+          {!showMessageTimes && (
+            <View style={messageItemStyles.circle}>
+              <Text style={messageItemStyles.initials}>
+                {fInitial + lInitial}
+              </Text>
+            </View>
+          )}
+
+          <View style={messageItemStyles.received}>
+            <Text style={messageItemStyles.contentFrom}>{content}</Text>
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View style={messageItemStyles.bubbleRight}>
+          {showMessageTimes && (
+            <View
+              style={{
+                justifyContent: "flex-end",
+                marginBottom: 5,
+                marginLeft: 5,
+              }}
+            >
+              <Text style={{ alignItems: "center", alignSelf: "center" }}>
+                {formatJSDate(new Date(time)).dateNumber}/
+                {formatJSDate(new Date(time)).month}
+              </Text>
+              <Text>
+                {formatJSDate(new Date(time)).hours}:
+                {formatJSDate(new Date(time)).minutes}:
+                {formatJSDate(new Date(time)).seconds}
+              </Text>
+            </View>
+          )}
+          <View style={messageItemStyles.sent}>
+            <Text style={messageItemStyles.contentTo}>{content}</Text>
+          </View>
+        </View>
+      );
+    }
+  };
+
+  const formatJSDate = (date: Date) => {
+    const seconds = date.getSeconds();
+    const minutes = date.getMinutes();
+    const hours = date.getHours();
+    const dateNumber = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return {
+      seconds,
+      minutes,
+      hours,
+      dateNumber,
+      month,
+      year,
+    };
+  };
   const onSendMessage = async () => {
     if (message.length === 0) return;
     onChangeMessageSending(true);
@@ -218,12 +304,15 @@ export default function ChatScreen() {
                     keyboardShouldPersistTaps={"always"}
                   >
                     <View style={styles.items}>
-                      {getSortedMessages() !== [] ? (
+                      {getSortedMessages().length > 0 ? (
                         getSortedMessages().map((item, index) => {
                           return (
                             <TouchableOpacity
                               // TODO: Better practice is to use unique ID of element as the key
                               key={index}
+                              onLongPress={() => {
+                                showMessageTimesChange(!showMessageTimes);
+                              }}
                             >
                               <MessageItem
                                 content={
@@ -240,6 +329,10 @@ export default function ChatScreen() {
                                 sender={
                                   allChats[currentActiveChat]["messages"][item]
                                     .from == email
+                                }
+                                time={
+                                  allChats[currentActiveChat]["messages"][item]
+                                    .sentAt
                                 }
                               />
                             </TouchableOpacity>
@@ -290,34 +383,6 @@ export default function ChatScreen() {
   );
 }
 
-const MessageItem = (props: any) => {
-  const splitName = props.name.split(/(\s+)/);
-  const fInitial = splitName[0][0];
-  const lInitial = splitName[2][0];
-  const content = props.content;
-  if (!props.sender) {
-    return (
-      <View style={messageItemStyles.bubbleLeft}>
-        <View style={messageItemStyles.circle}>
-          <Text style={messageItemStyles.initials}>{fInitial + lInitial}</Text>
-        </View>
-
-        <View style={messageItemStyles.received}>
-          <Text style={messageItemStyles.contentFrom}>{content}</Text>
-        </View>
-      </View>
-    );
-  } else {
-    return (
-      <View style={messageItemStyles.bubbleRight}>
-        <View style={messageItemStyles.sent}>
-          <Text style={messageItemStyles.contentTo}>{content}</Text>
-        </View>
-      </View>
-    );
-  }
-};
-
 const chatItemStyles = StyleSheet.create({
   chatInfo: {
     flexDirection: "row",
@@ -367,6 +432,7 @@ const messageItemStyles = StyleSheet.create({
   bubbleLeft: {
     borderRadius: 10,
     marginRight: "25%",
+    marginBottom: 5,
     flexDirection: "row",
   },
   circle: {
@@ -400,6 +466,7 @@ const messageItemStyles = StyleSheet.create({
   bubbleRight: {
     borderRadius: 10,
     marginRight: "29%",
+    marginBottom: 5,
     flexDirection: "row-reverse",
   },
   sent: {
@@ -407,6 +474,7 @@ const messageItemStyles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 5,
     padding: 10,
+    // marginRight: 50,
     backgroundColor: "#5B8DCA",
   },
   contentTo: {
