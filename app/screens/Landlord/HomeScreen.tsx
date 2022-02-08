@@ -5,7 +5,7 @@ import { RootTabScreenProps } from "types";
 import { Image, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import Task from "components/Task";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { removeTask } from "reduxStates/taskSlice";
+import { completeTaskThunk } from "reduxStates/taskSlice";
 
 export default function HomeScreen({
   navigation,
@@ -14,10 +14,9 @@ export default function HomeScreen({
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
-  const completeTask = (index: number) => {
-    dispatch(removeTask(index));
+  const completeTask = (id: string) => {
+    dispatch(completeTaskThunk(id));
   };
-
   return (
     <View style={styles.container}>
       {/* Added this scroll view to enable scrolling when list gets longer than the page */}
@@ -40,7 +39,7 @@ export default function HomeScreen({
                 return (
                   <TouchableOpacity
                     key={index}
-                    onPress={() => completeTask(index)}
+                    onPress={() => completeTask(item.id)}
                   >
                     <Task text={item.content} />
                     <View

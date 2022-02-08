@@ -1,48 +1,19 @@
 import * as React from "react";
 import { Text, View, Button } from "components/Themed";
-import { StyleSheet, Keyboard } from "react-native";
+import { StyleSheet } from "react-native";
 import { useState } from "react";
 
 import CircularProgress from "react-native-circular-progress-indicator";
-import { addTask } from "reduxStates/taskSlice";
-import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
+import { useAppSelector } from "hooks/typedHooks";
 import TaskList from "components/TaskList";
+import { useNavigation } from "@react-navigation/native";
 
 export default function TaskScreen() {
-  const { allTasks, loading, error } = useAppSelector((state) => state.tasks);
-  const houseID = useAppSelector((state) => state.auth.houses)[0];
-  const email = useAppSelector((state) => state.auth.email);
-  const dispatch = useAppDispatch();
-
-  // TODO: un-hard code the tasks
-  const [task, setTask] = useState<string>("Dishes");
-  const [counter, setCounter] = useState<number>(0);
-  const defaultTasks = ["Laundry", "Garbage", "Vacuum"];
+  const { loading, error } = useAppSelector((state) => state.tasks);
+  const navigation = useNavigation();
 
   // TODO plan the logic of the percentage value and how it changes/to what
   const [percentage, setPercentage] = useState<number>(0);
-
-  const handleAddTask = () => {
-    Keyboard.dismiss();
-
-    setTask(`${defaultTasks[counter]}`);
-    setCounter(counter + 1);
-
-    if (counter >= 2) {
-      setCounter(0);
-    }
-    if (percentage > 10) {
-      setPercentage(percentage - 10);
-    }
-    dispatch(addTask(task, houseID, email));
-  };
-
-  // const completeTask = (index: number) => {
-  //   dispatch(removeTask(index));
-  // if (percentage < 90) {
-  //   setPercentage(percentage + 10);
-  // }
-  // };
 
   return (
     <View style={styles.container}>
@@ -81,8 +52,11 @@ export default function TaskScreen() {
           )}
         </View>
       </View>
-      <Button onPress={handleAddTask} style={styles.bottomContainer}>
-        <Text style={styles.buttonText}>Add Task</Text>
+      <Button
+        onPress={() => navigation.navigate({ name: "Create Task" })}
+        style={styles.bottomContainer}
+      >
+        <Text style={styles.buttonText}>Create Task</Text>
       </Button>
     </View>
   );
@@ -91,8 +65,6 @@ export default function TaskScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
   },
   title: {
     fontSize: 20,
@@ -100,7 +72,7 @@ const styles = StyleSheet.create({
   },
   sectionSubTitle: {
     fontSize: 17,
-    // fontWeight: 'bold',
+
     color: "#8A8F9E",
     paddingTop: 15,
     paddingHorizontal: 30,
@@ -125,7 +97,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   topContainer: {
-    // flex: 1,
     maxHeight: "50%",
     marginBottom: "65%",
   },

@@ -1,6 +1,12 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
-import { setUserData, setEmail, cleanAuth } from "./authSlice";
+import {
+  setUserData,
+  setEmail,
+  LogoutWithError,
+  cleanAuth,
+  updateExpoToken,
+} from "./authSlice";
 import { onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -23,9 +29,11 @@ export const fetchAuth = () => {
               houses: updatedUserData.houses,
               approved: updatedUserData.approved,
             };
+            const token = updatedUserData.expo_token;
             dispatch(setUserData(userData));
             dispatch(setEmail(user.email));
-          } else dispatch(cleanAuth());
+            dispatch(updateExpoToken(token));
+          } else dispatch(LogoutWithError("FETCH_DB_ON_AUTH"));
         });
       } else {
         dispatch(cleanAuth());
@@ -50,7 +58,7 @@ export const listenToUserData = (email) => {
         };
         dispatch(setUserData(userData));
       } else {
-        dispatch(cleanAuth());
+        dispatch(LogoutWithError("USER_DOESNT_EXIST_DB"));
       }
     });
 

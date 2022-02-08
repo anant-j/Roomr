@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Image,
   TouchableWithoutFeedback,
+  TextProps,
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
 import { login } from "../firebase";
@@ -17,10 +18,11 @@ import { validator } from "../utils/Validations";
 import * as Progress from "react-native-progress";
 import { tenantSignup, landlordSignup } from "../firebase";
 import { useAppSelector } from "hooks/typedHooks";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function LoginScreen() {
   const expoToken = useAppSelector((state) => state.auth.expoToken);
-  const placeholderColor = "#707070";
   const [currentScreen, setCurrentScreen] = useState("home");
   const [hidePass, setHidePass] = useState(true);
   const [loginMode, setLoginMode] = useState(true);
@@ -36,6 +38,26 @@ export default function LoginScreen() {
   const [passwordAgain, onChangePasswordAgain] = useState("");
   const [houseID, onChangeHouseID] = useState("");
   const [address, onChangeAddress] = useState("");
+
+  const GradientText = (
+    props: JSX.IntrinsicAttributes & {
+      lightColor?: string;
+      darkColor?: string;
+    } & Readonly<TextProps> &
+      Readonly<{ children?: React.ReactNode }>,
+  ) => {
+    return (
+      <MaskedView maskElement={<Text {...props} />}>
+        <LinearGradient
+          colors={["#FFFFFF", "#5587C1", "#4574AB", "#39659A", "#244C7C"]}
+          // start={{ x: 0, y: 0 }}
+          // end={{ x: 0, y: 1 }}
+        >
+          <Text {...props} style={[props.style, { opacity: 0 }]} />
+        </LinearGradient>
+      </MaskedView>
+    );
+  };
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -105,10 +127,6 @@ export default function LoginScreen() {
         houseID: houseID,
         expo_token: expoToken,
       });
-      if (result.data.status === "success") {
-        login(email, password);
-        return;
-      }
     } else {
       result = await landlordSignup({
         name: {
@@ -122,11 +140,13 @@ export default function LoginScreen() {
         expo_token: expoToken,
       });
       if (result.data.status === "success") {
-        setScreen("allSet");
-        return;
+        onChangeHouseID(result.data.house);
       }
     }
-    if (result.data.status === "error") {
+    if (result.data.status === "success") {
+      setScreen("allSet");
+      return;
+    } else if (result.data.status === "error") {
       setError(result.data.code);
     }
   };
@@ -174,11 +194,24 @@ export default function LoginScreen() {
       </Animated.View>
     );
   };
+
+  const getHouseID = () => {
+    if (isTenant) {
+      return null;
+    }
+    return (
+      <Text style={styles.allSetHouseID}>Your House ID is: {houseID}</Text>
+    );
+  };
+
   switch (currentScreen) {
     case "home":
       return (
         <View style={styles.container}>
-          <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text>
+          {/* <Text style={styles.maintitle}>Welcome to{"\n"}Roomr</Text> */}
+          <GradientText style={[styles.title, styles.maintitle]}>
+            Welcome to Roomr
+          </GradientText>
           <Image
             style={styles.logo}
             source={require("../assets/images/icon_transparent.png")}
@@ -208,7 +241,7 @@ export default function LoginScreen() {
     case "login":
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>Log In</Text>
+          <Text style={styles.title}>Log In</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -217,7 +250,7 @@ export default function LoginScreen() {
               value={email}
               keyboardType="email-address"
               placeholder="Enter Email"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="none"
             />
             <View style={styles.passwordContainer}>
               <TextInput
@@ -226,13 +259,13 @@ export default function LoginScreen() {
                 secureTextEntry={hidePass ? true : false}
                 onChangeText={onChangePassword}
                 style={[styles.input, styles.passwordInput]}
-                placeholderTextColor={placeholderColor}
+                autoCapitalize="none"
               />
               <View style={styles.passwordEye}>
                 <Feather
                   name={hidePass ? "eye-off" : "eye"}
                   size={25}
-                  color="grey"
+                  color="#878787"
                   onPress={() => setHidePass(!hidePass)}
                 />
               </View>
@@ -284,9 +317,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your name?
-          </Text>
+          <Text style={styles.title}>What is your name?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -294,14 +325,14 @@ export default function LoginScreen() {
               onChangeText={onChangeFirstName}
               value={firstName}
               placeholder="First Name"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="sentences"
             />
             <TextInput
               style={styles.input}
               onChangeText={onChangeLastName}
               value={lastName}
               placeholder="Last Name"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="sentences"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -346,9 +377,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your email?
-          </Text>
+          <Text style={styles.title}>What is your email?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -357,7 +386,7 @@ export default function LoginScreen() {
               value={email}
               placeholder="Enter Email"
               keyboardType="email-address"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="none"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -398,9 +427,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your phone number?
-          </Text>
+          <Text style={styles.title}>What is your phone number?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -409,7 +436,6 @@ export default function LoginScreen() {
               value={phone}
               keyboardType="number-pad"
               placeholder="Enter Phone Number"
-              placeholderTextColor={placeholderColor}
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -450,9 +476,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            Are you a Tenant or a Landlord?
-          </Text>
+          <Text style={styles.title}>Are you a Tenant or a Landlord?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <Button
@@ -498,9 +522,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your House ID?
-          </Text>
+          <Text style={styles.title}>What is your House ID?</Text>
           <Text style={styles.subtitle}>
             Don&apos;t have one? Ask your Landlord!
           </Text>
@@ -512,7 +534,7 @@ export default function LoginScreen() {
               value={houseID}
               maxLength={8}
               placeholder="Enter 8 Digit House ID"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="characters"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -553,9 +575,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            What is your Address?
-          </Text>
+          <Text style={styles.title}>What is your Address?</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -563,7 +583,7 @@ export default function LoginScreen() {
               onChangeText={onChangeAddress}
               value={address}
               placeholder="Enter Address"
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="words"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -605,9 +625,7 @@ export default function LoginScreen() {
               borderWidth={0}
             />
           </View>
-          <Text style={[styles.title, styles.maintitle]}>
-            Please create a Password.
-          </Text>
+          <Text style={styles.title}>Please create a Password.</Text>
           {errorComponent()}
           <View style={styles.inputContainer}>
             <TextInput
@@ -616,14 +634,14 @@ export default function LoginScreen() {
               secureTextEntry={true}
               onChangeText={onChangePassword}
               style={styles.input}
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="none"
             />
             <TextInput
               placeholder="Enter Password Again"
               secureTextEntry={true}
               onChangeText={onChangePasswordAgain}
               style={styles.input}
-              placeholderTextColor={placeholderColor}
+              autoCapitalize="none"
             />
             <View style={styles.buttonsContainer}>
               <Button
@@ -669,7 +687,7 @@ export default function LoginScreen() {
     case "waiting":
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>Please wait</Text>
+          <Text style={styles.title}>Please wait</Text>
           {errorComponent()}
           <LottieView
             source={require("../assets/animations/loading.json")}
@@ -681,6 +699,7 @@ export default function LoginScreen() {
       return (
         <View style={styles.container}>
           <Text style={[styles.title, styles.maintitle]}>You are all set.</Text>
+          {errorComponent()}
           <TouchableWithoutFeedback
             onPress={() => {
               LottieRef.current.play();
@@ -693,27 +712,27 @@ export default function LoginScreen() {
               loop={false}
             />
           </TouchableWithoutFeedback>
-          <Button
-            onPress={() => {
-              login(email, password).then((result) => {
-                if (!result.success) {
-                  setError(result.error);
-                }
-              });
-            }}
-            style={[styles.button, styles.bigSpacer]}
-          >
-            <Text style={styles.buttonText}>Continue to app</Text>
-          </Button>
-          {errorComponent()}
+          <View style={styles.allSetContainer}>
+            {getHouseID()}
+            <Button
+              onPress={() => {
+                login(email, password).then((result) => {
+                  if (!result.success) {
+                    setError(result.error);
+                  }
+                });
+              }}
+              style={[styles.button, styles.allSetContinueButton]}
+            >
+              <Text style={styles.buttonText}>Continue to app</Text>
+            </Button>
+          </View>
         </View>
       );
     default:
       return (
         <View style={styles.container}>
-          <Text style={[styles.title, styles.maintitle]}>
-            Uh oh, something went wrong!
-          </Text>
+          <Text style={styles.title}>Uh oh, something went wrong!</Text>
           <Text>This is just temporary until all wiring is put in place</Text>
           <Text> Default login username: test@test.com</Text>
           <Text> Default login password: testpassword </Text>
@@ -739,13 +758,17 @@ const styles = StyleSheet.create({
   },
 
   maintitle: {
+    // width: "70%",
+    alignSelf: "center",
+    textAlign: "center",
+    fontSize: 50,
+  },
+  title: {
+    width: "80%",
     position: "relative",
     marginTop: 100,
     fontSize: 40,
     fontWeight: "bold",
-  },
-  title: {
-    width: "80%",
   },
   subtitle: {
     fontSize: 20,
@@ -771,10 +794,10 @@ const styles = StyleSheet.create({
   input: {
     width: "90%",
     height: 50,
-    borderWidth: 2,
     marginTop: 12,
     borderRadius: 10,
-    borderColor: "#5B8DCA",
+    // borderWidth: 2,
+    // borderColor: "#5B8DCA",
     fontSize: 20,
     padding: 10,
   },
@@ -782,15 +805,16 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: "row",
     marginTop: 12,
-    width: "90%",
   },
   passwordInput: {
     margin: 0,
     marginTop: 0,
-    width: "85%",
   },
   passwordEye: {
     alignSelf: "center",
+    position: "absolute",
+    right: 2,
+    backgroundColor: "transparent",
     margin: 5,
     padding: 5,
   },
@@ -824,8 +848,22 @@ const styles = StyleSheet.create({
     width: "48%",
   },
 
-  bigSpacer: {
-    marginTop: 500,
+  allSetContainer: {
+    marginTop: 350,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "90%",
+  },
+  allSetHouseID: {
+    backgroundColor: "#373737",
+    borderRadius: 20,
+    overflow: "hidden",
+    color: "white",
+    padding: 15,
+    fontSize: 18,
+  },
+  allSetContinueButton: {
+    marginTop: 15,
   },
 
   progressBarcontainer: {

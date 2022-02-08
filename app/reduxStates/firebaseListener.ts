@@ -1,76 +1,95 @@
-import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { db } from "../firebase";
-import { fetchChatsFulfilled, fetchChatsPending } from "./chatSlice";
+import { LogoutWithError } from "./authSlice";
+import { createChats, updateMessage } from "./chatSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
   fetchTasksError,
 } from "./taskSlice";
+import { updateTenants, updateLandlord } from "./usersSlice";
 
 const listenerUnsubscribeList = [];
 
-// TODO: Use firestore data instead of mock data
-const fetchChatData = (dispatch: any) => {
-  dispatch(fetchChatsPending());
-  const data = [
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-    { name: "Mark J", lastMessageTimeElapsed: "27m", chatIcon: "url" },
-    { name: "Chris G", lastMessageTimeElapsed: "53m", chatIcon: "url" },
-    { name: "Kyle H", lastMessageTimeElapsed: "16m", chatIcon: "url" },
-  ];
-  dispatch(fetchChatsFulfilled(data));
-};
-
 export const fetchData = (houseID: string) => {
   return (dispatch: any) => {
+    const unsub1 = onSnapshot(
+      doc(db, "houses", houseID),
+      (doc: any) => {
+        if (doc.exists) {
+          const tenants = doc.data().tenants;
+          if (tenants) {
+            dispatch(updateTenants(tenants));
+          }
+          const landlord = doc.data().landlord;
+          if (landlord) {
+            dispatch(updateLandlord(landlord));
+          }
+          dispatch(createChats(tenants, landlord));
+        }
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+
     dispatch(fetchTasksPending());
-    const q = query(collection(db, `houses/${houseID}/tasks`));
-    const unsub = onSnapshot(
-      q,
+    const taskQuery = query(collection(db, `houses/${houseID}/tasks`));
+    const unsub2 = onSnapshot(
+      taskQuery,
       (querySnapshot) => {
         const tasks = [];
         querySnapshot.forEach((doc) => {
-          const taskCreatedOn = new Date(
-            doc.data().createdOn.seconds * 1000,
-          ).toString();
+          try {
+            const { completed, content, createdBy, createdOn, due } =
+              doc.data();
 
-          const taskDueOn = new Date(doc.data().due.seconds * 1000).toString();
+            const createdOnDate = new Date(createdOn.seconds * 1000).toString();
+            const dueOnDate = new Date(due.seconds * 1000).toString();
 
-          const task = {
-            ...doc.data(),
-            createdOn: taskCreatedOn,
-            due: taskDueOn,
-          };
+            const task = {
+              completed,
+              content,
+              createdBy,
+              createdOn: createdOnDate,
+              due: dueOnDate,
+              id: doc.id,
+            };
 
-          tasks.push(task);
+            tasks.push(task);
+          } catch (error) {
+            dispatch(LogoutWithError("STORING_TASK_DB_DATA_LOCALLY" + error));
+          }
         });
-
         const payload = { tasks: tasks };
         dispatch(fetchTasksFulfilled(payload));
       },
       (error) => {
         dispatch(fetchTasksError(error));
+        dispatch(LogoutWithError("FETCH_TASK_DATA_DB" + error));
       },
     );
 
-    // const unsub = onSnapshot(
-    //   doc(db, "houses", houseID),
-    //   (doc: any) => {
-    //     const updatedTasks = doc.data().taskList;
-    //     dispatch(fetchTasksFulfilled(updatedTasks));
-    //   },
-    //   (error) => {
-    //     dispatch(fetchTasksError(error));
-    //   },
-    // );
+    const messagesQuery = query(collection(db, `houses/${houseID}/chats`));
+    const unsub3 = onSnapshot(
+      messagesQuery,
+      (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          try {
+            dispatch(updateMessage(doc.id, doc.data()));
+          } catch (error) {
+            dispatch(LogoutWithError("STORING_CHAT_DATA_LOCALLY" + error));
+          }
+        });
+      },
+      (error) => {
+        // dispatch(fetchTasksError(error));
+        dispatch(LogoutWithError("FETCH_CHAT_DATA_DB" + error));
+      },
+    );
 
-    fetchChatData(dispatch);
-
-    listenerUnsubscribeList.push(unsub);
+    listenerUnsubscribeList.push(unsub1);
+    listenerUnsubscribeList.push(unsub2);
+    listenerUnsubscribeList.push(unsub3);
   };
 };

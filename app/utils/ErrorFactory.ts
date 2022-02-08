@@ -95,6 +95,10 @@ export const errorFactory = (code: string) => {
         redirectScreen: "home",
         message: "An error occured. Please request support via our email.",
       };
+    case "invalid-task-name":
+      return {
+        message: "Please enter a valid task name.",
+      };
     default:
       return {
         redirectScreen: "home",

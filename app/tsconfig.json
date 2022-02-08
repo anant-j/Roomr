@@ -11,7 +11,8 @@
       "screens": ["./screens"],
       "constants": ["./constants"],
       "assets": ["./assets"],
-      "reduxStates": ["./reduxStates"]
+      "reduxStates": ["./reduxStates"],
+      "utils": ["./utils"]
     }
   }
 }

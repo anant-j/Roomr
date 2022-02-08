@@ -6,11 +6,12 @@ import { Text, View, Button } from "components/Themed";
 import { signout } from "../../reduxStates/authSlice";
 import { useAppDispatch } from "hooks/typedHooks";
 
-export default function ModalScreen() {
+export default function SettingsModal() {
   const dispatch = useAppDispatch();
   const logout = () => {
     dispatch(signout());
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
@@ -54,5 +55,15 @@ const styles = StyleSheet.create({
   button: {
     fontSize: 20,
     color: "white",
+  },
+  input: {
+    width: "90%",
+    height: 50,
+    marginTop: 12,
+    borderRadius: 10,
+    // borderWidth: 2,
+    // borderColor: "#5B8DCA",
+    fontSize: 20,
+    padding: 10,
   },
 });

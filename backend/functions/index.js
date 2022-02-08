@@ -8,25 +8,75 @@ const db = admin.firestore();
 const auth = admin.auth();
 const expo = new Expo();
 
-exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const notificationMessage = req.query.message;
-  const recipient = req.query.to;
+exports.sendMessage = functions.https.onCall(async (data, context) => {
+  const notificationMessage = data.message;
+  const auth = context.auth;
+  if (!auth) {
+    return {
+      status: "error",
+      code: "USER_NOT_AUTHENTICATED",
+    };
+  }
+  const sender = auth.token.email;
+  let recipients = data.to;
   if (!notificationMessage) {
-    return res.status(400).send("No message specified");
+    return {
+      status: "error",
+      code: "NO_MESSAGE_SPECIFIED",
+    };
   }
-  if (!recipient) {
-    return res.status(400).send("No recipient specified");
+  if (!recipients || recipients.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_SPECIFIED",
+    };
   }
-  const notificationRef = await db.collection("users").doc(recipient).get();
-  if (notificationRef.exists) {
-    const id = notificationRef.data().expo_token;
-    const notificationList = [id];
-    sendExpoNotifications(notificationMessage, notificationList);
-    res.send("Messages sent");
-  } else {
-    return res.status(400).send("User not found");
+  if (!Array.isArray(recipients)) {
+    recipients = [recipients];
   }
-  res.send("Notification sent");
+  const senderDoc = await db.collection("users").doc(sender).get();
+  if (!senderDoc.exists) {
+    return {
+      status: "error",
+      code: "USER_DOES_NOT_EXIST",
+    };
+  }
+  const subtitle = `Message from ${senderDoc.data().name.first}`;
+  const recipientNotificationTokens = [];
+  const allHouseIDs = [];
+  for (const recipient of recipients) {
+    const recipientDoc = await db.collection("users").doc(recipient).get();
+    if (!recipientDoc.exists) {
+      return {
+        status: "error",
+        code: "RECIPIENT_DOES_NOT_EXIST",
+      };
+    }
+    recipientNotificationTokens.push(recipientDoc.data().expo_token);
+    allHouseIDs.push(recipientDoc.data().houses);
+  }
+  if (recipientNotificationTokens.length === 0 || allHouseIDs.length === 0) {
+    return {
+      status: "error",
+      code: "RECIPIENTS_NOT_FOUND",
+    };
+  }
+  const houseId = findCommonElements(allHouseIDs)[0];
+  await db
+      .collection("houses")
+      .doc(houseId)
+      .collection("chats")
+      .add({
+        content: notificationMessage,
+        from: sender,
+        sentAt: new Date(),
+        to: recipients,
+      });
+  await sendExpoNotifications(notificationMessage, recipientNotificationTokens, subtitle);
+  return {
+    status: "success",
+    code: "MESSAGE_SENT",
+  };
 });
 
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
@@ -64,7 +114,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     approved: false,
     expo_token: userData.expo_token,
   };
-  const landlord = house.data().landlord;
+  const landlord = house.data().landlord.email;
   const landlordEmailDoc = await db.collection("users").doc(landlord).get();
   if (!landlordEmailDoc.exists) {
     return {
@@ -72,7 +122,7 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
       code: "LANDLORD_DOES_NOT_EXIST",
     };
   }
-  const landlordEmail = [landlordEmailDoc.data().expo_token];
+  const landlordExpo = [landlordEmailDoc.data().expo_token];
   try {
     await auth.createUser(
         {
@@ -96,14 +146,17 @@ exports.signUpTenant = functions.https.onCall(async (data, context) => {
     };
   }
   await db.collection("users").doc(userData.email).set(userDataFB);
+  let newTenantDoc = house.data().tenants;
+  if (!newTenantDoc) {
+    newTenantDoc = {};
+  }
+  newTenantDoc[userData.email] = userData.name.first + " " + userData.name.last;
   await db
       .collection("houses")
       .doc(houseID)
-      .update({
-        tenants: admin.firestore.FieldValue.arrayUnion(userData.email),
-      });
+      .update({tenants: newTenantDoc});
   // eslint-disable-next-line max-len
-  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordEmail);
+  sendExpoNotifications(`A new tenant: ${userData.name.first} ${userData.name.last} would like to join your household on Roomr. Click this notification to approve them!`, landlordExpo);
   return {
     status: "success",
     code: "USER_CREATED",
@@ -155,7 +208,7 @@ exports.signUpLandlord = functions.https.onCall(async (data, context) => {
       code: "UNEXPECTED_AUTH_ERROR",
     };
   }
-  houseID = await addHouse(userData.email, userData.address);
+  houseID = await addHouse(userData.email, userData.address, userData.name.first + " " + userData.name.last);
   const userDataFB = {
     name: {
       first: userData.name.first,
@@ -183,8 +236,8 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   const sampleHouseID = "YOFQXWK3";
   const sampleHouseData = {
     address: "123 Main St",
-    landlord: "landlord@roomr.com",
-    tenants: ["tenant@roomr.com"],
+    landlord: {email: "landlord@roomr.com", name: "Landlord Roomr"},
+    tenants: {"tenant@roomr.com": "Tenant Roomr"},
   };
   const sampleTenantID = "tenant@roomr.com";
   const sampleTenantData = {
@@ -195,7 +248,7 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     approved: true,
     expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
   };
-  const sampleLandlordID = sampleHouseData.landlord;
+  const sampleLandlordID = sampleHouseData.landlord.email;
   const sampleLandlordData = {
     name: {first: "Landlord", last: "Roomr"},
     phone: "1234567890",
@@ -205,25 +258,28 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
   };
 
-  const sampleChat = {
-    content: "hello",
-    to: ["tenant@roomr.com"],
-    from: "tenant@roomr.com",
-    sentAt: new Date(),
-  };
+  // const sampleChat = {
+  //   content: "hello",
+  //   to: ["tenant@roomr.com"],
+  //   from: "tenant@roomr.com",
+  //   sentAt: new Date(),
+  // };
 
-  const sampleTask = {
-    content: "Laundry",
-    createdBy: "tenant@roomr.com",
-    createdOn: new Date(),
-    due: new Date(),
-  };
+  // const sampleTask = {
+  //   content: "Laundry",
+  //   createdBy: "tenant@roomr.com",
+  //   createdOn: new Date(),
+  //   due: new Date(),
+  //   completed: false,
+  // };
 
-  const sampleTicket = {
-    content: "Fix Laundry Machine",
-    createdBy: "tenant@roomr.com",
-    createdOn: new Date(),
-  };
+  // const sampleTicket = {
+  //   content: "Fix Laundry Machine",
+  //   createdBy: "tenant@roomr.com",
+  //   createdOn: new Date(),
+  //   due: new Date(),
+  //   completed: false,
+  // };
 
   const authUsers = await auth.listUsers();
   for (const authUser of authUsers.users) {
@@ -265,9 +321,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
   await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
   await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
-  await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
-  await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
-  await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
+  // await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
+  // await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
+  // await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
   res.send("Database reset");
 });
 
@@ -275,8 +331,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
 /**
  * @param  {string} message
  * @param  {Array} tokens
+ * @param {string} subtitle
  */
-async function sendExpoNotifications(message, tokens) {
+async function sendExpoNotifications(message, tokens, subtitle = false) {
   const messages = [];
   for (const pushToken of tokens) {
     if (!Expo.isExpoPushToken(pushToken)) {
@@ -284,11 +341,20 @@ async function sendExpoNotifications(message, tokens) {
       continue;
     }
 
-    messages.push({
-      to: pushToken,
-      sound: "default",
-      body: message,
-    });
+    if (!subtitle) {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+      });
+    } else {
+      messages.push({
+        to: pushToken,
+        sound: "default",
+        body: message,
+        subtitle: subtitle,
+      });
+    }
   }
 
   const chunks = expo.chunkPushNotifications(messages);
@@ -397,10 +463,11 @@ function validPayload(data, type) {
 /**
  * @param  {string} email
  * @param  {string} address
+ * @param  {string} name
  */
-async function addHouse(email, address) {
+async function addHouse(email, address, name) {
   const landlordData = {
-    landlord: email,
+    landlord: {email: email, name: name},
     address: address,
   };
   let houseID = generateRandomHouseID();
@@ -432,6 +499,19 @@ async function getHouseId(address) {
  */
 function generateRandomHouseID() {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
+/**
+ * @param  {array} arrays
+ * @return {array}
+ */
+function findCommonElements(arrays) {
+  const result = arrays.shift().filter(function(v) {
+    return arrays.every(function(a) {
+      return a.indexOf(v) !== -1;
+    });
+  });
+  return result;
 }
 
 /**
