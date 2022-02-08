@@ -26,6 +26,7 @@ export default function ChatScreen() {
   const dispatch = useAppDispatch();
 
   const onChatPress = (id: string) => {
+    onChangeMessage("");
     dispatch(setActiveChat(id));
   };
 
@@ -35,8 +36,9 @@ export default function ChatScreen() {
 
   const lastMessageInfo = (id: string) => {
     const chat = allChats[id];
-    if (!chat) return { time: 0, content: "No messages yet" };
-    if (!chat.messages) return { time: 0, content: "No messages yet" };
+    if (!chat) return { messageFound: false, content: "No messages yet" };
+    if (!chat.messages)
+      return { messageFound: false, content: "No messages yet" };
     const latestMessage = {
       time: new Date(0),
       message: "",
@@ -52,8 +54,21 @@ export default function ChatScreen() {
     }
     const now = new Date();
     const timeElapsed = Math.abs(now.getTime() - latestMessage.time.getTime());
-    const minutes = Math.floor(timeElapsed / (1000 * 60)) + 1;
-    return { time: minutes, content: latestMessage.message };
+    const totalMinutes = Math.floor(timeElapsed / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    let finalString = "";
+    if (hours > 0) {
+      finalString += hours + "h ";
+    }
+    if (minutes > 0) {
+      finalString += minutes + "m";
+    }
+    return {
+      messageFound: true,
+      time: finalString,
+      content: latestMessage.message,
+    };
   };
 
   const ChatItem = (props: any) => {
@@ -71,8 +86,8 @@ export default function ChatScreen() {
           <View style={chatItemStyles.itemRight}>
             <View style={chatItemStyles.chatInfo}>
               <Text style={chatItemStyles.contactName}>{props.item.name}</Text>
-              {lastMessageInfo(props.id).time > 0 ? (
-                <Text>{lastMessageInfo(props.id).time}m ago</Text>
+              {lastMessageInfo(props.id).messageFound ? (
+                <Text>{lastMessageInfo(props.id).time}</Text>
               ) : (
                 <Text>-</Text>
               )}
@@ -92,6 +107,7 @@ export default function ChatScreen() {
   };
 
   const onSendMessage = async () => {
+    if (message.length === 0) return;
     onChangeMessageSending(true);
     let chatRecipients = [currentActiveChat];
     if (currentActiveChat == "tenantgc" || currentActiveChat == "landlordgc") {
@@ -230,6 +246,7 @@ export default function ChatScreen() {
                     autoFocus={true}
                     blurOnSubmit={false}
                     style={styles.input}
+                    maxLength={50}
                     onChangeText={onChangeMessage}
                     value={message}
                     onSubmitEditing={() => onSendMessage()}
@@ -241,13 +258,18 @@ export default function ChatScreen() {
                       <Feather
                         name={"send"}
                         size={25}
-                        color="#878787"
+                        color={message.length > 0 ? "black" : "gray"}
                         onPress={() => onSendMessage()}
                       />
                     ) : (
-                      <ActivityIndicator />
+                      <ActivityIndicator color="#000000" />
                     )}
                   </View>
+                  {message.length > 0 && (
+                    <Text style={{ alignSelf: "flex-end", marginBottom: 10 }}>
+                      {message.length}/50
+                    </Text>
+                  )}
                 </View>
               </KeyboardAvoidingView>
             )}
@@ -442,7 +464,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   textInputContainer: {
-    bottom: 50,
+    bottom: 60,
     width: "100%",
     flex: 1,
   },
@@ -451,8 +473,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 2,
     top: 3,
-    backgroundColor: "transparent",
-    margin: 10,
-    padding: 10,
+    backgroundColor: "#55BCF6",
+    borderRadius: 20,
+    marginVertical: 15,
+    marginHorizontal: 5,
+    paddingVertical: 5,
+    paddingLeft: 15,
+    paddingRight: 17,
   },
 });
