@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
 interface TaskObject {
@@ -8,6 +8,7 @@ interface TaskObject {
   createdBy: string;
   createdOn: string;
   due: string;
+  id: string;
 }
 
 export interface TaskState {
@@ -25,7 +26,7 @@ const initialState: TaskState = {
 export const addTask = (payload: object) => {
   const { content, houseID, email, due } = payload;
   return async (dispatch: any) => {
-    dispatch(addTaskPending());
+    dispatch(modifyTaskPending());
     try {
       await addDoc(collection(db, `houses/${houseID}/tasks`), {
         content: content,
@@ -34,8 +35,22 @@ export const addTask = (payload: object) => {
         due: due,
       });
     } catch (error: any) {
-      dispatch(addTaskError(error));
+      dispatch(modifyTaskError(error));
     }
+  };
+};
+
+export const completeTaskThunk = (taskID: string) => {
+  return async (dispatch: any, getState: any) => {
+    dispatch(modifyTaskPending());
+    const houseID = getState().auth.houses[0];
+    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID))
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        dispatch(modifyTaskError(error));
+      });
   };
 };
 
@@ -59,18 +74,12 @@ export const taskSlice = createSlice({
       const error = action.payload;
       state.error = error;
     },
-    addTaskPending: (state) => {
+    modifyTaskPending: (state) => {
       state.loading = true;
     },
-    addTaskError: (state, action: PayloadAction<string>) => {
+    modifyTaskError: (state, action: PayloadAction<string>) => {
       const error = action.payload;
       state.error = error;
-    },
-    removeTask: (state, action: PayloadAction<number>) => {
-      const indexToRemove = action.payload;
-      state.allTasks = state.allTasks.filter(
-        (_: any, index: number) => index !== indexToRemove,
-      );
     },
   },
 });
@@ -80,9 +89,8 @@ export const {
   fetchTasksFulfilled,
   fetchTasksError,
   fetchTasksPending,
-  addTaskPending,
-  addTaskError,
-  removeTask,
+  modifyTaskPending,
+  modifyTaskError,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

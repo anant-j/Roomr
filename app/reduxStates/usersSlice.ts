@@ -1,13 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export interface LandlordObject {
+  name: string;
+  email: string;
+}
 export interface usersState {
   tenants: object;
-  landlord: object;
+  landlord: LandlordObject;
 }
 
 const initialState: usersState = {
   tenants: {},
-  landlord: {},
+  landlord: {
+    email: "",
+    name: "",
+  },
 };
 
 export const usersSlice = createSlice({
@@ -17,7 +24,7 @@ export const usersSlice = createSlice({
     updateTenants: (state, action: PayloadAction<object[]>) => {
       state.tenants = action.payload;
     },
-    updateLandlord: (state, action: PayloadAction<object[]>) => {
+    updateLandlord: (state, action: PayloadAction<LandlordObject>) => {
       state.landlord = action.payload;
     },
   },

@@ -2,6 +2,9 @@ name: Deploy Expo Branch Preview
 
 on:
   pull_request:
+    branches:    
+      - main
+      - '!release'
     paths: 
       - 'app/**'
 

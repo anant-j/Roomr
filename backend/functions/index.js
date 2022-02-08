@@ -258,28 +258,28 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
     expo_token: "ExponentPushToken[Hz5s8sN-hvBu6Hl6Ka91Gk]",
   };
 
-  const sampleChat = {
-    content: "hello",
-    to: ["tenant@roomr.com"],
-    from: "tenant@roomr.com",
-    sentAt: new Date(),
-  };
+  // const sampleChat = {
+  //   content: "hello",
+  //   to: ["tenant@roomr.com"],
+  //   from: "tenant@roomr.com",
+  //   sentAt: new Date(),
+  // };
 
-  const sampleTask = {
-    content: "Laundry",
-    createdBy: "tenant@roomr.com",
-    createdOn: new Date(),
-    due: new Date(),
-    completed: false,
-  };
+  // const sampleTask = {
+  //   content: "Laundry",
+  //   createdBy: "tenant@roomr.com",
+  //   createdOn: new Date(),
+  //   due: new Date(),
+  //   completed: false,
+  // };
 
-  const sampleTicket = {
-    content: "Fix Laundry Machine",
-    createdBy: "tenant@roomr.com",
-    createdOn: new Date(),
-    due: new Date(),
-    completed: false,
-  };
+  // const sampleTicket = {
+  //   content: "Fix Laundry Machine",
+  //   createdBy: "tenant@roomr.com",
+  //   createdOn: new Date(),
+  //   due: new Date(),
+  //   completed: false,
+  // };
 
   const authUsers = await auth.listUsers();
   for (const authUser of authUsers.users) {
@@ -321,9 +321,9 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   await db.collection("users").doc(sampleTenantID).set(sampleTenantData);
   await db.collection("houses").doc(sampleHouseID).set(sampleHouseData);
   await db.collection("users").doc(sampleLandlordID).set(sampleLandlordData);
-  await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
-  await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
-  await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
+  // await db.collection("houses").doc(sampleHouseID).collection("chats").add(sampleChat);
+  // await db.collection("houses").doc(sampleHouseID).collection("tasks").add(sampleTask);
+  // await db.collection("houses").doc(sampleHouseID).collection("tickets").add(sampleTicket);
   res.send("Database reset");
 });
 

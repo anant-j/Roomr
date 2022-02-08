@@ -1,23 +1,89 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface chatObject {
-  name: string;
-  lastMessageTimeElapsed: string;
-  chatIcon: string;
-}
-
 export interface ChatState {
-  allChats: chatObject[];
+  allChats: object;
   currentActiveChat: string;
   loading: boolean;
-  error: any;
+  error: boolean;
+  loadingMsg: boolean;
+  sendingMsg: boolean;
+  sentMsg: boolean;
+  errorMsg: boolean;
 }
 
 const initialState: ChatState = {
-  allChats: [],
+  allChats: {},
   currentActiveChat: "",
   loading: false,
   error: null,
+  loadingMsg: false,
+  sendingMsg: false,
+  sentMsg: false,
+  errorMsg: false,
+};
+
+export const createChats = (tenants, landlord) => {
+  return async (dispatch: any, getState: any) => {
+    dispatch(fetchChatsPending());
+    const data = {};
+    for (const tenant of Object.keys(tenants)) {
+      if (tenant !== getState().auth.email) {
+        data[tenant] = {
+          name: tenants[tenant],
+        };
+      }
+    }
+    if (landlord) {
+      data[landlord.email] = {
+        name: landlord.name + " (Landlord)",
+      };
+    }
+    if (Object.keys(tenants).length > 2) {
+      data["tenantgc"] = {
+        name: "Tenant Group Chat",
+      };
+    }
+    if (Object.keys(tenants).length > 1) {
+      data["landlordgc"] = {
+        name: "Landlord Group Chat",
+      };
+    }
+    dispatch(fetchChatsFulfilled(data));
+  };
+};
+
+export const updateMessage = (id: any, message: any) => {
+  return async (dispatch: any, getState: any) => {
+    if (
+      message.from != getState().auth.email &&
+      !message.to.includes(getState().auth.email)
+    ) {
+      return;
+    }
+    dispatch(fetchMessagesPending());
+    if (message.to.length > 1) {
+      if (message.to.includes(getState().users.landlord.email)) {
+        message["to"] = "landlordgc";
+      } else {
+        message["to"] = "tenantgc";
+      }
+    } else {
+      if (message.to[0] == getState().auth.email) {
+        message["to"] = message.from;
+      } else {
+        message["to"] = message.to[0];
+      }
+    }
+    let makeNewMap = true;
+    if (
+      getState().chats.allChats &&
+      getState().chats.allChats[message.to[0]] &&
+      getState().chats.allChats[message.to[0]]["messages"]
+    ) {
+      makeNewMap = false;
+    }
+    message["sentAt"] = new Date(message.sentAt.seconds * 1000).toString();
+    dispatch(fetchMessagesFulfilled({ id, message, makeNewMap }));
+  };
 };
 
 export const chatSlice = createSlice({
@@ -40,6 +106,35 @@ export const chatSlice = createSlice({
       const nowChattingWith = action.payload;
       state.currentActiveChat = nowChattingWith;
     },
+
+    fetchMessagesFulfilled: (state, action) => {
+      state.loadingMsg = false;
+      if (!state.allChats[action.payload.message.to]) {
+        state.allChats[action.payload.message.to] = {};
+      }
+      if (!state.allChats[action.payload.message.to]["messages"]) {
+        state.allChats[action.payload.message.to]["messages"] = {};
+      }
+      state.allChats[action.payload.message.to]["messages"][action.payload.id] =
+        {};
+      state.allChats[action.payload.message.to]["messages"][action.payload.id] =
+        action.payload.message;
+    },
+    fetchMessagesPending: (state) => {
+      state.loadingMsg = true;
+    },
+    fetchMessagesSending: (state) => {
+      state.sendingMsg = true;
+    },
+    fetchMessagesSent: (state) => {
+      state.loadingMsg = false;
+      state.sendingMsg = false;
+      state.sentMsg = true;
+    },
+    fetchMessagesError: (state, action) => {
+      const error = action.payload;
+      state.error = error;
+    },
   },
 });
 
@@ -49,6 +144,11 @@ export const {
   fetchChatsError,
   fetchChatsPending,
   setActiveChat,
+  fetchMessagesFulfilled,
+  fetchMessagesPending,
+  fetchMessagesSending,
+  fetchMessagesSent,
+  fetchMessagesError,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
