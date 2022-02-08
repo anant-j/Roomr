@@ -1,14 +1,7 @@
 import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { db } from "../firebase";
 import { LogoutWithError } from "./authSlice";
-import {
-  createChats,
-  fetchChatsFulfilled,
-  fetchChatsPending,
-  fetchMessagesFulfilled,
-  fetchMessagesPending,
-  updateMessage,
-} from "./chatSlice";
+import { createChats, updateMessage } from "./chatSlice";
 import {
   fetchTasksPending,
   fetchTasksFulfilled,
