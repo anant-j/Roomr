@@ -12,7 +12,7 @@ import Colors from "constants/Colors";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
 
-export default function CreateTaskModal() {
+export default function CreateTask() {
   const navigation = useNavigation();
   const [taskName, setTaskName] = useState("");
   const [notes, setNotes] = useState("");
