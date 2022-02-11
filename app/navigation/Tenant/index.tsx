@@ -76,10 +76,18 @@ function RootNavigator() {
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
+      <Stack.Screen
+        name="ReportEmergency"
+        component={ReportEmergency}
+        options={{ title: "Report An Emergency" }}
+      />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Settings" component={SettingsModal} />
-        <Stack.Screen name="CreateTask" component={CreateTask} />
-        <Stack.Screen name="ReportEmergency" component={ReportEmergency} />
+        <Stack.Screen
+          name="CreateTask"
+          component={CreateTask}
+          options={{ title: "Create Task" }}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );

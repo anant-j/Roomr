@@ -99,6 +99,10 @@ export const errorFactory = (code: string) => {
       return {
         message: "Please enter a valid task name.",
       };
+    case "invalid-fields":
+      return {
+        message: "Please fill in all input fields.",
+      };
     default:
       return {
         redirectScreen: "home",

@@ -103,7 +103,7 @@ export default function TaskScreen() {
         </View>
       </View>
       <Button
-        onPress={() => navigation.navigate({ name: "CreateTask" })}
+        onPress={() => navigation.navigate("CreateTask")}
         style={styles.bottomContainer}
       >
         <Text style={styles.buttonText}>Create Task</Text>
