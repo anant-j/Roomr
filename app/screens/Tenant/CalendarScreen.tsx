@@ -76,7 +76,7 @@ const getTasksByDate = (allTasks, setAgendaState) => {
 
 const accumulateTasks = (acc, current) => {
   const timeZoneOffset = new Date().getTimezoneOffset() * 60000;
-  const thisDayObject: any = new Date(current.createdOn);
+  const thisDayObject: any = new Date(current.due);
   const thisTaskDate = new Date(thisDayObject - timeZoneOffset)
     .toISOString()
     .slice(0, 10);
