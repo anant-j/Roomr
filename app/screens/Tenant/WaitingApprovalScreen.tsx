@@ -1,10 +1,10 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Button, Text, View } from "../../components/Themed";
-import { signout } from "reduxStates/authSlice";
+import { signout } from "reduxStates/firebaseListener";
 import LottieView from "lottie-react-native";
 import { useEffect } from "react";
-import { listenToUserData } from "reduxStates/authListener";
+import { listenToUserData } from "reduxStates/firebaseListener";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 
 export default function WaitingScreen() {
