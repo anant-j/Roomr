@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 interface TaskObject {
@@ -34,6 +34,7 @@ export const addTask = (payload: object) => {
         createdOn: new Date(),
         due: new Date(due),
         notes: notes,
+        completed: false,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));
@@ -41,11 +42,19 @@ export const addTask = (payload: object) => {
   };
 };
 
-export const completeTaskThunk = (taskID: string) => {
+export const completeTaskThunk = (task: object) => {
   return async (dispatch: any, getState: any) => {
+    const { id, createdOn, due } = task;
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
-    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID))
+    console.log("marking: ", task);
+    console.log("Completing: ", id);
+    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
+      ...task,
+      createdOn: new Date(createdOn),
+      due: new Date(due),
+      completed: true,
+    })
       .then((result) => {
         console.log(result);
       })
