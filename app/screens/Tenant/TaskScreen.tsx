@@ -7,13 +7,41 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { useAppSelector } from "hooks/typedHooks";
 import TaskList from "components/TaskList";
 import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from "react-native-modal-datetime-picker";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import { MaterialIcons } from "@expo/vector-icons";
+import useColorScheme from "hooks/useColorScheme";
+import moment from "moment";
 
 export default function TaskScreen() {
   const { loading, error } = useAppSelector((state) => state.tasks);
   const navigation = useNavigation();
+  const colorScheme = useColorScheme();
 
   // TODO plan the logic of the percentage value and how it changes/to what
   const [percentage, setPercentage] = useState<number>(0);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  // keep track of both the date object and date string states
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dateText, setDateText] = useState(
+    moment(selectedDate).format("MMMM YYYY"),
+  );
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    setSelectedDate(date);
+    const monthAndYear = moment(date).format("MMMM YYYY");
+    setDateText(monthAndYear);
+    hideDatePicker();
+  };
 
   return (
     <View style={styles.container}>
@@ -22,7 +50,27 @@ export default function TaskScreen() {
         <View style={styles.tasksWrapper}>
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>All Tasks</Text>
+            <Button
+              onPress={showDatePicker}
+              style={styles.monthPicker}
+              darkColor={Colors.dark.textBackground}
+              lightColor={Colors.light.textBackground}
+            >
+              <Text style={styles.dateText}>{dateText}</Text>
+              <MaterialIcons
+                name="date-range"
+                size={18}
+                color={Colors[colorScheme].text}
+              />
+            </Button>
           </View>
+          <DateTimePicker
+            isVisible={isDatePickerVisible}
+            mode="date"
+            // display="inline"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+          />
           <View style={styles.circularWrapper}>
             <CircularProgress
               value={percentage}
@@ -48,7 +96,7 @@ export default function TaskScreen() {
           {loading ? (
             <Text style={styles.sectionTitle}>Loading...</Text>
           ) : (
-            <TaskList />
+            <TaskList selectedDate={dateText} />
           )}
         </View>
       </View>
@@ -112,4 +160,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "white",
   },
+  monthPicker: {
+    padding: 6,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dateText: { marginRight: 7, textTransform: "uppercase" },
 });
