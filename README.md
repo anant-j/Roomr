@@ -1,32 +1,3 @@
-Sync Landlord
-
-HomeScreen 
-- Update Images?
-- 3 Buttons don't function yet
-- Support Tickets will show {Name, Date, House Number}
-- Currently show tenant tasks instead of landlord tickets
-
-#Settings
-- Buttons need functions
-#Notifications
-- Needs notifications screen for both tenant/landlord
-
-
-Tickets (Task) Screen
-- Keep Task (Ticket) completion circle?
-- Currently show tenant tasks instead of landlord tickets
-- CreateTicketModel not fully updated
-
-
-Chat Screen
-- Handle House xyz group chats
-x Individual group chats
-
-
-Calendar
-- Handle Tenant Group tasks/ house
-- Handle Tickets
-
 [![Expo Production Build](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml/badge.svg?branch=main)](https://github.com/anant-j/Roomr/actions/workflows/deploy_expo_production.yml)
 
 https://expo.dev/@capstone2022/roomr
