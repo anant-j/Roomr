@@ -13,7 +13,6 @@ export default function TaskList(props: any) {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
-  const [filteredAllTasks, setFilteredAllTasks] = useState([]);
   const [todoTasks, setTodoTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
 
@@ -24,16 +23,15 @@ export default function TaskList(props: any) {
 
   useEffect(() => {
     const filteredAllTasks = allTasks.filter(filterTaskByDate);
-    setFilteredAllTasks(filteredAllTasks);
 
     // Separate filteredTasks into todo and completed
     const tasksTodoAndCompleted = filteredAllTasks.reduce(
       (acc: any, task: any) => {
-        let newAcc = {};
-        task.completed
-          ? (newAcc = { ...acc, completed: [...acc.completed, task] })
-          : (newAcc = { ...acc, todo: [...acc.todo, task] });
-        return newAcc;
+        if (task.completed) {
+          return { ...acc, completed: [...acc.completed, task] };
+        } else {
+          return { ...acc, todo: [...acc.todo, task] };
+        }
       },
       { todo: [], completed: [] },
     );
@@ -54,7 +52,7 @@ export default function TaskList(props: any) {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.items}>
-        {todoTasks.length == 0 && (
+        {todoTasks.length == 0 && completedTasks.length == 0 && (
           <Text style={styles.emptyState}>No Tasks This Month!</Text>
         )}
         {todoTasks &&
@@ -72,8 +70,10 @@ export default function TaskList(props: any) {
               // </>
             );
           })}
-        <Text>Completed Tasks:</Text>
-        {completedTasks &&
+        {completedTasks.length > 0 && (
+          <Text style={styles.completedText}>Completed Tasks:</Text>
+        )}
+        {completedTasks.length > 0 &&
           completedTasks.map((item, index) => {
             return (
               <TouchableOpacity key={index}>
@@ -104,5 +104,10 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textTransform: "uppercase",
     fontSize: 15,
+  },
+  completedText: {
+    fontSize: 15,
+    marginTop: 25,
+    textTransform: "uppercase",
   },
 });
