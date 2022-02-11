@@ -99,7 +99,7 @@ export const errorFactory = (code: string) => {
       return {
         message: "Please enter a valid task name.",
       };
-    case "invalid-fields":
+    case "MISSING_REQUIRED_FIELDS":
       return {
         message: "Please fill in all input fields.",
       };

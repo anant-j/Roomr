@@ -1,24 +1,22 @@
 import * as React from "react";
 import {
+  Alert,
   Keyboard,
   Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
-  TouchableOpacityBase,
 } from "react-native";
 import { Text, View, Button, TextInput } from "components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { addTask } from "reduxStates/taskSlice";
-import { validator } from "utils/Validations";
 import ErrorView from "components/ErrorView";
-import DateTimePicker from "react-native-modal-datetime-picker";
 import Colors from "constants/Colors";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
 import Checkbox from "expo-checkbox";
+import { reportEmergency } from "../../firebase";
 
 export default function ReportEmergency() {
   const navigation = useNavigation();
@@ -34,11 +32,22 @@ export default function ReportEmergency() {
   const handleReportEmegency = () => {
     Keyboard.dismiss();
     if (!emergencyName || !notes) {
-      setErrorCode("invalid-fields");
+      setErrorCode("MISSING_REQUIRED_FIELDS");
       return;
     }
-    console.log(emergencyName, notes);
-    navigation.goBack();
+    reportEmergency({
+      message: emergencyName,
+      description: notes,
+      houseIsSafe: isChecked,
+      houseID,
+    }).then((result) => {
+      if (result["status"] === "success") {
+        Alert.alert("Emergency reported");
+        navigation.goBack();
+      } else {
+        setErrorCode(result["code"]);
+      }
+    });
   };
 
   const call911 = () => {
