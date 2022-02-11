@@ -3,6 +3,7 @@ import taskReducer from "reduxStates/taskSlice";
 import chatReducer from "reduxStates/chatSlice";
 import authReducer from "reduxStates/authSlice";
 import usersReducer from "reduxStates/usersSlice";
+import emergencyReducer from "reduxStates/emergencySlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     chats: chatReducer,
     auth: authReducer,
     users: usersReducer,
+    emergency: emergencyReducer,
   },
 });
 

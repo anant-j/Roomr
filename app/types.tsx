@@ -22,6 +22,7 @@ export type RootStackParamList = {
   NotFound: undefined;
   CreateTask: undefined;
   ReportEmergency: undefined;
+  EmergencyState: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

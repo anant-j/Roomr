@@ -41,7 +41,7 @@ export default function ReportEmergency() {
       houseIsSafe: isChecked,
       houseID,
     }).then((result) => {
-      if (result["status"] === "success") {
+      if (result.data["status"] == "success") {
         Alert.alert("Emergency reported");
         navigation.goBack();
       } else {

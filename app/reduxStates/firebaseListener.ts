@@ -49,6 +49,8 @@ export const fetchHouseData = (houseID: string) => {
             dispatch(updateLandlord(landlord));
           }
           dispatch(createChats(tenants, landlord));
+          if (doc.data().emergency.active) {
+          }
         } else {
           dispatch(signout("HOUSE_NOT_FOUND"));
         }

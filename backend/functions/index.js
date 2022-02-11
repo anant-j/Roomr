@@ -114,6 +114,15 @@ exports.reportEmergency = functions.https.onCall(async (data, context) => {
     notificationMessage = "Emergency Reported: \n";
   }
   notificationMessage+= `${message} - ${description}`;
+  await db.collection("houses").doc(houseId).update({
+    emergency: {
+      message: message,
+      description: description,
+      reportedAt: new Date(),
+      reportedBy: requester,
+      isSafe: houseIsSafe,
+      active: true,
+    }});
   await sendExpoNotifications(notificationMessage, allTokens.tokens, mainTitle );
   return {
     status: "success",
