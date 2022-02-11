@@ -8,7 +8,8 @@ import { completeTaskThunk } from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-export default function TaskList({ selectedDate }) {
+export default function TaskList(props: any) {
+  const selectedDate = props.selectedDate;
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
