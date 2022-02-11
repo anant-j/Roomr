@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import * as Notifications from "expo-notifications";
 import { Button, Text, View, TextInput } from "components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { setActiveChat } from "reduxStates/chatSlice";
@@ -28,10 +29,19 @@ export default function ChatScreen() {
 
   const onChatPress = (id: string) => {
     onChangeMessage("");
+    Notifications.setNotificationHandler(null);
     dispatch(setActiveChat(id));
   };
 
   const onBackToChat = () => {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+
     dispatch(setActiveChat(""));
   };
 
