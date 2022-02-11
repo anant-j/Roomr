@@ -56,7 +56,9 @@ export default function TaskScreen() {
               darkColor={Colors.dark.textBackground}
               lightColor={Colors.light.textBackground}
             >
-              <Text style={styles.dateText}>{dateText}</Text>
+              <Text style={styles.dateText} lightColor="#fff">
+                {dateText}
+              </Text>
               <MaterialIcons
                 name="date-range"
                 size={18}
