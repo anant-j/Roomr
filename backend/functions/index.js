@@ -383,7 +383,7 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
  */
 async function getExpoTokens(requester, houseId) {
   const house = await db.collection("houses").doc(houseId).get();
-  const allTokens = [];
+  let allTokens = [];
   if (!house.exists) {
     console.log("House does not exist");
     return {success: false};
@@ -407,6 +407,8 @@ async function getExpoTokens(requester, houseId) {
       allTokens.push(tenantToken);
     }
   }
+  const tokenSet = new Set(allTokens);
+  allTokens = Array.from(tokenSet);
   return {success: true, tokens: allTokens};
 }
 /**
