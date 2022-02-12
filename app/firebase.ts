@@ -21,7 +21,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const localTestMode = true;
+const localTestMode = false;
 export const db = getFirestore();
 export const auth = getAuth();
 export const functions = getFunctions(app);
