@@ -53,7 +53,6 @@ export default function CreateTask() {
       setErrorCode(taskNameValidation.error);
       return;
     }
-    console.log(selectedDate);
     const payload = {
       content: taskName,
       houseID: houseID,

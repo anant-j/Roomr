@@ -19,7 +19,10 @@ export default function HomeScreen({
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
           </View>
-          <TaskList selectedDate={moment(new Date()).format("MMMM YYYY")} />
+          <TaskList
+            selectedDate={moment(new Date()).format("MMMM YYYY")}
+            hideCompleted={true}
+          />
         </View>
       </View>
 
