@@ -27,7 +27,8 @@ const initialState: TaskState = {
 };
 
 export const addTask = (payload: object) => {
-  const { content, houseID, email, due, notes } = payload;
+  const { content, houseID, email, due, notes, occurrences, repeatType } =
+    payload;
   return async (dispatch: any) => {
     dispatch(modifyTaskPending());
     try {
@@ -38,6 +39,8 @@ export const addTask = (payload: object) => {
         due: new Date(due),
         notes: notes,
         completed: false,
+        repeat: repeatType,
+        occurrences: occurrences,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));

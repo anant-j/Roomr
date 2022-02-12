@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Keyboard, StyleSheet } from "react-native";
+import { Keyboard, StyleSheet, Switch } from "react-native";
 import { Text, View, Button, TextInput } from "components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
@@ -9,9 +9,16 @@ import { validator } from "utils/Validations";
 import ErrorView from "components/ErrorView";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import Colors from "constants/Colors";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import {
+  MaterialIcons,
+  Entypo,
+  FontAwesome,
+  Ionicons,
+} from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
 import PropTypes from "prop-types";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import moment from "moment";
 
 CreateTask.propTypes = {
   route: PropTypes.object,
@@ -29,6 +36,42 @@ export default function CreateTask({ route }) {
   const [selectedDate, setSelectedDate] = useState(
     taskToEdit.due ? new Date(taskToEdit.due) : new Date(),
   );
+  const [taskAssignType, setTaskAssignType] = useState("personal");
+  const repeatOptions = { 0: "never", 1: "daily", 2: "weekly", 3: "monthly" };
+  const [repeatType, setRepeatType] = useState(repeatOptions[0]);
+
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const onAssignTypePressed = () => {
+    showActionSheetWithOptions(
+      {
+        options: ["Personal", "Group", "cancel"],
+        cancelButtonIndex: 2,
+      },
+      (buttonIndex) => {
+        if (buttonIndex == 0) {
+          setTaskAssignType("personal");
+        }
+        if (buttonIndex == 1) {
+          setTaskAssignType("group");
+        }
+      },
+    );
+  };
+
+  const onRepeatPressed = () => {
+    showActionSheetWithOptions(
+      {
+        options: ["Never", "Daily", "Weekly", "Monthly", "cancel"],
+        cancelButtonIndex: 4,
+      },
+      (buttonIndex) => {
+        if (buttonIndex != 4) {
+          setRepeatType(repeatOptions[buttonIndex]);
+        }
+      },
+    );
+  };
 
   // set the title of the modal based on if we got a task param (in the case of edit task)
   React.useLayoutEffect(() => {
@@ -46,6 +89,7 @@ export default function CreateTask({ route }) {
 
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   const email = useAppSelector((state) => state.auth.email);
+  // const { tenants } = useAppSelector((state) => state.users);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
 
@@ -62,6 +106,35 @@ export default function CreateTask({ route }) {
     hideDatePicker();
   };
 
+  const generateDates = () => {
+    switch (repeatType) {
+      case "monthly": {
+        break;
+      }
+      default:
+        break;
+    }
+  };
+
+  const genOccurrences = () => {
+    switch (repeatType) {
+      case "never": {
+        const assignTo = taskAssignType === "personal" ? email : email;
+        const dueDate = moment(selectedDate).format("MMMM DD YYYY");
+        const occ = { [dueDate]: { assignedTo: assignTo, completed: false } };
+        return occ;
+      }
+      // case "monthly": {
+      //   const assignTo = taskAssignType === "personal" ? email : email;
+      //   const dueDates = generateDates();
+      //   break;
+      // }
+      default:
+        break;
+    }
+    return {};
+  };
+
   const handleAddTask = () => {
     Keyboard.dismiss();
     const taskNameValidation = validator(taskName, "taskName");
@@ -69,6 +142,8 @@ export default function CreateTask({ route }) {
       setErrorCode(taskNameValidation.error);
       return;
     }
+    const occurrences = genOccurrences();
+    // console.log(occurrences);
     if (Object.keys(taskToEdit).length > 0) {
       const payload = {
         ...taskToEdit,
@@ -84,6 +159,8 @@ export default function CreateTask({ route }) {
         email: email,
         due: selectedDate.toString(),
         notes: notes,
+        repeatType: repeatType,
+        occurrences: occurrences,
       };
       dispatch(addTask(payload));
     }
@@ -100,12 +177,29 @@ export default function CreateTask({ route }) {
         value={taskName}
       />
       <Button
+        onPress={onAssignTypePressed}
+        style={styles.input}
+        darkColor={Colors.dark.textBackground}
+        lightColor={Colors.light.textBackground}
+      >
+        <Text style={styles.inputText}>type: {taskAssignType}</Text>
+        {taskAssignType === "personal" ? (
+          <Ionicons name="person" size={24} color={Colors[colorScheme].text} />
+        ) : (
+          <FontAwesome
+            name="group"
+            size={24}
+            color={Colors[colorScheme].text}
+          />
+        )}
+      </Button>
+      <Button
         onPress={showDatePicker}
         style={styles.input}
         darkColor={Colors.dark.textBackground}
         lightColor={Colors.light.textBackground}
       >
-        <Text style={styles.dateText}>
+        <Text style={styles.inputText}>
           {selectedDate.toLocaleDateString("en-US", dateFormat)}
         </Text>
         <MaterialIcons
@@ -113,6 +207,15 @@ export default function CreateTask({ route }) {
           size={24}
           color={Colors[colorScheme].text}
         />
+      </Button>
+      <Button
+        onPress={onRepeatPressed}
+        style={styles.input}
+        darkColor={Colors.dark.textBackground}
+        lightColor={Colors.light.textBackground}
+      >
+        <Text style={styles.inputText}>repeats: {repeatType}</Text>
+        <FontAwesome name="repeat" size={24} color={Colors[colorScheme].text} />
       </Button>
       <DateTimePicker
         isVisible={isDatePickerVisible}
@@ -188,9 +291,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
   },
-  dateText: {
+  inputText: {
     fontSize: 20,
     fontWeight: "500",
+    textTransform: "capitalize",
   },
   buttonText: {
     fontSize: 20,
