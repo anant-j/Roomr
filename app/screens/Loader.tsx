@@ -3,7 +3,7 @@ import { StyleSheet, Image } from "react-native";
 import { Button, Text, View } from "../components/Themed";
 import LottieView from "lottie-react-native";
 import { useAppDispatch } from "hooks/typedHooks";
-import { signout } from "reduxStates/authSlice";
+import { signout } from "reduxStates/firebaseListener";
 
 export default function LoadingScreen() {
   const dispatch = useAppDispatch();

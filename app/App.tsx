@@ -12,7 +12,7 @@ import { registerExpoToken } from "./reduxStates/authSlice";
 import { store } from "./store";
 import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
-import { fetchAuth } from "reduxStates/authListener";
+import { fetchAuth } from "reduxStates/firebaseListener";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
 import "intl";
 import { Platform } from "react-native";
@@ -41,7 +41,6 @@ const AppWithProvider = () => {
   const responseListener = useRef();
 
   const loggedIn = useAppSelector((state) => state.auth.email);
-  const userDataFetched = useAppSelector((state) => state.auth.type) !== null;
   const dispatch = useAppDispatch();
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
   const approved = useAppSelector((state) => state.auth.approved);

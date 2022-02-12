@@ -1,6 +1,6 @@
-import { onSnapshot, doc, collection, query } from "firebase/firestore";
+import { onSnapshot, doc, collection, query, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { LogoutWithError } from "./authSlice";
+import { setUserData, setEmail, cleanAuth, updateExpoToken } from "./authSlice";
 import { createChats, updateMessage } from "./chatSlice";
 import {
   fetchTasksPending,
@@ -8,8 +8,17 @@ import {
   fetchTasksError,
 } from "./taskSlice";
 import { updateTenants, updateLandlord } from "./usersSlice";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
+import { Alert } from "react-native";
+import { logout } from "../firebase";
 
-const listenerUnsubscribeList = [];
+const listeners = {
+  houseListener: null,
+  tasksListener: null,
+  chatsListener: null,
+  userDataListener: null,
+};
 
 const getSortedTasks = (allTasks) => {
   const sortedTasks = allTasks.slice().sort((a, b) => {
@@ -22,12 +31,15 @@ const getSortedTasks = (allTasks) => {
   return sortedTasks;
 };
 
-export const fetchData = (houseID: string) => {
+export const fetchHouseData = (houseID: string) => {
   return (dispatch: any) => {
-    const unsub1 = onSnapshot(
+    if (listeners.houseListener) {
+      listeners.houseListener();
+    }
+    listeners["houseListener"] = onSnapshot(
       doc(db, "houses", houseID),
       (doc: any) => {
-        if (doc.exists) {
+        if (doc.exists && doc.data()) {
           const tenants = doc.data().tenants;
           if (tenants) {
             dispatch(updateTenants(tenants));
@@ -37,71 +49,133 @@ export const fetchData = (houseID: string) => {
             dispatch(updateLandlord(landlord));
           }
           dispatch(createChats(tenants, landlord));
+        } else {
+          dispatch(signout("HOUSE_NOT_FOUND"));
         }
-      },
-      (error) => {
-        console.log(error);
       },
     );
 
     dispatch(fetchTasksPending());
     const taskQuery = query(collection(db, `houses/${houseID}/tasks`));
-    const unsub2 = onSnapshot(
-      taskQuery,
-      (querySnapshot) => {
-        const tasks = [];
-        querySnapshot.forEach((doc) => {
-          try {
-            const { completed, content, createdBy, createdOn, due } =
-              doc.data();
+    if (listeners.tasksListener) {
+      listeners.tasksListener();
+    }
+    listeners["tasksListener"] = onSnapshot(taskQuery, (querySnapshot) => {
+      const tasks = [];
+      querySnapshot.forEach((doc) => {
+        try {
+          const { completed, content, createdBy, createdOn, due } = doc.data();
 
-            const createdOnDate = new Date(createdOn.seconds * 1000).toString();
-            const dueOnDate = new Date(due.seconds * 1000).toString();
+          const createdOnDate = new Date(createdOn.seconds * 1000).toString();
+          const dueOnDate = new Date(due.seconds * 1000).toString();
 
-            const task = {
-              completed,
-              content,
-              createdBy,
-              createdOn: createdOnDate,
-              due: dueOnDate,
-              id: doc.id,
-            };
+          const task = {
+            completed,
+            content,
+            createdBy,
+            createdOn: createdOnDate,
+            due: dueOnDate,
+            id: doc.id,
+          };
 
-            tasks.push(task);
-          } catch (error) {
-            dispatch(LogoutWithError("STORING_TASK_DB_DATA_LOCALLY" + error));
-          }
-        });
-
-        const payload = { tasks: getSortedTasks(tasks) };
-        dispatch(fetchTasksFulfilled(payload));
-      },
-      (error) => {
-        dispatch(fetchTasksError(error));
-        dispatch(LogoutWithError("FETCH_TASK_DATA_DB" + error));
-      },
-    );
+          tasks.push(task);
+        } catch (error) {
+          dispatch(signout("STORING_TASK_DB_DATA_LOCALLY" + error));
+          dispatch(fetchTasksError(error));
+        }
+      });
+      const payload = { tasks: getSortedTasks(tasks) };
+      dispatch(fetchTasksFulfilled(payload));
+    });
 
     const messagesQuery = query(collection(db, `houses/${houseID}/chats`));
-    const unsub3 = onSnapshot(
-      messagesQuery,
-      (querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          try {
-            dispatch(updateMessage(doc.id, doc.data()));
-          } catch (error) {
-            dispatch(LogoutWithError("STORING_CHAT_DATA_LOCALLY" + error));
-          }
+    if (listeners.chatsListener) {
+      listeners.chatsListener();
+    }
+    listeners["chatsListener"] = onSnapshot(messagesQuery, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        try {
+          dispatch(updateMessage(doc.id, doc.data()));
+        } catch (error) {
+          dispatch(signout("STORING_CHAT_DATA_LOCALLY" + error));
+        }
+      });
+    });
+  };
+};
+
+export const fetchAuth = () => {
+  return (dispatch: any) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.email);
+        getDoc(docRef).then((doc) => {
+          if (doc.exists) {
+            const updatedUserData = doc.data();
+            const userData = {
+              type: updatedUserData.type,
+              name: {
+                first: updatedUserData.firstName,
+                last: updatedUserData.lastName,
+              },
+              houses: updatedUserData.houses,
+              approved: updatedUserData.approved,
+            };
+            const token = updatedUserData.expo_token;
+            dispatch(setUserData(userData));
+            dispatch(setEmail(user.email));
+            dispatch(updateExpoToken(token));
+          } else dispatch(signout("FETCH_DB_ON_AUTH"));
         });
-      },
-      (error) => {
-        // dispatch(fetchTasksError(error));
-        dispatch(LogoutWithError("FETCH_CHAT_DATA_DB" + error));
+      } else {
+        dispatch(cleanAuth());
+      }
+    });
+  };
+};
+
+export const listenToUserData = (email) => {
+  return (dispatch: any) => {
+    if (listeners.userDataListener) {
+      listeners.userDataListener();
+    }
+    listeners["userDataListener"] = onSnapshot(
+      doc(db, "users", email),
+      (doc: any) => {
+        if (doc.exists) {
+          const updatedUserData = doc.data();
+          const userData = {
+            type: updatedUserData.type,
+            name: {
+              first: updatedUserData.firstName,
+              last: updatedUserData.lastName,
+            },
+            houses: updatedUserData.houses,
+            approved: updatedUserData.approved,
+          };
+          dispatch(setUserData(userData));
+        } else {
+          dispatch(signout("USER_DOESNT_EXIST_DB"));
+        }
       },
     );
+  };
+};
 
-    listenerUnsubscribeList.push(unsub1);
-    listenerUnsubscribeList.push(unsub2);
-    listenerUnsubscribeList.push(unsub3);
+export const signout = (code: string = null) => {
+  return async (dispatch: any) => {
+    for (const key of Object.keys(listeners)) {
+      if (listeners[key]) {
+        listeners[key]();
+      }
+    }
+    if (code) {
+      Alert.alert(
+        "An error occurred while fetching your user data.",
+        "Please try again later \n\nError code: " + code,
+      );
+    }
+    await logout();
+    dispatch(cleanAuth());
   };
 };
