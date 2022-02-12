@@ -4,29 +4,60 @@ import { ScrollView, TouchableOpacity } from "react-native";
 import { Text, View } from "components/Themed";
 import { StyleSheet } from "react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { completeTaskThunk } from "reduxStates/taskSlice";
+import {
+  completeTaskThunk,
+  setCompletionPercentage,
+} from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
-export default function TaskList(props: any) {
-  const selectedDate = props.selectedDate;
+TaskList.propTypes = {
+  selectedDate: PropTypes.string,
+  hideCompleted: PropTypes.bool,
+};
+
+export default function TaskList({ selectedDate, hideCompleted = false }) {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
-  const [filteredAllTasks, setFilteredAllTasks] = useState([]);
+  const [todoTasks, setTodoTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
 
   const filterTaskByDate = (task) => {
-    const taskMonth = moment(task.due).format("MMMM YYYY");
+    const taskMonth = moment(new Date(task.due)).format("MMMM YYYY");
     return taskMonth == selectedDate;
   };
 
   useEffect(() => {
     const filteredAllTasks = allTasks.filter(filterTaskByDate);
-    setFilteredAllTasks(filteredAllTasks);
+
+    // Separate filteredTasks into todo and completed
+    const tasksTodoAndCompleted = filteredAllTasks.reduce(
+      (acc: any, task: any) => {
+        if (task.completed) {
+          return { ...acc, completed: [...acc.completed, task] };
+        } else {
+          return { ...acc, todo: [...acc.todo, task] };
+        }
+      },
+      { todo: [], completed: [] },
+    );
+    const { todo, completed } = tasksTodoAndCompleted;
+    setTodoTasks(todo);
+    setCompletedTasks(completed);
+
+    const numTodo = todo.length;
+    const numCompleted = completed.length;
+    const percentage =
+      numTodo == 0 && numCompleted == 0
+        ? 0
+        : (numCompleted / (numTodo + numCompleted)) * 100;
+    dispatch(setCompletionPercentage(percentage));
   }, [allTasks, selectedDate]);
 
-  const completeTask = (id: string) => {
-    dispatch(completeTaskThunk(id));
+  const completeTask = (task: object) => {
+    dispatch(completeTaskThunk(task));
   };
 
   return (
@@ -37,29 +68,52 @@ export default function TaskList(props: any) {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.items}>
-        {filteredAllTasks.length == 0 && (
+        {todoTasks.length == 0 && completedTasks.length == 0 && (
           <Text style={styles.emptyState}>No Tasks This Month!</Text>
         )}
-        {filteredAllTasks &&
-          filteredAllTasks.map((item, index) => {
-            return (
-              <TouchableOpacity
-                key={index}
-                onPress={() => completeTask(item.id)}
-              >
-                <Task task={item} />
-                <View
-                  style={styles.separator}
-                  lightColor="#eee"
-                  darkColor="rgba(255,255,255,0.1)"
-                />
-              </TouchableOpacity>
-            );
-          })}
+        {todoTasks.length > 0 && (
+          <TodoTasksList todoTasks={todoTasks} completeTask={completeTask} />
+        )}
+        {completedTasks.length > 0 && !hideCompleted && (
+          <>
+            <Text style={styles.completedText}>Completed Tasks:</Text>
+            <CompletedTasksList completedTasks={completedTasks} />
+          </>
+        )}
       </View>
     </ScrollView>
   );
 }
+
+const TodoTasksList = ({ todoTasks, completeTask }) => {
+  return todoTasks.map((item, index) => {
+    return (
+      <TouchableOpacity key={index} onPress={() => completeTask(item)}>
+        <Task task={item} />
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
+        />
+      </TouchableOpacity>
+    );
+  });
+};
+
+const CompletedTasksList = ({ completedTasks }) => {
+  return completedTasks.map((item, index) => {
+    return (
+      <TouchableOpacity key={index}>
+        <Task task={item} />
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
+        />
+      </TouchableOpacity>
+    );
+  });
+};
 
 const styles = StyleSheet.create({
   items: {
@@ -74,5 +128,10 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textTransform: "uppercase",
     fontSize: 15,
+  },
+  completedText: {
+    fontSize: 15,
+    marginTop: 25,
+    textTransform: "uppercase",
   },
 });

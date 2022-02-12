@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 interface TaskObject {
@@ -13,12 +13,14 @@ interface TaskObject {
 
 export interface TaskState {
   allTasks: TaskObject[];
+  completionPercentage: number;
   loading: boolean;
   error: any;
 }
 
 const initialState: TaskState = {
   allTasks: [],
+  completionPercentage: 0,
   loading: false,
   error: null,
 };
@@ -34,6 +36,7 @@ export const addTask = (payload: object) => {
         createdOn: new Date(),
         due: new Date(due),
         notes: notes,
+        completed: false,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));
@@ -41,11 +44,17 @@ export const addTask = (payload: object) => {
   };
 };
 
-export const completeTaskThunk = (taskID: string) => {
+export const completeTaskThunk = (task: object) => {
   return async (dispatch: any, getState: any) => {
+    const { id, createdOn, due } = task;
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
-    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID))
+    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
+      ...task,
+      createdOn: new Date(createdOn),
+      due: new Date(due),
+      completed: true,
+    })
       .then((result) => {
         console.log(result);
       })
@@ -82,6 +91,10 @@ export const taskSlice = createSlice({
       const error = action.payload;
       state.error = error;
     },
+    setCompletionPercentage: (state, action) => {
+      const percentage = action.payload;
+      state.completionPercentage = percentage;
+    },
   },
 });
 
@@ -92,6 +105,7 @@ export const {
   fetchTasksPending,
   modifyTaskPending,
   modifyTaskError,
+  setCompletionPercentage,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;
