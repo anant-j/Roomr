@@ -11,8 +11,7 @@ import {
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-export default function TaskList(props: any) {
-  const selectedDate = props.selectedDate;
+export default function TaskList({ selectedDate, hideCompleted = false }) {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
 
@@ -66,41 +65,49 @@ export default function TaskList(props: any) {
         {todoTasks.length == 0 && completedTasks.length == 0 && (
           <Text style={styles.emptyState}>No Tasks This Month!</Text>
         )}
-        {todoTasks &&
-          todoTasks.map((item, index) => {
-            return (
-              // <>
-              <TouchableOpacity key={index} onPress={() => completeTask(item)}>
-                <Task task={item} />
-                <View
-                  style={styles.separator}
-                  lightColor="#eee"
-                  darkColor="rgba(255,255,255,0.1)"
-                />
-              </TouchableOpacity>
-              // </>
-            );
-          })}
-        {completedTasks.length > 0 && (
-          <Text style={styles.completedText}>Completed Tasks:</Text>
+        {todoTasks.length > 0 && (
+          <TodoTasksList todoTasks={todoTasks} completeTask={completeTask} />
         )}
-        {completedTasks.length > 0 &&
-          completedTasks.map((item, index) => {
-            return (
-              <TouchableOpacity key={index}>
-                <Task task={item} />
-                <View
-                  style={styles.separator}
-                  lightColor="#eee"
-                  darkColor="rgba(255,255,255,0.1)"
-                />
-              </TouchableOpacity>
-            );
-          })}
+        {completedTasks.length > 0 && !hideCompleted && (
+          <>
+            <Text style={styles.completedText}>Completed Tasks:</Text>
+            <CompletedTasksList completedTasks={completedTasks} />
+          </>
+        )}
       </View>
     </ScrollView>
   );
 }
+
+const TodoTasksList = ({ todoTasks, completeTask }) => {
+  return todoTasks.map((item, index) => {
+    return (
+      <TouchableOpacity key={index} onPress={() => completeTask(item)}>
+        <Task task={item} />
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
+        />
+      </TouchableOpacity>
+    );
+  });
+};
+
+const CompletedTasksList = ({ completedTasks }) => {
+  return completedTasks.map((item, index) => {
+    return (
+      <TouchableOpacity key={index}>
+        <Task task={item} />
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
+        />
+      </TouchableOpacity>
+    );
+  });
+};
 
 const styles = StyleSheet.create({
   items: {
