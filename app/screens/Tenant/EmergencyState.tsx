@@ -1,9 +1,8 @@
 import * as React from "react";
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet } from "react-native";
 import { Button, Text, View } from "../../components/Themed";
 import LottieView from "lottie-react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { signout } from "reduxStates/firebaseListener";
 import { endEmergency, hideEmergency } from "reduxStates/emergencySlice";
 
 export default function EmergencyState() {
@@ -14,7 +13,7 @@ export default function EmergencyState() {
 
   const endEmergencyDispatch = () => {
     dispatch(endEmergency());
-  }
+  };
 
   const emergency = useAppSelector((state) => state.emergency);
   return (
@@ -31,11 +30,7 @@ export default function EmergencyState() {
         source={require("assets/animations/error_alert.json")}
         autoPlay
         loop={false}
-        style={{
-          width: 200,
-          height: 200,
-          alignSelf: "center",
-        }}
+        style={styles.lottie}
       />
       <Button
         onPress={() => {
@@ -59,6 +54,11 @@ export default function EmergencyState() {
 }
 
 const styles = StyleSheet.create({
+  lottie: {
+    width: 200,
+    height: 200,
+    alignSelf: "center",
+  },
   logo: {
     width: 100,
     resizeMode: "contain",

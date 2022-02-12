@@ -108,18 +108,18 @@ export default function ReportEmergency() {
         <Text style={{ fontWeight: "bold" }}>House is safe to be in</Text>
       </TouchableOpacity>
       {!isChecked ? (
-        <Text style={{ textAlign: "center", width: "80%" }}>
+        <Text style={styles.textCentered}>
           Tenants need to leave house immediately and should not enter unless
           emergency is resolved.
         </Text>
       ) : (
-        <Text style={{ textAlign: "center", width: "80%" }}>
+        <Text style={styles.textCentered}>
           Tenants can enter and stay in house
         </Text>
       )}
       <Text></Text>
       <Text></Text>
-      <Text style={{ textAlign: "center" }}>
+      <Text style={styles.textCentered}>
         Reporting an emergency will notify all tenants and your landlord
       </Text>
       <Text></Text>
@@ -127,15 +127,8 @@ export default function ReportEmergency() {
         <Text style={styles.buttonText}>Report</Text>
       </Button>
       <Text></Text>
-      <View
-        style={{
-          borderWidth: 1,
-          width: "90%",
-          borderColor: "black",
-          margin: 10,
-        }}
-      />
-      <Text style={{ textAlign: "center", width: "80%" }}>
+      <View style={styles.divider} />
+      <Text style={styles.textCentered}>
         If you are in immediate danger, please call emergency services
       </Text>
       <Text></Text>
@@ -150,6 +143,16 @@ export default function ReportEmergency() {
 }
 
 const styles = StyleSheet.create({
+  textCentered: {
+    textAlign: "center",
+    width: "80%",
+  },
+  divider: {
+    borderWidth: 1,
+    width: "90%",
+    borderColor: "black",
+    margin: 10,
+  },
   container: {
     flex: 1,
     alignItems: "center",
