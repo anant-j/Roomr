@@ -17,6 +17,7 @@ import { Entypo } from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
 import Checkbox from "expo-checkbox";
 import { reportEmergency } from "../../firebase";
+import { showEmergency } from "reduxStates/emergencySlice";
 
 export default function ReportEmergency() {
   const navigation = useNavigation();
@@ -28,6 +29,10 @@ export default function ReportEmergency() {
   const email = useAppSelector((state) => state.auth.email);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
+
+  React.useEffect(() => {
+    dispatch(showEmergency());
+  }, []);
 
   const handleReportEmegency = () => {
     Keyboard.dismiss();

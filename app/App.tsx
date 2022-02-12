@@ -47,6 +47,7 @@ const AppWithProvider = () => {
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
   const approved = useAppSelector((state) => state.auth.approved);
   const isEmergency = useAppSelector((state) => state.emergency.active);
+  const showEmergency = useAppSelector((state) => state.emergency.show);
 
   useEffect(() => {
     dispatch(fetchAuth());
@@ -83,7 +84,7 @@ const AppWithProvider = () => {
       </SafeAreaProvider>
     );
   } else {
-    if(isEmergency){
+    if (isEmergency && showEmergency) {
       return (
         <SafeAreaProvider>
           <EmergencyState />
