@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-  Alert,
+  ActivityIndicator,
   Keyboard,
   Linking,
   Platform,
@@ -25,6 +25,7 @@ export default function ReportEmergency() {
   const [notes, setNotes] = useState("");
   const [errorCode, setErrorCode] = useState(null);
   const [isChecked, setChecked] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   const email = useAppSelector((state) => state.auth.email);
   const dispatch = useAppDispatch();
@@ -35,9 +36,12 @@ export default function ReportEmergency() {
   }, []);
 
   const handleReportEmegency = () => {
+    if(isLoading) return;
+    setLoading(true);
     Keyboard.dismiss();
     if (!emergencyName || !notes) {
       setErrorCode("MISSING_REQUIRED_FIELDS");
+      setLoading(false);
       return;
     }
     reportEmergency({
@@ -47,11 +51,11 @@ export default function ReportEmergency() {
       houseID,
     }).then((result) => {
       if (result.data["status"] == "success") {
-        Alert.alert("Emergency reported");
         navigation.goBack();
       } else {
         setErrorCode(result["code"]);
       }
+      setLoading(false);
     });
   };
 
@@ -124,7 +128,11 @@ export default function ReportEmergency() {
       </Text>
       <Text></Text>
       <Button onPress={handleReportEmegency} style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>Report</Text>
+        {!isLoading ? (
+          <Text style={styles.buttonText}>Report</Text>
+        ) : (
+          <ActivityIndicator color={"black"}></ActivityIndicator>
+        )}
       </Button>
       <Text></Text>
       <View style={styles.divider} />
