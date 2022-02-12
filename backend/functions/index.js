@@ -81,10 +81,10 @@ exports.sendMessage = functions.https.onCall(async (data, context) => {
 
 exports.reportEmergency = functions.https.onCall(async (data, context) => {
   const message = data.message;
-  const description = data.description;
+  const description = data.description || "";
   const houseId = data.houseID;
   const houseIsSafe = data.houseIsSafe;
-  if (!message || !description || !houseId || houseIsSafe === undefined) {
+  if (!message || !houseId || houseIsSafe === undefined) {
     return {
       status: "error",
       code: "MISSING_REQUIRED_FIELDS",
@@ -113,7 +113,11 @@ exports.reportEmergency = functions.https.onCall(async (data, context) => {
     mainTitle = "⚠️ LEAVE HOUSE IMMEDIATELY";
     notificationMessage = "Emergency Reported: \n";
   }
-  notificationMessage+= `${message} - ${description}`;
+  if (description && description !== "") {
+    notificationMessage+= `${message} - ${description}`;
+  } else {
+    notificationMessage+= `${message}`;
+  }
   await db.collection("houses").doc(houseId).update({
     emergency: {
       message: message,

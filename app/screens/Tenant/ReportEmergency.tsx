@@ -3,12 +3,10 @@ import {
   ActivityIndicator,
   Keyboard,
   Linking,
-  Platform,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
 import { Text, View, Button, TextInput } from "components/Themed";
-import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import ErrorView from "components/ErrorView";
@@ -20,14 +18,12 @@ import { reportEmergency } from "../../firebase";
 import { showEmergency } from "reduxStates/emergencySlice";
 
 export default function ReportEmergency() {
-  const navigation = useNavigation();
   const [emergencyName, setEmergencyName] = useState("");
   const [notes, setNotes] = useState("");
   const [errorCode, setErrorCode] = useState(null);
   const [isChecked, setChecked] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const houseID = useAppSelector((state) => state.auth.houses)[0];
-  const email = useAppSelector((state) => state.auth.email);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
 
@@ -39,7 +35,7 @@ export default function ReportEmergency() {
     if (isLoading) return;
     setLoading(true);
     Keyboard.dismiss();
-    if (!emergencyName || !notes) {
+    if (!emergencyName) {
       setErrorCode("MISSING_REQUIRED_FIELDS");
       setLoading(false);
       return;
@@ -51,7 +47,7 @@ export default function ReportEmergency() {
       houseID,
     }).then((result) => {
       if (result.data["status"] == "success") {
-        navigation.goBack();
+        // navigation.goBack();
       } else {
         setErrorCode(result["code"]);
       }
@@ -60,9 +56,6 @@ export default function ReportEmergency() {
   };
 
   const call911 = () => {
-    if (Platform.OS === "ios") {
-      return Linking.openURL(`tel:911`);
-    }
     return Linking.openURL(`tel:911`);
   };
 
