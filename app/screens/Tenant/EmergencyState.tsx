@@ -1,7 +1,6 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import { Button, Text, View } from "../../components/Themed";
-import LottieView from "lottie-react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { endEmergency, hideEmergency } from "reduxStates/emergencySlice";
 
@@ -26,11 +25,9 @@ export default function EmergencyState() {
       )}
       <Text style={styles.subtitle}>{emergency.message}</Text>
       <Text style={styles.subtitle}>{emergency.description}</Text>
-      <LottieView
-        source={require("assets/animations/error_alert.json")}
-        autoPlay
-        loop={false}
-        style={styles.lottie}
+      <Image
+        source={require("../../assets/images/alert.png")}
+        style={styles.img}
       />
       <Button
         onPress={() => {
@@ -54,10 +51,13 @@ export default function EmergencyState() {
 }
 
 const styles = StyleSheet.create({
-  lottie: {
-    width: 200,
-    height: 200,
+  img: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
     alignSelf: "center",
+    // contain
+    resizeMode: "contain",
   },
   logo: {
     width: 100,

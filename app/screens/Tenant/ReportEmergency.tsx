@@ -36,7 +36,7 @@ export default function ReportEmergency() {
   }, []);
 
   const handleReportEmegency = () => {
-    if(isLoading) return;
+    if (isLoading) return;
     setLoading(true);
     Keyboard.dismiss();
     if (!emergencyName || !notes) {
