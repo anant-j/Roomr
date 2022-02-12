@@ -4,20 +4,38 @@ import { Text, View, Button, TextInput } from "components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { addTask } from "reduxStates/taskSlice";
+import { addTask, editTask } from "reduxStates/taskSlice";
 import { validator } from "utils/Validations";
 import ErrorView from "components/ErrorView";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import Colors from "constants/Colors";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
+import PropTypes from "prop-types";
 
-export default function CreateTask() {
+CreateTask.propTypes = {
+  route: PropTypes.object,
+};
+
+export default function CreateTask({ route }) {
+  const { taskToEdit } = route.params;
   const navigation = useNavigation();
-  const [taskName, setTaskName] = useState("");
-  const [notes, setNotes] = useState("");
+  const [taskName, setTaskName] = useState(
+    taskToEdit.content ? taskToEdit.content : "",
+  );
+  const [notes, setNotes] = useState(taskToEdit.notes ? taskToEdit.notes : "");
   const [errorCode, setErrorCode] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    taskToEdit.due ? new Date(taskToEdit.due) : new Date(),
+  );
+
+  // set the title of the modal based on if we got a task param (in the case of edit task)
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: Object.keys(taskToEdit).length > 0 ? "Edit Task" : "Create Task",
+    });
+  }, [navigation, taskToEdit]);
 
   const dateFormat = {
     weekday: "long",
@@ -25,8 +43,6 @@ export default function CreateTask() {
     month: "long",
     day: "numeric",
   };
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   const email = useAppSelector((state) => state.auth.email);
@@ -53,14 +69,24 @@ export default function CreateTask() {
       setErrorCode(taskNameValidation.error);
       return;
     }
-    const payload = {
-      content: taskName,
-      houseID: houseID,
-      email: email,
-      due: selectedDate.toString(),
-      notes: notes,
-    };
-    dispatch(addTask(payload));
+    if (Object.keys(taskToEdit).length > 0) {
+      const payload = {
+        ...taskToEdit,
+        content: taskName,
+        due: selectedDate.toString(),
+        notes: notes,
+      };
+      dispatch(editTask(payload));
+    } else {
+      const payload = {
+        content: taskName,
+        houseID: houseID,
+        email: email,
+        due: selectedDate.toString(),
+        notes: notes,
+      };
+      dispatch(addTask(payload));
+    }
     navigation.goBack();
   };
 
@@ -71,6 +97,7 @@ export default function CreateTask() {
         style={styles.input}
         onChangeText={setTaskName}
         placeholder="Task Name"
+        value={taskName}
       />
       <Button
         onPress={showDatePicker}
@@ -94,6 +121,7 @@ export default function CreateTask() {
         onConfirm={handleConfirmDate}
         onCancel={hideDatePicker}
         minimumDate={new Date()}
+        date={selectedDate}
       />
       <View style={styles.notesContainer}>
         <TextInput

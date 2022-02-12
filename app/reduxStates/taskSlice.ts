@@ -9,6 +9,7 @@ interface TaskObject {
   createdOn: string;
   due: string;
   id: string;
+  notes: string;
 }
 
 export interface TaskState {
@@ -54,13 +55,35 @@ export const completeTaskThunk = (task: object) => {
       createdOn: new Date(createdOn),
       due: new Date(due),
       completed: true,
-    })
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((error) => {
-        dispatch(modifyTaskError(error));
-      });
+    }).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
+  };
+};
+
+export const editTask = (task: object) => {
+  return async (dispatch: any, getState: any) => {
+    const { id, createdOn, due, content } = task;
+    console.log("editing: ", task, id);
+    dispatch(modifyTaskPending());
+    const houseID = getState().auth.houses[0];
+    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
+      ...task,
+      createdOn: new Date(createdOn),
+      due: new Date(due),
+    }).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
+  };
+};
+
+export const deleteTaskThunk = (taskID: string) => {
+  return async (dispatch: any, getState: any) => {
+    dispatch(modifyTaskPending());
+    const houseID = getState().auth.houses[0];
+    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID)).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
   };
 };
 

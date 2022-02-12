@@ -15,6 +15,8 @@ import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/firebaseListener";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
 import EmergencyState from "screens/Tenant/EmergencyState";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { connectActionSheet } from "@expo/react-native-action-sheet";
 
 import "intl";
 import { Platform } from "react-native";
@@ -29,11 +31,15 @@ import "intl/locale-data/jsonp/en";
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <AppWithProvider />
-    </Provider>
+    <ActionSheetProvider>
+      <Provider store={store}>
+        <AppWithProvider />
+      </Provider>
+    </ActionSheetProvider>
   );
 }
+
+export const ConnectedApp = connectActionSheet(App);
 
 const AppWithProvider = () => {
   const isLoadingComplete = useCachedResources();
