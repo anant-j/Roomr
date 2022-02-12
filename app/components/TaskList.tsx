@@ -4,7 +4,10 @@ import { ScrollView, TouchableOpacity } from "react-native";
 import { Text, View } from "components/Themed";
 import { StyleSheet } from "react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-import { completeTaskThunk } from "reduxStates/taskSlice";
+import {
+  completeTaskThunk,
+  setCompletionPercentage,
+} from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
@@ -38,6 +41,14 @@ export default function TaskList(props: any) {
     const { todo, completed } = tasksTodoAndCompleted;
     setTodoTasks(todo);
     setCompletedTasks(completed);
+
+    const numTodo = todo.length;
+    const numCompleted = completed.length;
+    const percentage =
+      numTodo == 0 && numCompleted == 0
+        ? 0
+        : (numCompleted / (numTodo + numCompleted)) * 100;
+    dispatch(setCompletionPercentage(percentage));
   }, [allTasks, selectedDate]);
 
   const completeTask = (task: object) => {

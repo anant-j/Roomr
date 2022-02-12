@@ -13,12 +13,14 @@ interface TaskObject {
 
 export interface TaskState {
   allTasks: TaskObject[];
+  completionPercentage: number;
   loading: boolean;
   error: any;
 }
 
 const initialState: TaskState = {
   allTasks: [],
+  completionPercentage: 0,
   loading: false,
   error: null,
 };
@@ -89,6 +91,10 @@ export const taskSlice = createSlice({
       const error = action.payload;
       state.error = error;
     },
+    setCompletionPercentage: (state, action) => {
+      const percentage = action.payload;
+      state.completionPercentage = percentage;
+    },
   },
 });
 
@@ -99,6 +105,7 @@ export const {
   fetchTasksPending,
   modifyTaskPending,
   modifyTaskError,
+  setCompletionPercentage,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

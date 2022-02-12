@@ -14,12 +14,13 @@ import useColorScheme from "hooks/useColorScheme";
 import moment from "moment";
 
 export default function TaskScreen() {
-  const { loading, error } = useAppSelector((state) => state.tasks);
+  const { loading, error, completionPercentage } = useAppSelector(
+    (state) => state.tasks,
+  );
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   // TODO plan the logic of the percentage value and how it changes/to what
-  const [percentage, setPercentage] = useState<number>(0);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   // keep track of both the date object and date string states
@@ -75,7 +76,7 @@ export default function TaskScreen() {
           />
           <View style={styles.circularWrapper}>
             <CircularProgress
-              value={percentage}
+              value={completionPercentage}
               valueSuffix={"%"}
               titleFontSize={20}
               circleBackgroundColor="transparent"
