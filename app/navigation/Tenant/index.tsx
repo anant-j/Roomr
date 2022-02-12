@@ -87,6 +87,7 @@ function RootNavigator() {
           name="CreateTask"
           component={CreateTask}
           options={{ title: "Create Task" }}
+          initialParams={{ taskToEdit: {} }}
         />
       </Stack.Group>
     </Stack.Navigator>

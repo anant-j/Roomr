@@ -6,11 +6,15 @@ import { StyleSheet } from "react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import {
   completeTaskThunk,
+  deleteTaskThunk,
   setCompletionPercentage,
+  TaskObject,
 } from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { useNavigation } from "@react-navigation/native";
 
 TaskList.propTypes = {
   selectedDate: PropTypes.string,
@@ -20,6 +24,7 @@ TaskList.propTypes = {
 export default function TaskList({ selectedDate, hideCompleted = false }) {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
   const dispatch = useAppDispatch();
+  const { showActionSheetWithOptions } = useActionSheet();
 
   const [todoTasks, setTodoTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
@@ -28,6 +33,8 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     const taskMonth = moment(new Date(task.due)).format("MMMM YYYY");
     return taskMonth == selectedDate;
   };
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const filteredAllTasks = allTasks.filter(filterTaskByDate);
@@ -56,7 +63,57 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     dispatch(setCompletionPercentage(percentage));
   }, [allTasks, selectedDate]);
 
-  const completeTask = (task: object) => {
+  const onTodoTaskPress = (task: TaskObject) => {
+    showActionSheetWithOptions(
+      {
+        options: ["Complete", "Edit", "Delete", "Cancel"],
+        cancelButtonIndex: 3,
+        title: task.notes ? task.notes : "",
+      },
+      (buttonIndex) => {
+        if (buttonIndex == 0) {
+          completeTask(task);
+        }
+        if (buttonIndex === 1) {
+          navigation.navigate("CreateTask", { taskToEdit: task });
+        } else if (buttonIndex === 2) {
+          onConfirmDelete(task);
+        }
+      },
+    );
+  };
+
+  const onCompleteTaskPress = (task: TaskObject) => {
+    showActionSheetWithOptions(
+      {
+        options: ["Delete", "Cancel"],
+        cancelButtonIndex: 1,
+        title: task.notes ? task.notes : "",
+      },
+      (buttonIndex) => {
+        if (buttonIndex == 0) {
+          onConfirmDelete(task);
+        }
+      },
+    );
+  };
+
+  const onConfirmDelete = (task: TaskObject) => {
+    showActionSheetWithOptions(
+      {
+        title: "Are you sure?",
+        options: ["Delete", "Cancel"],
+        cancelButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          dispatch(deleteTaskThunk(task.id));
+        }
+      },
+    );
+  };
+
+  const completeTask = (task: TaskObject) => {
     dispatch(completeTaskThunk(task));
   };
 
@@ -72,12 +129,18 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
           <Text style={styles.emptyState}>No Tasks This Month!</Text>
         )}
         {todoTasks.length > 0 && (
-          <TodoTasksList todoTasks={todoTasks} completeTask={completeTask} />
+          <TodoTasksList
+            todoTasks={todoTasks}
+            onTodoTaskPress={onTodoTaskPress}
+          />
         )}
         {completedTasks.length > 0 && !hideCompleted && (
           <>
             <Text style={styles.completedText}>Completed Tasks:</Text>
-            <CompletedTasksList completedTasks={completedTasks} />
+            <CompletedTasksList
+              completedTasks={completedTasks}
+              onCompleteTaskPress={onCompleteTaskPress}
+            />
           </>
         )}
       </View>
@@ -85,10 +148,10 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
   );
 }
 
-const TodoTasksList = ({ todoTasks, completeTask }) => {
+const TodoTasksList = ({ todoTasks, onTodoTaskPress }) => {
   return todoTasks.map((item, index) => {
     return (
-      <TouchableOpacity key={index} onPress={() => completeTask(item)}>
+      <TouchableOpacity key={index} onPress={() => onTodoTaskPress(item)}>
         <Task task={item} />
         <View
           style={styles.separator}
@@ -100,10 +163,10 @@ const TodoTasksList = ({ todoTasks, completeTask }) => {
   });
 };
 
-const CompletedTasksList = ({ completedTasks }) => {
+const CompletedTasksList = ({ completedTasks, onCompleteTaskPress }) => {
   return completedTasks.map((item, index) => {
     return (
-      <TouchableOpacity key={index}>
+      <TouchableOpacity key={index} onPress={() => onCompleteTaskPress(item)}>
         <Task task={item} />
         <View
           style={styles.separator}
