@@ -10,6 +10,12 @@ import {
 } from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+
+TaskList.propTypes = {
+  selectedDate: PropTypes.string,
+  hideCompleted: PropTypes.bool,
+};
 
 export default function TaskList({ selectedDate, hideCompleted = false }) {
   const allTasks = useAppSelector((state) => state.tasks.allTasks);
