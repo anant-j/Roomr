@@ -12,6 +12,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { Alert } from "react-native";
 import { logout } from "../firebase";
+import { clearEmergency, declareEmergency } from "./emergencySlice";
 
 const listeners = {
   houseListener: null,
@@ -49,6 +50,14 @@ export const fetchHouseData = (houseID: string) => {
             dispatch(updateLandlord(landlord));
           }
           dispatch(createChats(tenants, landlord));
+          if (doc.data().emergency && doc.data().emergency.active) {
+            const payload = doc.data().emergency;
+            payload["show"] = true;
+            payload["reportedAt"] = new Date(payload["reportedAt"]).toString();
+            dispatch(declareEmergency(payload));
+          } else {
+            dispatch(clearEmergency());
+          }
         } else {
           dispatch(signout("HOUSE_NOT_FOUND"));
         }

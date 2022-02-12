@@ -79,6 +79,60 @@ exports.sendMessage = functions.https.onCall(async (data, context) => {
   };
 });
 
+exports.reportEmergency = functions.https.onCall(async (data, context) => {
+  const message = data.message;
+  const description = data.description || "";
+  const houseId = data.houseID;
+  const houseIsSafe = data.houseIsSafe;
+  if (!message || !houseId || houseIsSafe === undefined) {
+    return {
+      status: "error",
+      code: "MISSING_REQUIRED_FIELDS",
+    };
+  }
+  const auth = context.auth;
+  if (!auth) {
+    return {
+      status: "error",
+      code: "USER_NOT_AUTHENTICATED",
+    };
+  }
+  const requester = auth.token.email;
+  const allTokens = await getExpoTokens(requester, houseId);
+  if (!allTokens.success) {
+    return {
+      status: "error",
+      code: "COULD_NOT_FIND_TOKENS",
+    };
+  }
+  let notificationMessage="";
+  let mainTitle = "";
+  if (houseIsSafe) {
+    mainTitle = "⚠️ Emergency Reported";
+  } else {
+    mainTitle = "⚠️ LEAVE HOUSE IMMEDIATELY";
+    notificationMessage = "Emergency Reported: \n";
+  }
+  if (description && description !== "") {
+    notificationMessage+= `${message} - ${description}`;
+  } else {
+    notificationMessage+= `${message}`;
+  }
+  await db.collection("houses").doc(houseId).update({
+    emergency: {
+      message: message,
+      description: description,
+      reportedAt: new Date(),
+      reportedBy: requester,
+      isSafe: houseIsSafe,
+      active: true,
+    }});
+  await sendExpoNotifications(notificationMessage, allTokens.tokens, mainTitle );
+  return {
+    status: "success",
+  };
+});
+
 exports.signUpTenant = functions.https.onCall(async (data, context) => {
   let userData = validPayload(data, "tenant");
   if (!userData.valid) {
@@ -327,7 +381,40 @@ exports.resetDB = functions.https.onRequest(async (req, res) => {
   res.send("Database reset");
 });
 
-
+/**
+ * @param  {string} requester
+ * @param  {string} houseId
+ */
+async function getExpoTokens(requester, houseId) {
+  const house = await db.collection("houses").doc(houseId).get();
+  let allTokens = [];
+  if (!house.exists) {
+    console.log("House does not exist");
+    return {success: false};
+  }
+  if (house.data().landlord.email !== requester) {
+    const landlord = await db.collection("users").doc(house.data().landlord.email).get();
+    if (!landlord.exists) {
+      console.log("Landlord does not exist");
+      return {success: false};
+    }
+    allTokens.push(landlord.data().expo_token);
+  }
+  for (const tenant of Object.keys(house.data().tenants)) {
+    if (tenant!==requester) {
+      const tenantData = await db.collection("users").doc(tenant).get();
+      if (!tenantData.exists) {
+        console.log("Tenant does not exist");
+        return false;
+      }
+      const tenantToken = tenantData.data().expo_token;
+      allTokens.push(tenantToken);
+    }
+  }
+  const tokenSet = new Set(allTokens);
+  allTokens = Array.from(tokenSet);
+  return {success: true, tokens: allTokens};
+}
 /**
  * @param  {string} message
  * @param  {Array} tokens

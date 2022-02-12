@@ -45,7 +45,10 @@ export default function HomeScreen({
           style={styles.img}
         />
       </ButtonWithImage>
-      <ButtonWithImage style={styles.btn}>
+      <ButtonWithImage
+        style={styles.btn}
+        onPress={() => navigation.navigate("ReportEmergency")}
+      >
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Report</Text>
           <Text style={styles.buttonText}>Emergency</Text>
