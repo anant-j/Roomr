@@ -129,6 +129,7 @@ export default function CreateTask({ route }) {
           onChangeText={setNotes}
           placeholder="Notes"
           maxLength={50}
+          value={notes}
         />
         <View style={styles.notesIconView}>
           <Entypo name="text" size={24} color={Colors[colorScheme].text} />

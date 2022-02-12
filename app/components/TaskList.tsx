@@ -8,6 +8,7 @@ import {
   completeTaskThunk,
   deleteTaskThunk,
   setCompletionPercentage,
+  TaskObject,
 } from "reduxStates/taskSlice";
 import moment from "moment";
 import { useEffect, useState } from "react";
@@ -62,7 +63,7 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     dispatch(setCompletionPercentage(percentage));
   }, [allTasks, selectedDate]);
 
-  const onTodoTaskPress = (task: object) => {
+  const onTodoTaskPress = (task: TaskObject) => {
     showActionSheetWithOptions(
       {
         options: ["Complete", "Edit", "Delete", "Cancel"],
@@ -82,7 +83,7 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     );
   };
 
-  const onCompleteTaskPress = (task: object) => {
+  const onCompleteTaskPress = (task: TaskObject) => {
     showActionSheetWithOptions(
       {
         options: ["Delete", "Cancel"],
@@ -97,7 +98,7 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     );
   };
 
-  const onConfirmDelete = (task: object) => {
+  const onConfirmDelete = (task: TaskObject) => {
     showActionSheetWithOptions(
       {
         title: "Are you sure?",
@@ -112,7 +113,7 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     );
   };
 
-  const completeTask = (task: object) => {
+  const completeTask = (task: TaskObject) => {
     dispatch(completeTaskThunk(task));
   };
 
