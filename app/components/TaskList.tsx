@@ -17,7 +17,7 @@ export default function TaskList(props: any) {
   const [completedTasks, setCompletedTasks] = useState([]);
 
   const filterTaskByDate = (task) => {
-    const taskMonth = moment(task.due).format("MMMM YYYY");
+    const taskMonth = moment(new Date(task.due)).format("MMMM YYYY");
     return taskMonth == selectedDate;
   };
 

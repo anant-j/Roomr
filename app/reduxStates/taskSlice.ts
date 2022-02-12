@@ -47,8 +47,6 @@ export const completeTaskThunk = (task: object) => {
     const { id, createdOn, due } = task;
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
-    console.log("marking: ", task);
-    console.log("Completing: ", id);
     setDoc(doc(db, `houses/${houseID}/tasks`, id), {
       ...task,
       createdOn: new Date(createdOn),

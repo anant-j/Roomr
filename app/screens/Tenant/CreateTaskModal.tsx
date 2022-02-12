@@ -53,7 +53,6 @@ export default function CreateTaskModal() {
       setErrorCode(taskNameValidation.error);
       return;
     }
-    console.log(selectedDate);
     const payload = {
       content: taskName,
       houseID: houseID,
