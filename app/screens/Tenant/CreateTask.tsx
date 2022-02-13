@@ -19,6 +19,7 @@ import useColorScheme from "hooks/useColorScheme";
 import PropTypes from "prop-types";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import moment from "moment";
+import { RRule } from "rrule";
 
 CreateTask.propTypes = {
   route: PropTypes.object,
@@ -51,9 +52,11 @@ export default function CreateTask({ route }) {
       (buttonIndex) => {
         if (buttonIndex == 0) {
           setTaskAssignType("personal");
+          Keyboard.dismiss();
         }
         if (buttonIndex == 1) {
           setTaskAssignType("group");
+          Keyboard.dismiss();
         }
       },
     );
@@ -68,6 +71,7 @@ export default function CreateTask({ route }) {
       (buttonIndex) => {
         if (buttonIndex != 4) {
           setRepeatType(repeatOptions[buttonIndex]);
+          Keyboard.dismiss();
         }
       },
     );
@@ -89,7 +93,8 @@ export default function CreateTask({ route }) {
 
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   const email = useAppSelector((state) => state.auth.email);
-  // const { tenants } = useAppSelector((state) => state.users);
+  const { tenants } = useAppSelector((state) => state.users);
+  const assignOrder = Object.keys(tenants);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
 
@@ -106,33 +111,76 @@ export default function CreateTask({ route }) {
     hideDatePicker();
   };
 
-  const generateDates = () => {
-    switch (repeatType) {
-      case "monthly": {
-        break;
-      }
-      default:
-        break;
-    }
-  };
+  const occurenceDateFormat = "MMMM DD YYYY";
 
   const genOccurrences = () => {
+    let dueDates = [];
+
     switch (repeatType) {
       case "never": {
         const assignTo = taskAssignType === "personal" ? email : email;
-        const dueDate = moment(selectedDate).format("MMMM DD YYYY");
-        const occ = { [dueDate]: { assignedTo: assignTo, completed: false } };
-        return occ;
+        const dueDate = moment(selectedDate).format(occurenceDateFormat);
+        const occs = { [dueDate]: { assignedTo: assignTo, completed: false } };
+        return occs;
       }
-      // case "monthly": {
-      //   const assignTo = taskAssignType === "personal" ? email : email;
-      //   const dueDates = generateDates();
-      //   break;
-      // }
+      case "daily": {
+        // set the selected date 1 back so the rrule library starts at selectedDate
+        const startDate = moment(selectedDate)
+          .subtract(1, "days")
+          .format(occurenceDateFormat);
+        dueDates = new RRule({
+          freq: RRule.DAILY,
+          dtstart: new Date(startDate),
+          count: 366,
+          interval: 1,
+        }).all();
+        break;
+      }
+      case "weekly": {
+        const startDate = moment(selectedDate)
+          .subtract(1, "weeks")
+          .format(occurenceDateFormat);
+        dueDates = new RRule({
+          freq: RRule.WEEKLY,
+          dtstart: new Date(startDate),
+          count: 53,
+          interval: 1,
+        }).all();
+        break;
+      }
+      case "monthly": {
+        const startDate = moment(selectedDate)
+          .subtract(1, "months")
+          .format(occurenceDateFormat);
+        dueDates = new RRule({
+          freq: RRule.MONTHLY,
+          dtstart: new Date(startDate),
+          count: 13,
+          interval: 1,
+        }).all();
+        break;
+      }
       default:
         break;
     }
-    return {};
+    let assignIndex = 0;
+    const occs = dueDates.reduce((acc, date) => {
+      const formattedDate = moment(date).format(occurenceDateFormat);
+      if (assignIndex >= assignOrder.length) {
+        assignIndex = 0;
+      }
+      const newAcc = {
+        ...acc,
+        [formattedDate]: {
+          assignTo:
+            taskAssignType === "personal" ? email : assignOrder[assignIndex],
+          completed: false,
+        },
+      };
+      assignIndex += 1;
+      return newAcc;
+    }, {});
+    return occs;
   };
 
   const handleAddTask = () => {
@@ -143,7 +191,6 @@ export default function CreateTask({ route }) {
       return;
     }
     const occurrences = genOccurrences();
-    // console.log(occurrences);
     if (Object.keys(taskToEdit).length > 0) {
       const payload = {
         ...taskToEdit,
@@ -261,7 +308,7 @@ const styles = StyleSheet.create({
   },
   notesContainer: {
     flexDirection: "row",
-    marginTop: 12,
+    marginTop: 18,
   },
   notesLimit: {
     alignSelf: "flex-end",
@@ -283,7 +330,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "90%",
-    marginTop: 12,
+    marginTop: 18,
     borderRadius: 10,
     fontSize: 20,
     padding: 10,
