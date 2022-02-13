@@ -17,12 +17,12 @@ import { Text, View } from "components/Themed";
 import Colors from "constants/Colors";
 import useColorScheme from "hooks/useColorScheme";
 
-import ModalScreen from "screens/Landlord/ModalScreen";
+import SettingsModal from "screens/Landlord/SettingsModal";
 import NotFoundScreen from "screens/NotFoundScreen";
 import HomeScreen from "screens/Landlord/HomeScreen";
-import TaskScreen from "screens/Tenant/TaskScreen";
-import ChatScreen from "screens/Tenant/ChatScreen";
-import CalendarScreen from "screens/Tenant/CalendarScreen";
+import TicketScreen from "screens/Landlord/TicketScreen";
+import ChatScreen from "screens/Landlord/ChatScreen";
+import CalendarScreen from "screens/Landlord/CalendarScreen";
 
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { useEffect } from "react";
@@ -34,6 +34,7 @@ import {
   RootTabScreenProps,
 } from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
+import CreateTicketModal from "screens/Landlord/CreateTicketModal";
 
 export default function Navigation({
   colorScheme,
@@ -75,11 +76,13 @@ function RootNavigator() {
         options={{ title: "Oops!" }}
       />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Settings" component={SettingsModal} />
+        <Stack.Screen name="Create Ticket" component={CreateTicketModal} />
       </Stack.Group>
     </Stack.Navigator>
   );
 }
+//<Stack.Screen name="Modal" component={ModalScreen} />
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
@@ -107,7 +110,7 @@ function BottomTabNavigator() {
           headerRight: () => (
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <Pressable
-                onPress={() => navigation.navigate("Modal")}
+                onPress={() => navigation.navigate("Settings")}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.5 : 1,
                 })}
@@ -120,7 +123,7 @@ function BottomTabNavigator() {
                 />
               </Pressable>
               <Pressable
-                onPress={() => navigation.navigate("Modal")}
+                onPress={() => navigation.navigate("Settings")}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.5 : 1,
                 })}
@@ -138,9 +141,9 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="TabTwo"
-        component={TaskScreen}
+        component={TicketScreen}
         options={{
-          title: "Tasks",
+          title: "Tickets",
           headerLeft: () => <Text style={styles.logoText}>Roomr</Text>,
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
