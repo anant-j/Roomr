@@ -5,50 +5,11 @@ import { Image, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import TaskList from "components/TaskList";
 import moment from "moment";
 
-//import { StyleSheet } from "react-native";
-//import Task from "components/Task";
-//import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
-//import { completeTaskThunk } from "reduxStates/taskSlice";
-
+import { useNavigation } from "@react-navigation/native";
 export default function HomeScreen({
-  navigation,
+  //navigation,
 }: RootTabScreenProps<"TabOne">) {
-  // use the tasks from the redux state:
-  /* 
-  const allTasks = useAppSelector((state) => state.tasks.allTasks);
-  const dispatch = useAppDispatch();
-
-  const completeTask = (id: string) => {
-    dispatch(completeTaskThunk(id));
-  };
-  */
-
-  /*
-<ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-            }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={styles.items}>
-              {allTasks.map((item, index) => {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => completeTask(item.id)}
-                  >
-                    <Task text={item.content} />
-                    <View
-                      style={styles.separator}
-                      lightColor="#eee"
-                      darkColor="rgba(255,255,255,0.1)"
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </ScrollView>
-  */
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Added this scroll view to enable scrolling when list gets longer than the page */}
@@ -74,7 +35,10 @@ export default function HomeScreen({
           style={styles.img}
         />
       </ButtonWithImage>
-      <ButtonWithImage style={styles.btn}>
+      <ButtonWithImage 
+        onPress={() => navigation.navigate({ name: "Schedule Property Visit" })}
+        style={styles.btn}
+      >
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Schedule</Text>
           <Text style={styles.buttonText}>Property Visit</Text>
