@@ -14,6 +14,10 @@ import Login from "screens/Login";
 import { useAppSelector, useAppDispatch } from "hooks/typedHooks";
 import { fetchAuth } from "reduxStates/firebaseListener";
 import WaitingScreen from "screens/Tenant/WaitingApprovalScreen";
+import EmergencyState from "screens/Tenant/EmergencyState";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { connectActionSheet } from "@expo/react-native-action-sheet";
+
 import "intl";
 import { Platform } from "react-native";
 
@@ -27,11 +31,15 @@ import "intl/locale-data/jsonp/en";
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <AppWithProvider />
-    </Provider>
+    <ActionSheetProvider>
+      <Provider store={store}>
+        <AppWithProvider />
+      </Provider>
+    </ActionSheetProvider>
   );
 }
+
+export const ConnectedApp = connectActionSheet(App);
 
 const AppWithProvider = () => {
   const isLoadingComplete = useCachedResources();
@@ -44,6 +52,8 @@ const AppWithProvider = () => {
   const dispatch = useAppDispatch();
   const tenantMode = useAppSelector((state) => state.auth.type) === "tenant";
   const approved = useAppSelector((state) => state.auth.approved);
+  const isEmergency = useAppSelector((state) => state.emergency.active);
+  const showEmergency = useAppSelector((state) => state.emergency.show);
 
   useEffect(() => {
     dispatch(fetchAuth());
@@ -80,6 +90,14 @@ const AppWithProvider = () => {
       </SafeAreaProvider>
     );
   } else {
+    if (isEmergency && showEmergency) {
+      return (
+        <SafeAreaProvider>
+          <EmergencyState />
+          <StatusBar />
+        </SafeAreaProvider>
+      );
+    }
     if (tenantMode) {
       if (!approved) {
         return (

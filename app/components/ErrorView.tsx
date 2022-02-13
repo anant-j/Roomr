@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet } from "react-native";
 import ErrorBox from "./ErrorBox";
 import { errorFactory } from "utils/ErrorFactory";
+import PropTypes from "prop-types";
 
-// eslint-disable-next-line react/prop-types
 const ErrorView = ({ errorCode, setErrorCode }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -58,5 +58,10 @@ const styles = StyleSheet.create({
     width: "90%",
   },
 });
+
+ErrorView.propTypes = {
+  errorCode: PropTypes.string,
+  setErrorCode: PropTypes.func,
+};
 
 export default ErrorView;

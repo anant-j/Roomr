@@ -34,7 +34,8 @@ import {
   RootTabScreenProps,
 } from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import CreateTaskModal from "screens/Tenant/CreateTaskModal";
+import CreateTask from "screens/Tenant/CreateTask";
+import ReportEmergency from "screens/Tenant/ReportEmergency";
 
 export default function Navigation({
   colorScheme,
@@ -76,9 +77,19 @@ function RootNavigator() {
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
+      <Stack.Screen
+        name="ReportEmergency"
+        component={ReportEmergency}
+        options={{ title: "Report An Emergency" }}
+      />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Settings" component={SettingsModal} />
-        <Stack.Screen name="Create Task" component={CreateTaskModal} />
+        <Stack.Screen
+          name="CreateTask"
+          component={CreateTask}
+          options={{ title: "Create Task" }}
+          initialParams={{ taskToEdit: {} }}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );

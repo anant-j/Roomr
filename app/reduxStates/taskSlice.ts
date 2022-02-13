@@ -1,24 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-interface TaskObject {
+export interface TaskObject {
   completed: boolean;
   content: string;
   createdBy: string;
   createdOn: string;
   due: string;
   id: string;
+  notes: string;
 }
 
 export interface TaskState {
   allTasks: TaskObject[];
+  completionPercentage: number;
   loading: boolean;
   error: any;
 }
 
 const initialState: TaskState = {
   allTasks: [],
+  completionPercentage: 0,
   loading: false,
   error: null,
 };
@@ -34,6 +37,7 @@ export const addTask = (payload: object) => {
         createdOn: new Date(),
         due: new Date(due),
         notes: notes,
+        completed: false,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));
@@ -41,17 +45,45 @@ export const addTask = (payload: object) => {
   };
 };
 
-export const completeTaskThunk = (taskID: string) => {
+export const completeTaskThunk = (task: object) => {
+  return async (dispatch: any, getState: any) => {
+    const { id, createdOn, due } = task;
+    dispatch(modifyTaskPending());
+    const houseID = getState().auth.houses[0];
+    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
+      ...task,
+      createdOn: new Date(createdOn),
+      due: new Date(due),
+      completed: true,
+    }).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
+  };
+};
+
+export const editTask = (task: object) => {
+  return async (dispatch: any, getState: any) => {
+    const { id, createdOn, due, content } = task;
+    console.log("editing: ", task, id);
+    dispatch(modifyTaskPending());
+    const houseID = getState().auth.houses[0];
+    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
+      ...task,
+      createdOn: new Date(createdOn),
+      due: new Date(due),
+    }).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
+  };
+};
+
+export const deleteTaskThunk = (taskID: string) => {
   return async (dispatch: any, getState: any) => {
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
-    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID))
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((error) => {
-        dispatch(modifyTaskError(error));
-      });
+    deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID)).catch((error) => {
+      dispatch(modifyTaskError(error));
+    });
   };
 };
 
@@ -82,6 +114,10 @@ export const taskSlice = createSlice({
       const error = action.payload;
       state.error = error;
     },
+    setCompletionPercentage: (state, action) => {
+      const percentage = action.payload;
+      state.completionPercentage = percentage;
+    },
   },
 });
 
@@ -92,6 +128,7 @@ export const {
   fetchTasksPending,
   modifyTaskPending,
   modifyTaskError,
+  setCompletionPercentage,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

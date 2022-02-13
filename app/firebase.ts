@@ -27,9 +27,10 @@ export const auth = getAuth();
 export const functions = getFunctions(app);
 
 if (localTestMode) {
-  connectFirestoreEmulator(db, "192.168.1.108", 8081);
-  connectAuthEmulator(auth, "http://192.168.1.108:9099");
-  connectFunctionsEmulator(functions, "192.168.1.108", 5001);
+  const localIp = "192.168.1.108";
+  connectFirestoreEmulator(db, localIp, 8081);
+  connectAuthEmulator(auth, `http://${localIp}:9099`);
+  connectFunctionsEmulator(functions, localIp, 5001);
 }
 
 export async function login(email, password) {
@@ -56,3 +57,4 @@ export async function logout() {
 export const tenantSignup = httpsCallable(functions, "signUpTenant");
 export const landlordSignup = httpsCallable(functions, "signUpLandlord");
 export const sendMessage = httpsCallable(functions, "sendMessage");
+export const reportEmergency = httpsCallable(functions, "reportEmergency");
