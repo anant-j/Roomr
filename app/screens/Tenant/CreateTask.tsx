@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Keyboard, StyleSheet, Switch } from "react-native";
+import { Keyboard, StyleSheet, Switch, TouchableOpacity } from "react-native";
 import { Text, View, Button, TextInput } from "components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
@@ -20,6 +20,7 @@ import PropTypes from "prop-types";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import moment from "moment";
 import { RRule } from "rrule";
+import CircleWithInitialsNumbered from "../../components/CircleWithInitialsNumbered";
 
 CreateTask.propTypes = {
   route: PropTypes.object,
@@ -96,6 +97,7 @@ export default function CreateTask({ route }) {
   const email = useAppSelector((state) => state.auth.email);
   const { tenants } = useAppSelector((state) => state.users);
   const assignOrder = Object.keys(tenants);
+  const [usersOrder, setUsersOrder] = useState(assignOrder);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
 
@@ -177,14 +179,14 @@ export default function CreateTask({ route }) {
     let assignIndex = 0;
     const occs = dueDates.reduce((acc, date) => {
       const formattedDate = moment(date).format(occurenceDateFormat);
-      if (assignIndex >= assignOrder.length) {
+      if (assignIndex >= usersOrder.length) {
         assignIndex = 0;
       }
       const newAcc = {
         ...acc,
         [formattedDate]: {
           assignedTo:
-            taskAssignType === "personal" ? email : assignOrder[assignIndex],
+            taskAssignType === "personal" ? email : usersOrder[assignIndex],
           completed: false,
         },
       };
@@ -194,6 +196,40 @@ export default function CreateTask({ route }) {
     return occs;
   };
 
+  const moveUpOrder = (item) => {
+    const index = usersOrder.indexOf(item);
+    if (index > 0) {
+      const newOrder = [...usersOrder];
+      newOrder.splice(index, 1);
+      newOrder.splice(index - 1, 0, item);
+      setUsersOrder(newOrder);
+    }
+  };
+
+  const renderOrderedList = () => {
+    return (
+      <View>
+        <Text style={{ alignSelf: "center", paddingTop: 10 }}>Order:</Text>
+        <View style={{ flexDirection: "row", paddingTop: 10 }}>
+          {usersOrder.map((item, index) => {
+            return (
+              <TouchableOpacity
+                key={item}
+                onPress={() => {
+                  moveUpOrder(item);
+                }}
+              >
+                <CircleWithInitialsNumbered
+                  email={usersOrder[index]}
+                  position={index}
+                ></CircleWithInitialsNumbered>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
   const handleAddTask = () => {
     Keyboard.dismiss();
     const taskNameValidation = validator(taskName, "taskName");
@@ -260,6 +296,7 @@ export default function CreateTask({ route }) {
           )}
         </Button>
       )}
+      {!isEditMode && taskAssignType === "group" && renderOrderedList()}
       <Button
         onPress={showStartDatePicker}
         style={styles.input}
