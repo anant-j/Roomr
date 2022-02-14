@@ -312,7 +312,7 @@ export default function CreateTask({ route }) {
       <DateTimePicker
         isVisible={isStartDatePickerVisible}
         mode="date"
-        display="inline"
+        // display="inline"
         onConfirm={handleConfirmStartDate}
         onCancel={hideDatePicker}
         minimumDate={new Date()}
@@ -322,7 +322,7 @@ export default function CreateTask({ route }) {
       <DateTimePicker
         isVisible={isEndDatePickerVisible}
         mode="date"
-        display="inline"
+        // display="inline"
         onConfirm={handleConfirmEndDate}
         onCancel={hideDatePicker}
         minimumDate={selectedEndDate}
