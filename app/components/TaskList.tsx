@@ -91,12 +91,15 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
   const onCompleteTaskPress = (task: TaskObject) => {
     showActionSheetWithOptions(
       {
-        options: ["Delete", "Cancel"],
-        cancelButtonIndex: 1,
+        options: ["Incomplete", "Delete", "Cancel"],
+        cancelButtonIndex: 2,
         title: task.notes ? task.notes : "",
       },
       (buttonIndex) => {
         if (buttonIndex == 0) {
+          completeTask(task);
+        }
+        if (buttonIndex == 1) {
           onConfirmDelete(task);
         }
       },

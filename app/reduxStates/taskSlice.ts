@@ -59,7 +59,7 @@ export const addTask = (payload: object) => {
 
 export const completeTaskThunk = (task: object) => {
   return async (dispatch: any, getState: any) => {
-    const { id, due, assignedTo } = task;
+    const { id, due, assignedTo, completed } = task;
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
     const thisDoc = doc(db, `houses/${houseID}/tasks`, id);
@@ -68,7 +68,7 @@ export const completeTaskThunk = (task: object) => {
     updateDoc(thisDoc, {
       [`occurrences.${formattedDueDate}`]: {
         assignedTo: assignedTo,
-        completed: true,
+        completed: !completed,
       },
     }).catch((error) => {
       dispatch(modifyTaskError(error));
