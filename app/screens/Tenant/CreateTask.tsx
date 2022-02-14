@@ -98,6 +98,7 @@ export default function CreateTask({ route }) {
   const { tenants } = useAppSelector((state) => state.users);
   const assignOrder = Object.keys(tenants);
   const [usersOrder, setUsersOrder] = useState(assignOrder);
+  const [excludedUsers, setExcludedUsers] = useState([]);
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
 
@@ -206,26 +207,120 @@ export default function CreateTask({ route }) {
     }
   };
 
+  const excludeUser = (user) => {
+    const newExcludedUsers = [...excludedUsers];
+    newExcludedUsers.push(user);
+    setExcludedUsers(newExcludedUsers);
+    const newUsers = [...usersOrder];
+    newUsers.splice(newUsers.indexOf(user), 1);
+    setUsersOrder(newUsers);
+  };
+
+  const includeUser = (user) => {
+    const newExcludedUsers = [...excludedUsers];
+    newExcludedUsers.splice(newExcludedUsers.indexOf(user), 1);
+    setExcludedUsers(newExcludedUsers);
+    const newUsers = [...usersOrder];
+    newUsers.push(user);
+    setUsersOrder(newUsers);
+  };
+
   const renderOrderedList = () => {
     return (
       <View>
-        <Text style={{ alignSelf: "center", paddingTop: 10 }}>Order:</Text>
-        <View style={{ flexDirection: "row", paddingTop: 10 }}>
-          {usersOrder.map((item, index) => {
-            return (
-              <TouchableOpacity
-                key={item}
-                onPress={() => {
-                  moveUpOrder(item);
-                }}
-              >
-                <CircleWithInitialsNumbered
-                  email={usersOrder[index]}
-                  position={index}
-                ></CircleWithInitialsNumbered>
-              </TouchableOpacity>
-            );
-          })}
+        <View>
+          {usersOrder && usersOrder.length > 0 && (
+            <Text
+              style={{
+                alignSelf: "center",
+                paddingTop: 10,
+                textAlign: "center",
+              }}
+            >
+              Scheduling order:
+            </Text>
+          )}
+          <View
+            style={{
+              alignSelf: "center",
+              flexDirection: "row",
+              paddingTop: 10,
+            }}
+          >
+            {usersOrder &&
+              usersOrder.length > 0 &&
+              usersOrder.map((item, index) => {
+                return (
+                  <TouchableOpacity
+                    key={item}
+                    onPress={() => {
+                      moveUpOrder(item);
+                    }}
+                    onLongPress={() => {
+                      excludeUser(item);
+                    }}
+                  >
+                    <CircleWithInitialsNumbered
+                      email={item}
+                      position={index + 1}
+                    ></CircleWithInitialsNumbered>
+                  </TouchableOpacity>
+                );
+              })}
+          </View>
+        </View>
+        <View>
+          {excludedUsers.length > 0 ? (
+            <Text
+              style={{
+                alignSelf: "center",
+                paddingTop: 10,
+                textAlign: "center",
+              }}
+            >
+              Excluded from task:
+            </Text>
+          ) : (
+            <Text
+              style={{
+                paddingTop: 10,
+                paddingHorizontal: 20,
+                textAlign: "center",
+              }}
+            >
+              Tap on a user to move them up in the scheduling order.
+              {"\n\n"}
+              Hold on a user to add/remove them from the task.
+            </Text>
+          )}
+          <View style={{ flexDirection: "row", paddingTop: 10 }}>
+            {/* {excludedUsers.length > 0 && (
+            <View
+              style={{
+                width: 2,
+                height: "100%",
+                marginLeft: 20,
+                backgroundColor: "gray",
+              }}
+            />
+          )} */}
+            {excludedUsers.length > 0 &&
+              excludedUsers.map((item) => {
+                return (
+                  <TouchableOpacity
+                    key={item}
+                    onLongPress={() => {
+                      includeUser(item);
+                    }}
+                  >
+                    <CircleWithInitialsNumbered
+                      email={item}
+                      position={-1}
+                    ></CircleWithInitialsNumbered>
+                  </TouchableOpacity>
+                );
+              })}
+          </View>
         </View>
       </View>
     );
@@ -235,6 +330,10 @@ export default function CreateTask({ route }) {
     const taskNameValidation = validator(taskName, "taskName");
     if (!taskNameValidation.success) {
       setErrorCode(taskNameValidation.error);
+      return;
+    }
+    if (usersOrder.length === 0) {
+      setErrorCode("no-users-to-add");
       return;
     }
 

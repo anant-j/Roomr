@@ -103,6 +103,10 @@ export const errorFactory = (code: string) => {
       return {
         message: "Please fill in all input fields.",
       };
+    case "no-users-to-add":
+      return {
+        message: "Please include at least one user for the task.",
+      };
     default:
       return {
         redirectScreen: "home",
