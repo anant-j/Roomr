@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   connectAuthEmulator,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import {
   getFunctions,
@@ -52,6 +53,21 @@ export async function logout() {
   signOut(auth).catch((error) => {
     console.log(error);
   });
+}
+
+export async function resetPassword(email) {
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      return {
+        success: true,
+      };
+    })
+    .catch(() => {
+      return {
+        success: false,
+      };
+      // ..
+    });
 }
 
 export const tenantSignup = httpsCallable(functions, "signUpTenant");
