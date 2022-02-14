@@ -78,28 +78,22 @@ export const fetchHouseData = (houseID: string) => {
             content,
             createdBy,
             createdOn,
-            due,
             notes,
             occurrences,
+            repeatType,
           } = doc.data();
 
-          // console.log("occ count: ", occurrences.length);
-          console.log(
-            "got occurrences ****************************************",
-            Object.keys(occurrences).length,
-          );
-
           const createdOnDate = new Date(createdOn.seconds * 1000).toString();
-          const dueOnDate = new Date(due.seconds * 1000).toString();
 
           const task = {
             completed,
             content,
             createdBy,
             createdOn: createdOnDate,
-            due: dueOnDate,
             id: doc.id,
             notes,
+            occurrences: occurrences,
+            repeatType: repeatType,
           };
 
           tasks.push(task);
@@ -108,9 +102,38 @@ export const fetchHouseData = (houseID: string) => {
           dispatch(fetchTasksError(error));
         }
       });
-      const payload = { tasks: getSortedTasks(tasks) };
+      const aggregatedTasks = aggregateAllTasks(tasks);
+      const payload = { tasks: getSortedTasks(aggregatedTasks) };
       dispatch(fetchTasksFulfilled(payload));
     });
+
+    const aggregateAllTasks = (tasks) => {
+      const aggregated = tasks.reduce(
+        (acc, task) => reduceSingleTask(acc, task),
+        [],
+      );
+      return aggregated;
+    };
+
+    const reduceSingleTask = (acc, task) => {
+      // map over all occurrences of this task
+      const listOfTasksPerOccurrence = Object.keys(task.occurrences).reduce(
+        (acc, occurrence) => {
+          const thisOccurrenceInfo = task.occurrences[occurrence];
+          const taskObjectForOccurrence = {
+            ...task,
+            completed: thisOccurrenceInfo.completed,
+            assignedTo: thisOccurrenceInfo.assignedTo,
+            due: new Date(occurrence).toString(),
+            occurrences: {},
+          };
+          const newAcc = [...acc, taskObjectForOccurrence];
+          return newAcc;
+        },
+        [],
+      );
+      return [...acc, ...listOfTasksPerOccurrence];
+    };
 
     const messagesQuery = query(collection(db, `houses/${houseID}/chats`));
     if (listeners.chatsListener) {

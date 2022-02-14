@@ -4210,6 +4210,13 @@ expo-font@~10.0.3:
   dependencies:
     fontfaceobserver "^2.1.0"
 
+expo-haptics@~11.0.3:
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/expo-haptics/-/expo-haptics-11.0.3.tgz#a6b9298bbacacd12c225284309ce116068a9aa07"
+  integrity sha512-kc2U8veg26NrNuyxKRwimQDPj2plhuH9jZQvMbqb44SyRLtP+hJan3ogMwA5QRemm46nJBTFurHNyS5REc6B7w==
+  dependencies:
+    expo-modules-core "~0.4.4"
+
 expo-json-utils@~0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/expo-json-utils/-/expo-json-utils-0.2.1.tgz#a8d15181e361f3fc782d5241ce381851bab4465b"

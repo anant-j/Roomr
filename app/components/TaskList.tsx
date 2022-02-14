@@ -6,7 +6,8 @@ import { StyleSheet } from "react-native";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import {
   completeTaskThunk,
-  deleteTaskThunk,
+  deleteAllTaskOccurrences,
+  deleteSingleTaskOccurrence,
   setCompletionPercentage,
   TaskObject,
 } from "reduxStates/taskSlice";
@@ -15,6 +16,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useNavigation } from "@react-navigation/native";
+import * as Haptics from "expo-haptics";
 
 TaskList.propTypes = {
   selectedDate: PropTypes.string,
@@ -77,7 +79,10 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
         if (buttonIndex === 1) {
           navigation.navigate("CreateTask", { taskToEdit: task });
         } else if (buttonIndex === 2) {
-          onConfirmDelete(task);
+          if (task.repeatType === "none") onConfirmDelete(task);
+          else {
+            chooseDeleteType(task);
+          }
         }
       },
     );
@@ -98,7 +103,24 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
     );
   };
 
-  const onConfirmDelete = (task: TaskObject) => {
+  const chooseDeleteType = (task: TaskObject) => {
+    showActionSheetWithOptions(
+      {
+        options: ["This occurrence", "All occurrences", "Cancel"],
+        cancelButtonIndex: 2,
+      },
+      (buttonIndex) => {
+        if (buttonIndex == 0) {
+          onConfirmDelete(task, "one");
+        }
+        if (buttonIndex == 1) {
+          onConfirmDelete(task, "all");
+        }
+      },
+    );
+  };
+
+  const onConfirmDelete = (task: TaskObject, allOrOne = "one") => {
     showActionSheetWithOptions(
       {
         title: "Are you sure?",
@@ -107,7 +129,8 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
-          dispatch(deleteTaskThunk(task.id));
+          if (allOrOne === "all") dispatch(deleteAllTaskOccurrences(task.id));
+          else dispatch(deleteSingleTaskOccurrence(task));
         }
       },
     );
@@ -125,8 +148,8 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.items}>
-        {todoTasks.length == 0 && completedTasks.length == 0 && (
-          <Text style={styles.emptyState}>No Tasks This Month!</Text>
+        {todoTasks.length == 0 && (
+          <Text style={styles.emptyState}>Nothing TODO!</Text>
         )}
         {todoTasks.length > 0 && (
           <TodoTasksList
@@ -151,7 +174,13 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
 const TodoTasksList = ({ todoTasks, onTodoTaskPress }) => {
   return todoTasks.map((item, index) => {
     return (
-      <TouchableOpacity key={index} onPress={() => onTodoTaskPress(item)}>
+      <TouchableOpacity
+        key={index}
+        onLongPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          onTodoTaskPress(item);
+        }}
+      >
         <Task task={item} />
         <View
           style={styles.separator}
@@ -166,7 +195,13 @@ const TodoTasksList = ({ todoTasks, onTodoTaskPress }) => {
 const CompletedTasksList = ({ completedTasks, onCompleteTaskPress }) => {
   return completedTasks.map((item, index) => {
     return (
-      <TouchableOpacity key={index} onPress={() => onCompleteTaskPress(item)}>
+      <TouchableOpacity
+        key={index}
+        onLongPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          onCompleteTaskPress(item);
+        }}
+      >
         <Task task={item} />
         <View
           style={styles.separator}
