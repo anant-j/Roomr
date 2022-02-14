@@ -1,9 +1,10 @@
 import React from "react";
 import { StyleSheet } from "react-native";
+import CircleWithInitials from "./CircleWithInitials";
 import { Text, View } from "./Themed";
 
 const Task = (props: any) => {
-  const { content, due } = props.task;
+  const { content, due, assignedTo } = props.task;
 
   const dateFormat = {
     month: "long",
@@ -20,7 +21,7 @@ const Task = (props: any) => {
         >
           {content}
         </Text>
-        <View style={styles.circle}></View>
+        <CircleWithInitials email={assignedTo} />
       </View>
       <View
       //   style={styles.itemDate}

@@ -1,5 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+  deleteField,
+} from "firebase/firestore";
+import moment from "moment";
 import { db } from "../firebase";
 
 export interface TaskObject {
@@ -10,6 +18,7 @@ export interface TaskObject {
   due: string;
   id: string;
   notes: string;
+  repeatType: string;
 }
 
 export interface TaskState {
@@ -26,8 +35,10 @@ const initialState: TaskState = {
   error: null,
 };
 
+const occurenceDateFormat = "MMMM DD YYYY";
+
 export const addTask = (payload: object) => {
-  const { content, houseID, email, due, notes } = payload;
+  const { content, houseID, email, notes, occurrences, repeatType } = payload;
   return async (dispatch: any) => {
     dispatch(modifyTaskPending());
     try {
@@ -35,9 +46,10 @@ export const addTask = (payload: object) => {
         content: content,
         createdBy: email,
         createdOn: new Date(),
-        due: new Date(due),
         notes: notes,
         completed: false,
+        repeatType: repeatType,
+        occurrences: occurrences,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));
@@ -47,14 +59,17 @@ export const addTask = (payload: object) => {
 
 export const completeTaskThunk = (task: object) => {
   return async (dispatch: any, getState: any) => {
-    const { id, createdOn, due } = task;
+    const { id, due, assignedTo, completed } = task;
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
-    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
-      ...task,
-      createdOn: new Date(createdOn),
-      due: new Date(due),
-      completed: true,
+    const thisDoc = doc(db, `houses/${houseID}/tasks`, id);
+    const formattedDueDate = moment(new Date(due)).format(occurenceDateFormat);
+
+    updateDoc(thisDoc, {
+      [`occurrences.${formattedDueDate}`]: {
+        assignedTo: assignedTo,
+        completed: !completed,
+      },
     }).catch((error) => {
       dispatch(modifyTaskError(error));
     });
@@ -63,26 +78,61 @@ export const completeTaskThunk = (task: object) => {
 
 export const editTask = (task: object) => {
   return async (dispatch: any, getState: any) => {
-    const { id, createdOn, due, content } = task;
-    console.log("editing: ", task, id);
+    const {
+      id,
+      content,
+      oldDueDate,
+      newDueDate,
+      notes,
+      completed,
+      assignedTo,
+    } = task;
     dispatch(modifyTaskPending());
+
     const houseID = getState().auth.houses[0];
-    setDoc(doc(db, `houses/${houseID}/tasks`, id), {
-      ...task,
-      createdOn: new Date(createdOn),
-      due: new Date(due),
+    const thisDoc = doc(db, `houses/${houseID}/tasks`, id);
+    const formattedOldDueDate = moment(new Date(oldDueDate)).format(
+      occurenceDateFormat,
+    );
+    const formattedNewDueDate = moment(new Date(newDueDate)).format(
+      occurenceDateFormat,
+    );
+
+    updateDoc(thisDoc, {
+      content: content,
+      notes: notes,
+      [`occurrences.${formattedOldDueDate}`]: deleteField(),
+      [`occurrences.${formattedNewDueDate}`]: {
+        completed: completed,
+        assignedTo: assignedTo,
+      },
     }).catch((error) => {
       dispatch(modifyTaskError(error));
     });
   };
 };
 
-export const deleteTaskThunk = (taskID: string) => {
+export const deleteAllTaskOccurrences = (taskID: string) => {
   return async (dispatch: any, getState: any) => {
     dispatch(modifyTaskPending());
     const houseID = getState().auth.houses[0];
     deleteDoc(doc(db, `houses/${houseID}/tasks`, taskID)).catch((error) => {
       dispatch(modifyTaskError(error));
+    });
+  };
+};
+
+export const deleteSingleTaskOccurrence = (task: TaskObject) => {
+  return async (dispatch: any, getState: any) => {
+    const { id, due } = task;
+    const formattedDue = moment(new Date(due)).format(occurenceDateFormat);
+    dispatch(modifyTaskPending());
+
+    const houseID = getState().auth.houses[0];
+    const thisDoc = doc(db, `houses/${houseID}/tasks`, id);
+
+    updateDoc(thisDoc, {
+      [`occurrences.${formattedDue}`]: deleteField(),
     });
   };
 };
