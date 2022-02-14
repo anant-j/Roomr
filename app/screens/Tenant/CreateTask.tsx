@@ -1,8 +1,14 @@
 import * as React from "react";
-import { Keyboard, StyleSheet, Switch, TouchableOpacity } from "react-native";
+import {
+  Keyboard,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+} from "react-native";
 import { Text, View, Button, TextInput } from "components/Themed";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { addTask, editTask } from "reduxStates/taskSlice";
 import { validator } from "utils/Validations";
@@ -49,6 +55,7 @@ export default function CreateTask({ route }) {
   const [taskAssignType, setTaskAssignType] = useState("personal");
   const repeatOptions = { 0: "never", 1: "daily", 2: "weekly", 3: "monthly" };
   const [repeatType, setRepeatType] = useState(repeatOptions[0]);
+  const scrollRef = useRef(null)
 
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -329,10 +336,12 @@ export default function CreateTask({ route }) {
     Keyboard.dismiss();
     const taskNameValidation = validator(taskName, "taskName");
     if (!taskNameValidation.success) {
+      scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode(taskNameValidation.error);
       return;
     }
     if (usersOrder.length === 0) {
+      scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("no-users-to-add");
       return;
     }
@@ -363,79 +372,56 @@ export default function CreateTask({ route }) {
   };
 
   return (
-    <View style={styles.container}>
-      <ErrorView errorCode={errorCode} setErrorCode={setErrorCode} />
-      <TextInput
-        style={styles.input}
-        onChangeText={setTaskName}
-        placeholder="Task Name"
-        value={taskName}
-      />
-      {/* note: when editing a task, user should not be able to change assign type */}
-      {!isEditMode && (
-        <Button
-          onPress={onAssignTypePressed}
+    <ScrollView
+      ref={scrollRef}
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingBottom: 100,
+      }}
+      // style={{ bottom: 100 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.container}>
+        <ErrorView errorCode={errorCode} setErrorCode={setErrorCode} />
+        <TextInput
           style={styles.input}
-          darkColor={Colors.dark.textBackground}
-          lightColor={Colors.light.textBackground}
-        >
-          <Text style={styles.inputText}>type: {taskAssignType}</Text>
-          {taskAssignType === "personal" ? (
-            <Ionicons
-              name="person"
-              size={24}
-              color={Colors[colorScheme].text}
-            />
-          ) : (
-            <FontAwesome
-              name="group"
-              size={24}
-              color={Colors[colorScheme].text}
-            />
-          )}
-        </Button>
-      )}
-      {!isEditMode && taskAssignType === "group" && renderOrderedList()}
-      <Button
-        onPress={showStartDatePicker}
-        style={styles.input}
-        darkColor={Colors.dark.textBackground}
-        lightColor={Colors.light.textBackground}
-      >
-        <Text style={styles.inputText}>
-          {moment(selectedStartDate).format(dateTextFormat)}
-        </Text>
-        <MaterialIcons
-          name="date-range"
-          size={24}
-          color={Colors[colorScheme].text}
+          onChangeText={setTaskName}
+          placeholder="Task Name"
+          value={taskName}
         />
-      </Button>
-      {/* note: when editing a task, user should not be able to change recurrence */}
-      {!isEditMode && (
+        {/* note: when editing a task, user should not be able to change assign type */}
+        {!isEditMode && (
+          <Button
+            onPress={onAssignTypePressed}
+            style={styles.input}
+            darkColor={Colors.dark.textBackground}
+            lightColor={Colors.light.textBackground}
+          >
+            <Text style={styles.inputText}>type: {taskAssignType}</Text>
+            {taskAssignType === "personal" ? (
+              <Ionicons
+                name="person"
+                size={24}
+                color={Colors[colorScheme].text}
+              />
+            ) : (
+              <FontAwesome
+                name="group"
+                size={24}
+                color={Colors[colorScheme].text}
+              />
+            )}
+          </Button>
+        )}
+        {!isEditMode && taskAssignType === "group" && renderOrderedList()}
         <Button
-          onPress={onRepeatPressed}
-          style={styles.input}
-          darkColor={Colors.dark.textBackground}
-          lightColor={Colors.light.textBackground}
-        >
-          <Text style={styles.inputText}>repeats: {repeatType}</Text>
-          <FontAwesome
-            name="repeat"
-            size={24}
-            color={Colors[colorScheme].text}
-          />
-        </Button>
-      )}
-      {repeatType !== "never" && (
-        <Button
-          onPress={showEndDatePicker}
+          onPress={showStartDatePicker}
           style={styles.input}
           darkColor={Colors.dark.textBackground}
           lightColor={Colors.light.textBackground}
         >
           <Text style={styles.inputText}>
-            Until: {moment(selectedEndDate).format(dateTextFormat)}
+            {moment(selectedStartDate).format(dateTextFormat)}
           </Text>
           <MaterialIcons
             name="date-range"
@@ -443,48 +429,81 @@ export default function CreateTask({ route }) {
             color={Colors[colorScheme].text}
           />
         </Button>
-      )}
-      {/* start date picker */}
-      <DateTimePicker
-        isVisible={isStartDatePickerVisible}
-        mode="date"
-        // display="inline"
-        onConfirm={handleConfirmStartDate}
-        onCancel={hideDatePicker}
-        minimumDate={new Date()}
-        date={selectedStartDate}
-      />
-      {/* end date picker */}
-      <DateTimePicker
-        isVisible={isEndDatePickerVisible}
-        mode="date"
-        // display="inline"
-        onConfirm={handleConfirmEndDate}
-        onCancel={hideDatePicker}
-        minimumDate={selectedEndDate}
-        date={selectedEndDate}
-      />
-      <View style={styles.notesContainer}>
-        <TextInput
-          style={[styles.input, styles.notesInput]}
-          onChangeText={setNotes}
-          placeholder="Notes"
-          maxLength={50}
-          value={notes}
+        {/* note: when editing a task, user should not be able to change recurrence */}
+        {!isEditMode && (
+          <Button
+            onPress={onRepeatPressed}
+            style={styles.input}
+            darkColor={Colors.dark.textBackground}
+            lightColor={Colors.light.textBackground}
+          >
+            <Text style={styles.inputText}>repeats: {repeatType}</Text>
+            <FontAwesome
+              name="repeat"
+              size={24}
+              color={Colors[colorScheme].text}
+            />
+          </Button>
+        )}
+        {repeatType !== "never" && (
+          <Button
+            onPress={showEndDatePicker}
+            style={styles.input}
+            darkColor={Colors.dark.textBackground}
+            lightColor={Colors.light.textBackground}
+          >
+            <Text style={styles.inputText}>
+              Until: {moment(selectedEndDate).format(dateTextFormat)}
+            </Text>
+            <MaterialIcons
+              name="date-range"
+              size={24}
+              color={Colors[colorScheme].text}
+            />
+          </Button>
+        )}
+        {/* start date picker */}
+        <DateTimePicker
+          isVisible={isStartDatePickerVisible}
+          mode="date"
+          // display="inline"
+          onConfirm={handleConfirmStartDate}
+          onCancel={hideDatePicker}
+          minimumDate={new Date()}
+          date={selectedStartDate}
         />
-        <View style={styles.notesIconView}>
-          <Entypo name="text" size={24} color={Colors[colorScheme].text} />
+        {/* end date picker */}
+        <DateTimePicker
+          isVisible={isEndDatePickerVisible}
+          mode="date"
+          // display="inline"
+          onConfirm={handleConfirmEndDate}
+          onCancel={hideDatePicker}
+          minimumDate={selectedEndDate}
+          date={selectedEndDate}
+        />
+        <View style={styles.notesContainer}>
+          <TextInput
+            style={[styles.input, styles.notesInput]}
+            onChangeText={setNotes}
+            placeholder="Notes"
+            maxLength={50}
+            value={notes}
+          />
+          <View style={styles.notesIconView}>
+            <Entypo name="text" size={24} color={Colors[colorScheme].text} />
+          </View>
         </View>
+        {notes.length > 0 ? (
+          <Text style={styles.notesLimit}>{notes.length}/50</Text>
+        ) : (
+          <Text style={styles.notesLimit}> </Text>
+        )}
+        <Button onPress={handleAddTask} style={styles.buttonContainer}>
+          <Text style={styles.buttonText}>Save</Text>
+        </Button>
       </View>
-      {notes.length > 0 ? (
-        <Text style={styles.notesLimit}>{notes.length}/50</Text>
-      ) : (
-        <Text style={styles.notesLimit}> </Text>
-      )}
-      <Button onPress={handleAddTask} style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>Save</Text>
-      </Button>
-    </View>
+    </ScrollView>
   );
 }
 
