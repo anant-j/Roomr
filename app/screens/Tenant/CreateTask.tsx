@@ -162,13 +162,9 @@ export default function CreateTask({ route }) {
         break;
       }
       case "monthly": {
-        // set the selected date 1 month back so the rrule library starts at selectedStartDate
-        const startDate = moment(selectedStartDate)
-          .subtract(1, "months")
-          .format(occurenceDateFormat);
         dueDates = new RRule({
           freq: RRule.MONTHLY,
-          dtstart: new Date(startDate),
+          dtstart: new Date(selectedStartDate),
           until: new Date(selectedEndDate),
           count: 13,
           interval: 1,
