@@ -341,12 +341,16 @@ export default function CreateTask({ route }) {
       setErrorCode(taskNameValidation.error);
       return;
     }
-    if (usersOrder.length === 0) {
+    if (usersOrder.length === 0 && taskAssignType !== "personal") {
       scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("no-users-to-add");
       return;
     }
-    if (usersOrder.length > 1 && repeatType === "never") {
+    if (
+      usersOrder.length > 1 &&
+      repeatType === "never" &&
+      taskAssignType !== "personal"
+    ) {
       scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("multiple-users-and-never-repeat");
       return;
