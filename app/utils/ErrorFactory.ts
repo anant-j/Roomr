@@ -107,6 +107,10 @@ export const errorFactory = (code: string) => {
       return {
         message: "Please include at least one user for the task.",
       };
+    case "multiple-users-and-never-repeat":
+      return {
+        message: "You cannot add multiple users for a task that never repeats",
+      };
     default:
       return {
         redirectScreen: "home",

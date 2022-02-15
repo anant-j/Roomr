@@ -55,7 +55,7 @@ export default function CreateTask({ route }) {
   const [taskAssignType, setTaskAssignType] = useState("personal");
   const repeatOptions = { 0: "never", 1: "daily", 2: "weekly", 3: "monthly" };
   const [repeatType, setRepeatType] = useState(repeatOptions[0]);
-  const scrollRef = useRef(null)
+  const scrollRef = useRef(null);
 
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -141,7 +141,7 @@ export default function CreateTask({ route }) {
 
     switch (repeatType) {
       case "never": {
-        const assignedTo = taskAssignType === "personal" ? email : email;
+        const assignedTo = taskAssignType === "personal" ? email : usersOrder[0];
         const dueDate = moment(selectedStartDate).format(occurenceDateFormat);
         const occs = {
           [dueDate]: { assignedTo: assignedTo, completed: false },
@@ -343,6 +343,11 @@ export default function CreateTask({ route }) {
     if (usersOrder.length === 0) {
       scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("no-users-to-add");
+      return;
+    }
+    if (usersOrder.length > 1 && repeatType === "never") {
+      scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
+      setErrorCode("multiple-users-and-never-repeat");
       return;
     }
 
