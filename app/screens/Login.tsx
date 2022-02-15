@@ -5,9 +5,10 @@ import {
   Image,
   TouchableWithoutFeedback,
   TextProps,
+  Alert,
 } from "react-native";
 import { Text, View, Button, TextInput } from "../components/Themed";
-import { login } from "../firebase";
+import { login, resetPassword } from "../firebase";
 // import { useAppDispatch } from "hooks/typedHooks";
 import { useState, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
@@ -75,27 +76,29 @@ export default function LoginScreen() {
     }).start();
   };
 
-  const setError = (code: string) => {
-    switch (errorFactory(code).redirectScreen) {
-      case "none":
-        break;
-      case "email":
-        if (loginMode) {
-          setScreen("login");
-        } else {
-          setScreen("email");
-        }
-        break;
-      case "password":
-        if (loginMode) {
-          setScreen("login");
-        } else {
-          setScreen("password");
-        }
-        break;
-      default:
-        setScreen(errorFactory(code).redirectScreen);
-        break;
+  const setError = (code: string, redirect = true) => {
+    if (redirect) {
+      switch (errorFactory(code).redirectScreen) {
+        case "none":
+          break;
+        case "email":
+          if (loginMode) {
+            setScreen("login");
+          } else {
+            setScreen("email");
+          }
+          break;
+        case "password":
+          if (loginMode) {
+            setScreen("login");
+          } else {
+            setScreen("password");
+          }
+          break;
+        default:
+          setScreen(errorFactory(code).redirectScreen);
+          break;
+      }
     }
     setErrorMessage(errorFactory(code).message);
     fadeIn();
@@ -157,6 +160,7 @@ export default function LoginScreen() {
     switch (screen) {
       case "home":
       case "login":
+      case "forgotPassword":
       case "waiting":
       case "allSet":
         return 0;
@@ -270,6 +274,14 @@ export default function LoginScreen() {
                 />
               </View>
             </View>
+            <Button
+              onPress={() => {
+                setScreen("forgotPassword");
+              }}
+              style={[styles.button, styles.forgotPasswordButton]}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password</Text>
+            </Button>
             <View style={styles.buttonsContainer}>
               <Button
                 onPress={() => {
@@ -300,6 +312,53 @@ export default function LoginScreen() {
                 style={[styles.button, styles.sideBySideRight]}
               >
                 <Text style={styles.buttonText}>Login</Text>
+              </Button>
+            </View>
+          </View>
+        </View>
+      );
+    case "forgotPassword":
+      return (
+        <View style={styles.container}>
+          <Text style={styles.title}>Forgot Password</Text>
+          {errorComponent()}
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              onChangeText={onChangeEmail}
+              value={email}
+              keyboardType="email-address"
+              placeholder="Enter Email"
+              autoCapitalize="none"
+            />
+            <View style={styles.buttonsContainer}>
+              <Button
+                onPress={() => {
+                  setScreen("login");
+                }}
+                style={[styles.button, styles.sideBySideLeft]}
+              >
+                <Text style={styles.buttonText}>Previous</Text>
+              </Button>
+              <Button
+                onPress={() => {
+                  const emailValidation = validator(email, "email");
+                  if (!emailValidation.success) {
+                    setError(emailValidation.error, false);
+                  } else {
+                    onChangeEmail(emailValidation.sanitized);
+                    resetPassword(email).then((result) => {
+                      setScreen("login");
+                      Alert.alert(
+                        "Please check your email",
+                        "A password reset email has been sent to your email address.",
+                      );
+                    });
+                  }
+                }}
+                style={[styles.button, styles.sideBySideRight]}
+              >
+                <Text style={styles.buttonText}>Reset</Text>
               </Button>
             </View>
           </View>
@@ -756,7 +815,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-
+  forgotPasswordButton: {
+    marginTop: 10,
+    backgroundColor: "transparent",
+  },
+  forgotPasswordText: {
+    fontSize: 20,
+  },
   maintitle: {
     // width: "70%",
     alignSelf: "center",

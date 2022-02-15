@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, View, ButtonWithImage} from "components/Themed";
+import { Text, View, ButtonWithImage } from "components/Themed";
 import { RootTabScreenProps } from "types";
 import { Image, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import TaskList from "components/TaskList";
