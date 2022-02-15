@@ -141,7 +141,8 @@ export default function CreateTask({ route }) {
 
     switch (repeatType) {
       case "never": {
-        const assignedTo = taskAssignType === "personal" ? email : usersOrder[0];
+        const assignedTo =
+          taskAssignType === "personal" ? email : usersOrder[0];
         const dueDate = moment(selectedStartDate).format(occurenceDateFormat);
         const occs = {
           [dueDate]: { assignedTo: assignedTo, completed: false },
@@ -362,6 +363,15 @@ export default function CreateTask({ route }) {
       dispatch(editTask(payload));
     } else {
       const occurrences = genOccurrences();
+      if (
+        taskAssignType !== "personal" &&
+        repeatType !== "never" &&
+        Object.keys(occurrences).length < usersOrder.length
+      ) {
+        scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
+        setErrorCode("more-users-than-occurrences");
+        return;
+      }
       const payload = {
         content: taskName,
         houseID: houseID,
