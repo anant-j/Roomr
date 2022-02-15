@@ -3,6 +3,7 @@ import { Text, View, ButtonWithImage } from "components/Themed";
 import { RootTabScreenProps } from "types";
 import { Image, StyleSheet } from "react-native";
 import TaskList from "components/TaskList";
+import moment from "moment";
 
 export default function HomeScreen({
   navigation,
@@ -18,7 +19,10 @@ export default function HomeScreen({
           <View style={styles.titleWrapper}>
             <Text style={styles.sectionTitle}>Upcoming Tasks</Text>
           </View>
-          <TaskList />
+          <TaskList
+            selectedDate={moment(new Date()).format("MMMM YYYY")}
+            hideCompleted={true}
+          />
         </View>
       </View>
 
@@ -41,7 +45,10 @@ export default function HomeScreen({
           style={styles.img}
         />
       </ButtonWithImage>
-      <ButtonWithImage style={styles.btn}>
+      <ButtonWithImage
+        style={styles.btn}
+        onPress={() => navigation.navigate("ReportEmergency")}
+      >
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Report</Text>
           <Text style={styles.buttonText}>Emergency</Text>

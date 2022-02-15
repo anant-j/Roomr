@@ -25,24 +25,26 @@ export const createChats = (tenants, landlord) => {
   return async (dispatch: any, getState: any) => {
     dispatch(fetchChatsPending());
     const data = {};
-    for (const tenant of Object.keys(tenants)) {
-      if (tenant !== getState().auth.email) {
-        data[tenant] = {
-          name: tenants[tenant],
-        };
+    if (tenants) {
+      for (const tenant of Object.keys(tenants)) {
+        if (tenant !== getState().auth.email) {
+          data[tenant] = {
+            name: tenants[tenant],
+          };
+        }
       }
     }
-    if (landlord) {
+    if (landlord && landlord.email !== getState().auth.email) {
       data[landlord.email] = {
         name: landlord.name + " (Landlord)",
       };
     }
-    if (Object.keys(tenants).length > 2) {
+    if (tenants && Object.keys(tenants).length > 2) {
       data["tenantgc"] = {
         name: "Tenant Group Chat",
       };
     }
-    if (Object.keys(tenants).length > 1) {
+    if (tenants && Object.keys(tenants).length > 1) {
       data["landlordgc"] = {
         name: "Landlord Group Chat",
       };

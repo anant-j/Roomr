@@ -13,14 +13,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import useColorScheme from "hooks/useColorScheme";
 import moment from "moment";
 
-export default function TaskScreen() {
-  const { loading, error, completionPercentage } = useAppSelector(
-    (state) => state.tasks,
-  );
+export default function TicketScreen() {
+  const { loading, error } = useAppSelector((state) => state.tasks);
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   // TODO plan the logic of the percentage value and how it changes/to what
+  const [percentage, setPercentage] = useState<number>(0);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   // keep track of both the date object and date string states
@@ -47,10 +46,10 @@ export default function TaskScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
-        <Text style={styles.sectionSubTitle}>Tenant</Text>
+        <Text style={styles.sectionSubTitle}>Landlord</Text>
         <View style={styles.tasksWrapper}>
           <View style={styles.titleWrapper}>
-            <Text style={styles.sectionTitle}>All Tasks</Text>
+            <Text style={styles.sectionTitle}>All Tickets</Text>
             <Button
               onPress={showDatePicker}
               style={styles.monthPicker}
@@ -76,7 +75,7 @@ export default function TaskScreen() {
           />
           <View style={styles.circularWrapper}>
             <CircularProgress
-              value={completionPercentage}
+              value={percentage}
               valueSuffix={"%"}
               titleFontSize={20}
               circleBackgroundColor="transparent"
@@ -94,7 +93,7 @@ export default function TaskScreen() {
             />
           </View>
           {error && (
-            <Text style={styles.sectionTitle}>Error Fetching Tasks</Text>
+            <Text style={styles.sectionTitle}>Error Fetching Tickets</Text>
           )}
           {loading ? (
             <Text style={styles.sectionTitle}>Loading...</Text>
@@ -104,10 +103,10 @@ export default function TaskScreen() {
         </View>
       </View>
       <Button
-        onPress={() => navigation.navigate("CreateTask")}
+        onPress={() => navigation.navigate({ name: "Create Ticket" })}
         style={styles.bottomContainer}
       >
-        <Text style={styles.buttonText}>Create Task</Text>
+        <Text style={styles.buttonText}>Create Ticket</Text>
       </Button>
     </View>
   );

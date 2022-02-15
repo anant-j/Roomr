@@ -23,9 +23,10 @@ import HomeScreen from "screens/Tenant/HomeScreen";
 import TaskScreen from "screens/Tenant/TaskScreen";
 import ChatScreen from "screens/Tenant/ChatScreen";
 import CalendarScreen from "screens/Tenant/CalendarScreen";
+
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { useEffect } from "react";
-import { fetchData } from "reduxStates/firebaseListener";
+import { fetchHouseData } from "reduxStates/firebaseListener";
 
 import {
   RootStackParamList,
@@ -33,7 +34,8 @@ import {
   RootTabScreenProps,
 } from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import CreateTaskModal from "screens/Tenant/CreateTaskModal";
+import CreateTask from "screens/Tenant/CreateTask";
+import ReportEmergency from "screens/Tenant/ReportEmergency";
 
 export default function Navigation({
   colorScheme,
@@ -43,7 +45,7 @@ export default function Navigation({
   const dispatch = useAppDispatch();
   const houseID = useAppSelector((state) => state.auth.houses)[0];
   useEffect(() => {
-    dispatch(fetchData(houseID));
+    dispatch(fetchHouseData(houseID));
   }, []);
 
   return (
@@ -75,9 +77,19 @@ function RootNavigator() {
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
+      <Stack.Screen
+        name="ReportEmergency"
+        component={ReportEmergency}
+        options={{ title: "Report An Emergency" }}
+      />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Settings" component={SettingsModal} />
-        <Stack.Screen name="Create Task" component={CreateTaskModal} />
+        <Stack.Screen
+          name="CreateTask"
+          component={CreateTask}
+          options={{ title: "Create Task" }}
+          initialParams={{ taskToEdit: {} }}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );

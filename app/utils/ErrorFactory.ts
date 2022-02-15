@@ -99,6 +99,23 @@ export const errorFactory = (code: string) => {
       return {
         message: "Please enter a valid task name.",
       };
+    case "MISSING_REQUIRED_FIELDS":
+      return {
+        message: "Please fill in all input fields.",
+      };
+    case "no-users-to-add":
+      return {
+        message: "Please include at least one user for the task.",
+      };
+    case "multiple-users-and-never-repeat":
+      return {
+        message: "You cannot add multiple users for a task that never repeats",
+      };
+    case "more-users-than-occurrences":
+      return {
+        message:
+          "This task will end before all selected users are assigned to it",
+      };
     default:
       return {
         redirectScreen: "home",

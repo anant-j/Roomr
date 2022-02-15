@@ -19,13 +19,11 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.capstone.roomr",
-      "buildNumber": "1.0.2",
+      "buildNumber": "1.0.3",
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -35,7 +33,7 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": 2,
+      "versionCode": 3,
       "package": "com.capstone.roomr",
       "googleServicesFile": "./google-services.json"
     },

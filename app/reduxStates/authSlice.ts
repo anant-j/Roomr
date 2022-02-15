@@ -1,6 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Alert } from "react-native";
-import { logout } from "../firebase";
 import { db } from "../firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
@@ -54,24 +52,6 @@ export const updateExpoToken = (oldToken) => {
         expo_token: newToken,
       });
     }
-  };
-};
-
-export const signout = () => {
-  return async (dispatch: any) => {
-    await logout();
-    dispatch(cleanAuth());
-  };
-};
-
-export const LogoutWithError = (code: string = null) => {
-  return async (dispatch: any) => {
-    Alert.alert(
-      "An error occurred while fetching your user data.",
-      "Please try again later \n\nError code: " + code,
-    );
-    await logout();
-    dispatch(cleanAuth());
   };
 };
 
