@@ -80,6 +80,7 @@ export const fetchHouseData = (houseID: string) => {
               notes,
               occurrences,
               repeatType,
+              usersInvolved,
             } = doc.data();
 
             const createdOnDate = new Date(createdOn.seconds * 1000).toString();
@@ -93,6 +94,7 @@ export const fetchHouseData = (houseID: string) => {
               notes,
               occurrences: occurrences,
               repeatType: repeatType,
+              usersInvolved: usersInvolved,
             };
 
             tasks.push(task);

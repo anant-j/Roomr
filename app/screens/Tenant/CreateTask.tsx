@@ -378,6 +378,7 @@ export default function CreateTask({ route }) {
         notes: notes,
         repeatType: repeatType,
         occurrences: occurrences,
+        usersInvolved: taskAssignType === SOLO ? [email] : usersOrder,
       };
       dispatch(addTask(payload));
     }
