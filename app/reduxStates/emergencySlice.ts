@@ -38,6 +38,12 @@ export const endEmergency = () => {
   };
 };
 
+export const showEmergencyThunk = () => {
+  return async (dispatch: any) => {
+    dispatch(showEmergency);
+  };
+};
+
 export const emergencySlice = createSlice({
   name: "emergency",
   initialState,
