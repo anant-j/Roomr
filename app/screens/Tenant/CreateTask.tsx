@@ -64,7 +64,11 @@ export default function CreateTask({ route }) {
   const onAssignTypePressed = () => {
     showActionSheetWithOptions(
       {
-        options: [SOLO, SPLIT, "cancel"],
+        options: [
+          `${SOLO.charAt(0).toUpperCase() + SOLO.slice(1)}`,
+          `${SPLIT.charAt(0).toUpperCase() + SPLIT.slice(1)}`,
+          "cancel",
+        ],
         cancelButtonIndex: 2,
       },
       (buttonIndex) => {
