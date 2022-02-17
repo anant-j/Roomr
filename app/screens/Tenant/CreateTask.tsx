@@ -52,7 +52,9 @@ export default function CreateTask({ route }) {
   const [selectedEndDate, setSelectedEndDate] = useState(
     new Date(moment(selectedStartDate).add(1, "days").toString()),
   );
-  const [taskAssignType, setTaskAssignType] = useState("personal");
+  const SOLO = "solo";
+  const SPLIT = "split";
+  const [taskAssignType, setTaskAssignType] = useState(SOLO);
   const repeatOptions = { 0: "never", 1: "daily", 2: "weekly", 3: "monthly" };
   const [repeatType, setRepeatType] = useState(repeatOptions[0]);
   const scrollRef = useRef(null);
@@ -62,16 +64,16 @@ export default function CreateTask({ route }) {
   const onAssignTypePressed = () => {
     showActionSheetWithOptions(
       {
-        options: ["Personal", "Group", "cancel"],
+        options: [SOLO, SPLIT, "cancel"],
         cancelButtonIndex: 2,
       },
       (buttonIndex) => {
         if (buttonIndex == 0) {
-          setTaskAssignType("personal");
+          setTaskAssignType(SOLO);
           Keyboard.dismiss();
         }
         if (buttonIndex == 1) {
-          setTaskAssignType("group");
+          setTaskAssignType(SPLIT);
           Keyboard.dismiss();
         }
       },
@@ -141,8 +143,7 @@ export default function CreateTask({ route }) {
 
     switch (repeatType) {
       case "never": {
-        const assignedTo =
-          taskAssignType === "personal" ? email : usersOrder[0];
+        const assignedTo = taskAssignType === SOLO ? email : usersOrder[0];
         const dueDate = moment(selectedStartDate).format(occurenceDateFormat);
         const occs = {
           [dueDate]: { assignedTo: assignedTo, completed: false },
@@ -194,8 +195,7 @@ export default function CreateTask({ route }) {
       const newAcc = {
         ...acc,
         [formattedDate]: {
-          assignedTo:
-            taskAssignType === "personal" ? email : usersOrder[assignIndex],
+          assignedTo: taskAssignType === SOLO ? email : usersOrder[assignIndex],
           completed: false,
         },
       };
@@ -302,16 +302,6 @@ export default function CreateTask({ route }) {
             </Text>
           )}
           <View style={{ flexDirection: "row", paddingTop: 10 }}>
-            {/* {excludedUsers.length > 0 && (
-            <View
-              style={{
-                width: 2,
-                height: "100%",
-                marginLeft: 20,
-                backgroundColor: "gray",
-              }}
-            />
-          )} */}
             {excludedUsers.length > 0 &&
               excludedUsers.map((item) => {
                 return (
@@ -341,7 +331,7 @@ export default function CreateTask({ route }) {
       setErrorCode(taskNameValidation.error);
       return;
     }
-    if (usersOrder.length === 0 && taskAssignType !== "personal") {
+    if (usersOrder.length === 0 && taskAssignType !== SOLO) {
       scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("no-users-to-add");
       return;
@@ -349,7 +339,7 @@ export default function CreateTask({ route }) {
     if (
       usersOrder.length > 1 &&
       repeatType === "never" &&
-      taskAssignType !== "personal"
+      taskAssignType !== SOLO
     ) {
       scrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
       setErrorCode("multiple-users-and-never-repeat");
@@ -368,7 +358,7 @@ export default function CreateTask({ route }) {
     } else {
       const occurrences = genOccurrences();
       if (
-        taskAssignType !== "personal" &&
+        taskAssignType !== SOLO &&
         repeatType !== "never" &&
         Object.keys(occurrences).length < usersOrder.length
       ) {
@@ -417,7 +407,7 @@ export default function CreateTask({ route }) {
             lightColor={Colors.light.textBackground}
           >
             <Text style={styles.inputText}>type: {taskAssignType}</Text>
-            {taskAssignType === "personal" ? (
+            {taskAssignType === SOLO ? (
               <Ionicons
                 name="person"
                 size={24}
@@ -432,7 +422,7 @@ export default function CreateTask({ route }) {
             )}
           </Button>
         )}
-        {!isEditMode && taskAssignType === "group" && renderOrderedList()}
+        {!isEditMode && taskAssignType === SPLIT && renderOrderedList()}
         <Button
           onPress={showStartDatePicker}
           style={styles.input}
