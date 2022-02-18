@@ -19,6 +19,7 @@ export interface TaskObject {
   id: string;
   notes: string;
   repeatType: string;
+  usersInvolved: string[];
 }
 
 export interface TaskState {
@@ -38,7 +39,15 @@ const initialState: TaskState = {
 const occurenceDateFormat = "MMMM DD YYYY";
 
 export const addTask = (payload: object) => {
-  const { content, houseID, email, notes, occurrences, repeatType } = payload;
+  const {
+    content,
+    houseID,
+    email,
+    notes,
+    occurrences,
+    repeatType,
+    usersInvolved,
+  } = payload;
   return async (dispatch: any) => {
     dispatch(modifyTaskPending());
     try {
@@ -50,6 +59,7 @@ export const addTask = (payload: object) => {
         completed: false,
         repeatType: repeatType,
         occurrences: occurrences,
+        usersInvolved: usersInvolved,
       });
     } catch (error: any) {
       dispatch(modifyTaskError(error));

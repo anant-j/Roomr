@@ -30,10 +30,13 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
 
   const [todoTasks, setTodoTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
+  const email = useAppSelector((state) => state.auth.email);
 
   const filterTaskByDate = (task) => {
     const taskMonth = moment(new Date(task.due)).format("MMMM YYYY");
-    return taskMonth == selectedDate;
+    const usersInvolved = task.usersInvolved;
+    const isCurrentUserInvolved = usersInvolved.includes(email);
+    return taskMonth == selectedDate && isCurrentUserInvolved;
   };
 
   const navigation = useNavigation();
@@ -79,7 +82,7 @@ export default function TaskList({ selectedDate, hideCompleted = false }) {
         if (buttonIndex === 1) {
           navigation.navigate("CreateTask", { taskToEdit: task });
         } else if (buttonIndex === 2) {
-          if (task.repeatType === "none") onConfirmDelete(task);
+          if (task.repeatType === "never") onConfirmDelete(task);
           else {
             chooseDeleteType(task);
           }
