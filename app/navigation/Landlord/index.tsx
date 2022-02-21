@@ -35,6 +35,7 @@ import {
 } from "types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import CreateTicketModal from "screens/Landlord/CreateTicketModal";
+import PropertyVisit from "screens/Landlord/PropertyVisit";
 
 export default function Navigation({
   colorScheme,
@@ -77,6 +78,7 @@ function RootNavigator() {
       />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Settings" component={SettingsModal} />
+        <Stack.Screen name="Schedule Property Visit" component={PropertyVisit} />
         <Stack.Screen name="Create Ticket" component={CreateTicketModal} />
       </Stack.Group>
     </Stack.Navigator>
