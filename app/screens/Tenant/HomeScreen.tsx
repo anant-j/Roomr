@@ -26,7 +26,10 @@ export default function HomeScreen({
         </View>
       </View>
 
-      <ButtonWithImage style={styles.btn}>
+      <ButtonWithImage
+        style={styles.btn}
+        onPress={() => navigation.navigate("ViewTicket")}
+      >
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>View Tickets</Text>
         </View>
@@ -35,7 +38,10 @@ export default function HomeScreen({
           style={styles.img}
         />
       </ButtonWithImage>
-      <ButtonWithImage style={styles.btn}>
+      <ButtonWithImage
+        style={styles.btn}
+        onPress={() => navigation.navigate("CreateTicket")}
+      >
         <View style={styles.buttonTextView}>
           <Text style={styles.buttonText}>Create Landlord</Text>
           <Text style={styles.buttonText}>Support Ticket</Text>

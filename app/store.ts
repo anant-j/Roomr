@@ -4,6 +4,7 @@ import chatReducer from "reduxStates/chatSlice";
 import authReducer from "reduxStates/authSlice";
 import usersReducer from "reduxStates/usersSlice";
 import emergencyReducer from "reduxStates/emergencySlice";
+import ticketReducer from "reduxStates/ticketSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     auth: authReducer,
     users: usersReducer,
     emergency: emergencyReducer,
+    tickets: ticketReducer,
   },
 });
 
