@@ -3,15 +3,30 @@ import { StyleSheet, Image } from "react-native";
 import { Button, Text, View } from "../../components/Themed";
 import { useAppDispatch, useAppSelector } from "hooks/typedHooks";
 import { endEmergency, hideEmergency } from "reduxStates/emergencySlice";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 
 export default function EmergencyState() {
   const dispatch = useAppDispatch();
+  const { showActionSheetWithOptions } = useActionSheet();
+
   const hideEmergencyDispatch = () => {
     dispatch(hideEmergency());
   };
 
-  const endEmergencyDispatch = () => {
-    dispatch(endEmergency());
+  const endEmergencyHandler = () => {
+    showActionSheetWithOptions(
+      {
+        title: "Are you sure?",
+        message: "This will end the emergency for everyone in the house.",
+        options: ["End", "Cancel"],
+        cancelButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          dispatch(endEmergency());
+        }
+      },
+    );
   };
 
   const emergency = useAppSelector((state) => state.emergency);
@@ -40,7 +55,7 @@ export default function EmergencyState() {
       <Text></Text>
       <Button
         onPress={() => {
-          endEmergencyDispatch();
+          endEmergencyHandler();
         }}
         style={styles.button}
       >

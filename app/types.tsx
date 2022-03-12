@@ -22,6 +22,8 @@ export type RootStackParamList = {
   NotFound: undefined;
   CreateTask: undefined;
   ReportEmergency: undefined;
+  CreateTicket: undefined;
+  ViewTicket: undefined;
   EmergencyState: undefined;
 };
 

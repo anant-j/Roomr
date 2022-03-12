@@ -36,6 +36,8 @@ import {
 import LinkingConfiguration from "./LinkingConfiguration";
 import CreateTask from "screens/Tenant/CreateTask";
 import ReportEmergency from "screens/Tenant/ReportEmergency";
+import CreateTicket from "screens/Tenant/CreateTicket";
+import ViewTicket from "screens/Tenant/ViewTicket";
 
 export default function Navigation({
   colorScheme,
@@ -81,6 +83,16 @@ function RootNavigator() {
         name="ReportEmergency"
         component={ReportEmergency}
         options={{ title: "Report An Emergency" }}
+      />
+      <Stack.Screen
+        name="CreateTicket"
+        component={CreateTicket}
+        options={{ title: "Create Ticket" }}
+      />
+      <Stack.Screen
+        name="ViewTicket"
+        component={ViewTicket}
+        options={{ title: "View Tickets" }}
       />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Settings" component={SettingsModal} />
