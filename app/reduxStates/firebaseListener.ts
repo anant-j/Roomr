@@ -13,12 +13,14 @@ import { auth } from "../firebase";
 import { Alert } from "react-native";
 import { logout } from "../firebase";
 import { clearEmergency, declareEmergency } from "./emergencySlice";
+import { fetchTicketsFulfilled, modifyTicketError } from "./ticketSlice";
 
 const listeners = {
   houseListener: null,
   tasksListener: null,
   chatsListener: null,
   userDataListener: null,
+  ticketsListener: null
 };
 
 const getSortedTasks = (allTasks) => {
@@ -134,6 +136,27 @@ export const fetchHouseData = (houseID: string) => {
       );
       return [...acc, ...listOfTasksPerOccurrence];
     };
+
+    const ticketQuery = query(collection(db, `houses/${houseID}/tickets`));
+    if (listeners.ticketsListener) {
+      listeners.ticketsListener();
+    }
+    listeners["ticketsListener"] = onSnapshot(ticketQuery, (querySnapshot) => {
+      const tickets = [];
+      querySnapshot.forEach((doc) => {
+        try {
+          const { content, createdBy, createdOn, notes, completed } = doc.data();
+          const createdOnDate = new Date(createdOn.seconds * 1000).toString();
+          const ticket = { content, createdBy, createdOn: createdOnDate, notes, completed };
+          tickets.push(ticket);
+        } catch (error) {
+          dispatch(signout("STORING_TASK_DB_DATA_LOCALLY" + error));
+          dispatch(modifyTicketError(error));
+        }
+      });
+      const payload = { tickets: tickets };
+      dispatch(fetchTicketsFulfilled(payload));
+    });
 
     const messagesQuery = query(collection(db, `houses/${houseID}/chats`));
     if (listeners.chatsListener) {
